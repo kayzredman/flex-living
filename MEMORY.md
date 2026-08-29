@@ -1,0 +1,86 @@
+# 🧠 Flex-Living Project Memory & State Tracker
+
+> **Repository:** `https://github.com/kayzredman/flex-living.git`  
+> **Active Working Branch:** `dev`  
+> **Production Branch:** `main`  
+> **Governance Model:** QA Agent Lead with SME Agents (UI/UX, Backend/DB, Integration, Security/Compliance, Performance)
+
+---
+
+## 🎯 Executive Overview & Value Proposition
+Flex-Living is a tech-enabled real estate operating system for emerging African markets (Accra, Lagos, Nairobi) addressing infrastructure deficits:
+* **The Problem:** Frequent grid power outages, erratic municipal water, unverified internet speeds, and 1–2 year upfront rent demands.
+* **The Solution:** 
+  1. **Flex-Trust:** Ground-truth 200+ point property audits by vetted Field Scouts awarding verified badges (Solar, Starlink, Borehole, Smart Access).
+  2. **Flex-Stay:** Automated 99.5% uptime SLA guarantee with real-time IoT monitoring and a Hybrid Non-IoT WhatsApp fallback.
+  3. **Flex-Advance:** Monthly rent financing, enabling tenants to pay monthly while landlords receive upfront capital.
+
+---
+
+## 🛡️ SME Agent Governance Model
+* **QA Agent (Lead & Gatekeeper):** Runs all acceptance test suites, enforces zero-regression quality standards, and authorizes merges from `dev` to `main`.
+* **🎨 UI/UX Agent:** Enforces brand design tokens (Coral `#E94560`, Deep Teal `#0F3460`, Gold `#E9A319`), glassmorphism aesthetics, and exports all mockups to `prototype/mockups/`.
+* **🏗️ Backend / DB Agent:** Architectures microservices (Node.js/Python), manages PostgreSQL/PostGIS schemas, and enforces data integrity.
+* **🔌 Integration Agent:** Connects third-party APIs (Ghana Card/Smile Identity KYC, WhatsApp Meta Cloud/Twilio, PostGIS spatial algorithms).
+* **🔒 Security & Compliance Agent:** Enforces JWT authorization, device API tokens, geofencing fraud prevention, and role-based access control (RBAC).
+* **⚡ Performance Agent:** Implements time-series indexing, spatial queries optimization, and caching.
+
+---
+
+## 📈 Milestone Progress & Completed Jobs
+
+### ✅ Phase 1: Foundations (Certified by QA)
+1. **Multi-Tenant Database & PostGIS:** PostgreSQL 15 + PostGIS docker containerized with spatial index support.
+2. **Identity & Trust Core (`backend/identity-service` - Port 3000):**
+   - Phone OTP registration (`/v1/auth/register`) and JWT verification (`/v1/auth/verify-otp`).
+   - Mocked Ghana Card KYC validation (`/v1/auth/kyc`) with automatic Tier 2 elevation.
+3. **Listing Catalog Service (`backend/listing-service` - Port 8000):**
+   - Python FastAPI service with GeoAlchemy2 spatial querying (`GET /v1/listings?lat=...&lng=...&radius_km=...`).
+4. **Interactive Web Prototype (`prototype/` - Port 5174):**
+   - Vite + React prototype showcasing Tenant discovery, Landlord IoT dashboard, and active stay SLA claims.
+5. **Tenant Mobile App Scaffolding (`mobile/`):**
+   - React Native (Expo) app with NativeWind configured with brand design tokens.
+
+### ✅ Phase 2: Scout Engine & IoT Telemetry (Certified by QA)
+1. **Field Scout Engine (`backend/scout-service` - Port 3001):**
+   - Task dispatch queue (`POST /v1/scout/tasks`).
+   - 200+ point audit checklist submission (`POST /v1/scout/tasks/:id/submit`).
+   - Automated badge evaluation (Solar, Starlink, Borehole, Smart Access) and payout calculator ($25 base + $10 bonus = $35).
+2. **IoT Telemetry & SLA Watchdog (`backend/iot-service` - Port 3002):**
+   - Device registry with unique `device_key` authentication.
+   - High-frequency telemetry ingestion (grid voltage, generator status, water PSI, internet Mbps).
+   - Automated SLA Watchdog triggering active `POWER_FAILURE` breach and self-healing resolution upon power restoration.
+
+### ✅ Phase 3: Hybrid Non-IoT Fallback & Fintech Engine (Certified by QA)
+1. **Tenant Outage Reporting (`backend/hybrid-sla-service` - Port 3003):**
+   - One-tap outage filing with Geofence verification (< 500m radius check) and live 2-Hour SLA Countdown Timer (7,200s).
+2. **Caretaker Morning WhatsApp Pulse Checks:**
+   - Daily morning health checks with proactive fuel refill alert dispatching (`NEEDS_DIESEL`).
+3. **15% Host Escrow Reserve & Auto-Settlement:**
+   - Automatic deduction of $35.00 rent credit from host escrow upon confirmed breach.
+4. **Flex-Advance Rental Financing Engine:**
+   - Automated credit underwriting evaluating DTI ratios (< 40% threshold approved with prime 1.5%/month rate).
+
+---
+
+## 🚀 Next Milestone: Phase 4 & Roadmap Ahead
+1. **Full-Stack Client Wiring:**
+   - Connect Web Portal (`prototype/src/`) and Mobile App (`mobile/App.js`) to live backend microservices.
+2. **AI Dynamic Pricing & Diaspora Demand Engine:**
+   - Dynamic yield optimization algorithms based on local infrastructure badges and seasonal diaspora travel surges (e.g., "December in Ghana").
+3. **WhatsApp Meta Cloud API Production Gateway:**
+   - Live two-way webhook handler for Caretakers and Guests.
+
+---
+
+## 🔁 Git & Deployment Protocol
+1. All changes must be developed and tested on `dev`.
+2. QA Agent executes automated test suites (`qa_test.js`, `qa_phase2_test.js`, `qa_phase3_test.js`).
+3. Upon QA sign-off:
+   ```bash
+   git checkout main
+   git merge dev
+   git push origin main
+   git checkout dev
+   git push origin dev
+   ```
