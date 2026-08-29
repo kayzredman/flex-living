@@ -57,24 +57,58 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Persona Switcher (Fixed Bottom Nav) */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)', display: 'flex', zIndex: 100 }}>
-        <button 
-          onClick={() => { setPersona('TENANT'); setCurrentScreen('HOME'); }}
-          style={{ flex: 1, padding: '1rem', border: 'none', background: persona === 'TENANT' ? 'rgba(233,69,96,0.1)' : 'transparent', color: persona === 'TENANT' ? 'var(--coral)' : 'var(--text-secondary)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}
-        >
-          Tenant View
-        </button>
-        <button 
-          onClick={() => setPersona('LANDLORD')}
-          style={{ flex: 1, padding: '1rem', border: 'none', background: persona === 'LANDLORD' ? 'rgba(15,52,96,0.1)' : 'transparent', color: persona === 'LANDLORD' ? 'var(--teal)' : 'var(--text-secondary)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}
-        >
-          Host View
-        </button>
-      </div>
+      {/* Universal Responsive Navbar */}
+      <header className="web-navbar">
+        <div className="nav-brand" onClick={() => navigateTo('HOME')}>
+          <div className="nav-brand-logo">FL</div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--teal)' }}>
+              Flex-Living
+            </div>
+            <div className="text-secondary" style={{ fontSize: '0.75rem', marginTop: '-2px' }}>
+              Verified Stays & SLA Guarantee
+            </div>
+          </div>
+        </div>
 
-      {/* Routes */}
-      <div style={{ paddingBottom: '70px' }}>
+        {/* Global Desktop Search */}
+        <div className="nav-search-bar">
+          <span style={{ color: 'var(--text-secondary)' }}>🔍</span>
+          <input 
+            type="text" 
+            placeholder="Search Accra, Lagos, Nairobi (Solar, Starlink, Borehole)..."
+            style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.85rem' }}
+          />
+        </div>
+
+        {/* Persona Switcher & User Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className="nav-persona-pill">
+            <button 
+              className={`nav-persona-btn ${persona === 'TENANT' ? 'active-tenant' : ''}`}
+              onClick={() => { setPersona('TENANT'); setCurrentScreen('HOME'); }}
+            >
+              Tenant Portal
+            </button>
+            <button 
+              className={`nav-persona-btn ${persona === 'LANDLORD' ? 'active-landlord' : ''}`}
+              onClick={() => setPersona('LANDLORD')}
+            >
+              Host Hub
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-primary)', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--gold)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.75rem' }}>
+              ✓
+            </div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--teal)' }}>Tier 2 Verified</span>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main style={{ flex: 1 }}>
         {persona === 'LANDLORD' && <LandlordDashboard />}
         
         {persona === 'TENANT' && currentScreen === 'HOME' && (
@@ -103,7 +137,7 @@ function App() {
             onBack={() => navigateTo('HOME')}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 }

@@ -36,15 +36,20 @@ export default function StayManagement({ property, onBack }) {
 
   return (
     <div className="screen-container">
-      <div className="d-flex align-center gap-3 mb-4">
-        <button 
-          onClick={onBack}
-          style={{ width: '40px', height: '40px', borderRadius: '50%', border: 'none', background: 'var(--bg-primary)', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          ←
-        </button>
-        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Active Stay</h2>
-      </div>
+      <div style={{ maxWidth: '780px', margin: '0 auto' }}>
+        <div className="d-flex align-center gap-3 mb-4">
+          <button 
+            onClick={onBack}
+            className="btn glass"
+            style={{ width: '40px', height: '40px', borderRadius: '50%', padding: 0, fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--teal)' }}
+          >
+            ←
+          </button>
+          <div>
+            <span className="text-secondary text-xs">Active Stay Management • 99.5% SLA Guarantee</span>
+            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--teal)' }}>Active Stay Resolution Hub</h2>
+          </div>
+        </div>
 
       <div className="property-card" style={{ marginBottom: '2rem' }}>
         <img src={property.image} alt={property.title} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
@@ -128,6 +133,7 @@ export default function StayManagement({ property, onBack }) {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }

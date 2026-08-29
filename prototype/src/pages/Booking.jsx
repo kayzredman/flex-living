@@ -7,15 +7,20 @@ export default function Booking({ property, onBack, onComplete }) {
 
   return (
     <div className="screen-container">
-      <div className="d-flex align-center gap-3 mb-4">
-        <button 
-          onClick={onBack}
-          style={{ width: '40px', height: '40px', borderRadius: '50%', border: 'none', background: 'var(--bg-primary)', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          ←
-        </button>
-        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Checkout</h2>
-      </div>
+      <div style={{ maxWidth: '760px', margin: '0 auto' }}>
+        <div className="d-flex align-center gap-3 mb-4">
+          <button 
+            onClick={onBack}
+            className="btn glass"
+            style={{ width: '40px', height: '40px', borderRadius: '50%', padding: 0, fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--teal)' }}
+          >
+            ←
+          </button>
+          <div>
+            <span className="text-secondary text-xs">Secure Checkout • Flex-Advance</span>
+            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--teal)' }}>Choose Payment Structure</h2>
+          </div>
+        </div>
 
       <div className="glass mb-4" style={{ borderRadius: '12px', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <img src={property.image} alt={property.title} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
@@ -76,6 +81,7 @@ export default function Booking({ property, onBack, onComplete }) {
       <button className="btn btn-primary w-100" onClick={onComplete}>
         Confirm & Pay {property.currency} {paymentOption === 'flex' ? property.price.toLocaleString() : annualAdvance.toLocaleString()}
       </button>
+      </div>
     </div>
   );
 }
