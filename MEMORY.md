@@ -36,8 +36,10 @@ Flex-Living is a tech-enabled real estate operating system for emerging African 
    - Mocked Ghana Card KYC validation (`/v1/auth/kyc`) with automatic Tier 2 elevation.
 3. **Listing Catalog Service (`backend/listing-service` - Port 8000):**
    - Python FastAPI service with GeoAlchemy2 spatial querying (`GET /v1/listings?lat=...&lng=...&radius_km=...`).
-4. **Interactive Web Prototype (`prototype/` - Port 5174):**
-   - Vite + React prototype showcasing Tenant discovery, Landlord IoT dashboard, and active stay SLA claims.
+4. **Interactive Web Platform (`prototype/` - Port 5174):**
+   - Upgraded to a **true responsive web platform** for desktop (1440px+), tablet, and mobile.
+   - Sticky top navigation bar with brand, search bar, persona switcher, and verified tier pill.
+   - 3-column responsive listing grid on desktop, 2-column split property details with sticky booking widget, and 4-KPI host command center.
 5. **Tenant Mobile App Scaffolding (`mobile/`):**
    - React Native (Expo) app with NativeWind configured with brand design tokens.
 
