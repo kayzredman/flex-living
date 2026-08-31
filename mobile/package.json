@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "expo": "~57.0.17",
-    "expo-status-bar": "~57.0.1",
+    "@expo/metro-runtime": "~6.1.2",
+    "expo": "~54.0.2",
+    "expo-status-bar": "~3.0.9",
     "nativewind": "^4.2.6",
-    "react": "19.2.3",
-    "react-native": "0.86.3"
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-web": "^0.21.2"
   },
   "scripts": {
     "start": "expo start",
