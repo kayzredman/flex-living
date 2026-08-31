@@ -171,6 +171,12 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 12px rgba(15, 52, 96, 0.35);
 }
 
+.nav-persona-btn.active-scout {
+  background: linear-gradient(135deg, var(--gold), var(--coral));
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(233, 163, 25, 0.4);
+}
+
 .screen-container {
   width: 100%;
   max-width: 1480px;

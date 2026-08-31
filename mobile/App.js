@@ -303,6 +303,29 @@ export default function App() {
     photos: [] // ZERO preloaded pictures! Empty by default.
   });
 
+  // Field Scout & AI Scanner Mobile States
+  const [scoutWalletGhs, setScoutWalletGhs] = useState(4200);
+  const [activeScout, setActiveScout] = useState('Ama Mensah (Accra Lead)');
+  const [scoutSubTab, setScoutSubTab] = useState('TASKS'); // TASKS, WORKBENCH, AI_SCAN
+  const [activeAuditTask, setActiveAuditTask] = useState({
+    id: 'task-gh-01',
+    title: 'Luxury Cantonments Penthouse',
+    neighborhood: 'Cantonments, Accra',
+    w3w: '///luxury.stay.cantonments',
+    host: 'Kwesi Appiah (+233 24 555 1212)',
+    bountyGhs: 750
+  });
+  const [auditTelemetry, setAuditTelemetry] = useState({
+    atsSwitchoverSeconds: 6.2,
+    generatorNoiseDb: 38,
+    starlinkMbps: 185,
+    boreholeTdsPpm: 65,
+    smartLockBattery: 94
+  });
+  const [scoutCertifiedSuccess, setScoutCertifiedSuccess] = useState(null);
+  const [mobileAiScanning, setMobileAiScanning] = useState(false);
+  const [mobileAiScanResult, setMobileAiScanResult] = useState(null);
+
   const handlePickImage = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -425,6 +448,22 @@ export default function App() {
             style={styles.hostHeaderBtn}
           >
             <Text style={styles.hostHeaderBtnText}>+ Host</Text>
+          </TouchableOpacity>
+
+          {/* Scout Mode Header Button */}
+          <TouchableOpacity
+            onPress={() => setActiveTab('SCOUT')}
+            style={[
+              styles.hostHeaderBtn,
+              {
+                backgroundColor: activeTab === 'SCOUT' ? '#E9A319' : '#0F2537',
+                borderColor: '#E9A319'
+              }
+            ]}
+          >
+            <Text style={[styles.hostHeaderBtnText, { color: activeTab === 'SCOUT' ? '#0B1B26' : '#E9A319' }]}>
+              🧭 Scout
+            </Text>
           </TouchableOpacity>
 
           {/* Currency Switcher */}
@@ -728,9 +767,472 @@ export default function App() {
             </View>
           </ScrollView>
         )}
+
+        {/* TAB 5: FIELD SCOUT PORTAL & 200-POINT AUDIT */}
+        {activeTab === 'SCOUT' && (
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            {/* Scout Header & Active Agent Selector */}
+            <View style={{
+              backgroundColor: '#0F3460',
+              borderRadius: 20,
+              padding: 16,
+              marginBottom: 14,
+              borderWidth: 1,
+              borderColor: '#E9A319'
+            }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ fontSize: 24 }}>🧭</Text>
+                  <View>
+                    <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>Field Scout Portal</Text>
+                    <Text style={{ color: '#E9A319', fontSize: 11, fontWeight: '700' }}>200-Point Physical Verification</Text>
+                  </View>
+                </View>
+                <View style={{ backgroundColor: 'rgba(233,163,25,0.2)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
+                  <Text style={{ color: '#E9A319', fontWeight: '800', fontSize: 10 }}>ACTIVE AGENT</Text>
+                </View>
+              </View>
+
+              {/* Scout Selector Pills */}
+              <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
+                {[
+                  { name: 'Ama (Accra)', full: 'Ama Mensah (Accra Lead)' },
+                  { name: 'Chinedu (Lagos)', full: 'Chinedu Okafor (Lagos Lead)' },
+                  { name: 'Njeri (Nairobi)', full: 'Njeri Kamau (Nairobi Lead)' }
+                ].map((s, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    onPress={() => setActiveScout(s.full)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: activeScout === s.full ? '#E9A319' : 'rgba(255,255,255,0.1)',
+                      paddingVertical: 6,
+                      borderRadius: 10,
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Text style={{
+                      color: activeScout === s.full ? '#0B1B26' : '#FFFFFF',
+                      fontSize: 10,
+                      fontWeight: '700'
+                    }}>
+                      {s.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Scout Bounty Wallet Card */}
+              <View style={{
+                backgroundColor: 'rgba(16,185,129,0.15)',
+                borderWidth: 1,
+                borderColor: '#10B981',
+                borderRadius: 14,
+                padding: 12,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <View>
+                  <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>Scout Bounty Balance</Text>
+                  <Text style={{ color: '#10B981', fontWeight: '900', fontSize: 18 }}>
+                    GHS {scoutWalletGhs.toLocaleString()}
+                  </Text>
+                  <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 9 }}>+GHS 750 ($50) per certified audit</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => alert(`Initiating MTN Mobile Money cashout of GHS ${scoutWalletGhs.toLocaleString()} to ${activeScout}...`)}
+                  style={{
+                    backgroundColor: '#10B981',
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: 10
+                  }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 11 }}>MoMo Cashout</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Sub-Navigation Switcher */}
+            <View style={{ flexDirection: 'row', gap: 6, marginBottom: 14 }}>
+              {[
+                { id: 'TASKS', label: '📋 Task Queue' },
+                { id: 'WORKBENCH', label: '🛠️ 200-Pt Audit' },
+                { id: 'AI_SCAN', label: '🤖 AI Scanner' }
+              ].map(st => (
+                <TouchableOpacity
+                  key={st.id}
+                  onPress={() => setScoutSubTab(st.id)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: scoutSubTab === st.id ? '#0F3460' : '#FFFFFF',
+                    paddingVertical: 8,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: scoutSubTab === st.id ? '#0F3460' : '#E2E8F0'
+                  }}
+                >
+                  <Text style={{
+                    color: scoutSubTab === st.id ? '#FFFFFF' : '#64748B',
+                    fontWeight: '700',
+                    fontSize: 11
+                  }}>
+                    {st.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* SUBTAB 1: INSPECTION TASKS QUEUE */}
+            {scoutSubTab === 'TASKS' && (
+              <View>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', marginBottom: 8, textTransform: 'uppercase' }}>
+                  Properties Awaiting Physical Verification
+                </Text>
+                {[
+                  {
+                    id: 'task-gh-01',
+                    title: 'Luxury Cantonments Penthouse',
+                    city: 'Accra, Ghana',
+                    neighborhood: 'Cantonments',
+                    w3w: '///luxury.stay.cantonments',
+                    host: 'Kwesi Appiah (+233 24 555 1212)',
+                    bountyGhs: 750,
+                    status: 'PENDING_AUDIT'
+                  },
+                  {
+                    id: 'task-gh-02',
+                    title: 'Airport Residential Executive Villa',
+                    city: 'Accra, Ghana',
+                    neighborhood: 'Airport Residential',
+                    w3w: '///airport.executive.villa',
+                    host: 'Adwoa Boateng (+233 50 888 3434)',
+                    bountyGhs: 750,
+                    status: 'PENDING_AUDIT'
+                  },
+                  {
+                    id: 'task-ng-01',
+                    title: 'Banana Island Waterfront Villa',
+                    city: 'Lagos, Nigeria',
+                    neighborhood: 'Ikoyi (Banana Island)',
+                    w3w: '///banana.waterfront.haven',
+                    host: 'Emeka Nwosu (+234 80 123 4567)',
+                    bountyGhs: 750,
+                    status: 'CERTIFIED'
+                  }
+                ].map(task => (
+                  <View key={task.id} style={{
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 16,
+                    padding: 14,
+                    marginBottom: 10,
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0'
+                  }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 10, fontWeight: '700', color: '#E9A319' }}>{task.city} • {task.w3w}</Text>
+                      <View style={{
+                        backgroundColor: task.status === 'CERTIFIED' ? 'rgba(16,185,129,0.1)' : 'rgba(233,163,25,0.1)',
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                        borderRadius: 6
+                      }}>
+                        <Text style={{
+                          fontSize: 9,
+                          fontWeight: '800',
+                          color: task.status === 'CERTIFIED' ? '#10B981' : '#E9A319'
+                        }}>
+                          ● {task.status}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text style={{ fontSize: 14, fontWeight: '800', color: '#0F3460', marginBottom: 4 }}>
+                      {task.title}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#64748B', marginBottom: 10 }}>
+                      Host: {task.host} • Bounty: <Text style={{ color: '#10B981', fontWeight: 'bold' }}>GHS {task.bountyGhs}</Text>
+                    </Text>
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        setActiveAuditTask(task);
+                        setScoutSubTab('WORKBENCH');
+                        setScoutCertifiedSuccess(null);
+                      }}
+                      style={{
+                        backgroundColor: task.status === 'CERTIFIED' ? '#F1F5F9' : '#0F3460',
+                        paddingVertical: 8,
+                        borderRadius: 10,
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Text style={{
+                        color: task.status === 'CERTIFIED' ? '#64748B' : '#FFFFFF',
+                        fontWeight: '800',
+                        fontSize: 11
+                      }}>
+                        {task.status === 'CERTIFIED' ? '✓ Audit Certified (+43% Lift)' : 'Conduct 200-Point Audit →'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* SUBTAB 2: 200-POINT AUDIT WORKBENCH */}
+            {scoutSubTab === 'WORKBENCH' && (
+              <View>
+                {/* Active Property Banner */}
+                <View style={{
+                  backgroundColor: 'rgba(233,163,25,0.1)',
+                  borderWidth: 1,
+                  borderColor: '#E9A319',
+                  borderRadius: 14,
+                  padding: 12,
+                  marginBottom: 12
+                }}>
+                  <Text style={{ fontSize: 10, fontWeight: '800', color: '#E9A319' }}>ACTIVE AUDIT TICKET</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#0F3460', marginTop: 2 }}>{activeAuditTask.title}</Text>
+                  <Text style={{ fontSize: 11, color: '#64748B' }}>📍 {activeAuditTask.w3w} • Host: {activeAuditTask.host}</Text>
+                </View>
+
+                {scoutCertifiedSuccess ? (
+                  <View style={{
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 16,
+                    padding: 20,
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: '#10B981'
+                  }}>
+                    <Text style={{ fontSize: 40, marginBottom: 8 }}>🏆</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '900', color: '#0F3460', textAlign: 'center' }}>
+                      Property Certified Successfully!
+                    </Text>
+                    <Text style={{ fontSize: 12, color: '#64748B', textAlign: 'center', marginTop: 4, marginBottom: 14 }}>
+                      200-point physical verification confirmed. Gold Flex-Trust badges awarded & live catalog updated.
+                    </Text>
+
+                    <View style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, width: '100%', marginBottom: 14 }}>
+                      <Text style={{ fontSize: 11, color: '#10B981', fontWeight: 'bold' }}>✓ ⚡ 24/7 Solar Backup (+18% Yield)</Text>
+                      <Text style={{ fontSize: 11, color: '#10B981', fontWeight: 'bold', marginTop: 2 }}>✓ 🌐 Starlink Satellite (+12% Yield)</Text>
+                      <Text style={{ fontSize: 11, color: '#10B981', fontWeight: 'bold', marginTop: 2 }}>✓ 💧 Pure Borehole Reserve (+8% Yield)</Text>
+                      <Text style={{ fontSize: 11, color: '#10B981', fontWeight: 'bold', marginTop: 2 }}>✓ 🔐 Keyless Smart Deadbolt (+5% Yield)</Text>
+                      <View style={{ borderTopWidth: 1, borderColor: '#E2E8F0', marginTop: 8, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={{ fontSize: 11, color: '#64748B' }}>Scout Bounty Credited:</Text>
+                        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#10B981' }}>+GHS 750.00</Text>
+                      </View>
+                    </View>
+
+                    <TouchableOpacity
+                      onPress={() => setScoutSubTab('TASKS')}
+                      style={{
+                        backgroundColor: '#0F3460',
+                        paddingVertical: 10,
+                        paddingHorizontal: 20,
+                        borderRadius: 12
+                      }}
+                    >
+                      <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12 }}>Back to Task Queue</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View>
+                    {/* Section 1: Power Switchover */}
+                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                      <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 12, marginBottom: 6 }}>
+                        ⚡ Section A: Automatic Switchover Test (&lt; 8s)
+                      </Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 12, color: '#64748B' }}>Multi-Meter ATS Time:</Text>
+                        <View style={{ backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontWeight: '800', color: '#10B981', fontSize: 12 }}>6.2 Seconds (PASSED)</Text>
+                        </View>
+                      </View>
+                      <Text style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>
+                        Victron MultiPlus-II 10kVA with LiFePO4 batteries verified.
+                      </Text>
+                    </View>
+
+                    {/* Section 2: Starlink Throughput */}
+                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                      <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 12, marginBottom: 6 }}>
+                        🌐 Section B: Satellite Internet Probe (&gt; 50 Mbps)
+                      </Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 12, color: '#64748B' }}>Measured Download Speed:</Text>
+                        <View style={{ backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontWeight: '800', color: '#10B981', fontSize: 12 }}>185 Mbps / 26ms (PASSED)</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Section 3: Borehole Purity */}
+                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                      <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 12, marginBottom: 6 }}>
+                        💧 Section C: Water Purity & Reserve (&lt; 150 PPM)
+                      </Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 12, color: '#64748B' }}>TDS Probe Reading:</Text>
+                        <View style={{ backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontWeight: '800', color: '#10B981', fontSize: 12 }}>65 PPM (Pure Drinking)</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Section 4: Smart Lock */}
+                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                      <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 12, marginBottom: 6 }}>
+                        🔐 Section D: Digital Smart Deadbolt
+                      </Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 12, color: '#64748B' }}>AES-256 Cloud Lock Battery:</Text>
+                        <View style={{ backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontWeight: '800', color: '#10B981', fontSize: 12 }}>94% Battery Level</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Certify Button */}
+                    <TouchableOpacity
+                      onPress={() => {
+                        setScoutWalletGhs(prev => prev + 750);
+                        setScoutCertifiedSuccess(true);
+                      }}
+                      style={{
+                        backgroundColor: '#E94560',
+                        paddingVertical: 14,
+                        borderRadius: 14,
+                        alignItems: 'center',
+                        shadowColor: '#E94560',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 8,
+                        elevation: 4
+                      }}
+                    >
+                      <Text style={{ color: '#FFFFFF', fontWeight: '900', fontSize: 13 }}>
+                        🏆 Certify Audit & Issue Flex-Trust Badges (+43% Lift)
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* SUBTAB 3: AI VISION SCANNER */}
+            {scoutSubTab === 'AI_SCAN' && (
+              <View style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 16,
+                padding: 16,
+                borderWidth: 1,
+                borderColor: '#E2E8F0'
+              }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <Text style={{ fontSize: 20 }}>🤖</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: '#0F3460' }}>
+                    AI Vision Property Scanner
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 14 }}>
+                  Computer vision model verifies inverter models, satellite antennas, and water reserve in 5 seconds.
+                </Text>
+
+                {/* Simulated Camera Viewfinder */}
+                <View style={{
+                  height: 180,
+                  backgroundColor: '#0B1B26',
+                  borderRadius: 14,
+                  overflow: 'hidden',
+                  position: 'relative',
+                  marginBottom: 14,
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80' }}
+                    style={{ width: '100%', height: '100%', opacity: 0.8 }}
+                  />
+                  {mobileAiScanning ? (
+                    <View style={{ position: 'absolute', alignItems: 'center' }}>
+                      <ActivityIndicator size="large" color="#E9A319" />
+                      <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12, marginTop: 8 }}>
+                        Running Multi-Modal OCR Heuristics...
+                      </Text>
+                    </View>
+                  ) : mobileAiScanResult ? (
+                    <View style={{
+                      position: 'absolute',
+                      inset: 12,
+                      borderWidth: 2,
+                      borderColor: '#10B981',
+                      borderRadius: 10,
+                      padding: 8,
+                      justifyContent: 'space-between'
+                    }}>
+                      <View style={{ backgroundColor: '#10B981', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, alignSelf: 'flex-start' }}>
+                        <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 10 }}>95% AI CONFIDENCE</Text>
+                      </View>
+                      <View style={{ backgroundColor: 'rgba(15,52,96,0.85)', padding: 6, borderRadius: 6 }}>
+                        <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 10 }}>Victron MultiPlus-II 10kVA Detected</Text>
+                        <Text style={{ color: '#10B981', fontSize: 9 }}>Switchover: 0.008s • LiFePO4 Battery Pack</Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={{ position: 'absolute', alignItems: 'center' }}>
+                      <Text style={{ fontSize: 32, marginBottom: 4 }}>📷</Text>
+                      <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }}>Point camera at equipment</Text>
+                    </View>
+                  )}
+                </View>
+
+                {mobileAiScanResult && (
+                  <View style={{ backgroundColor: '#ECFDF5', borderRadius: 12, padding: 12, marginBottom: 14 }}>
+                    <Text style={{ color: '#10B981', fontWeight: '800', fontSize: 12 }}>
+                      ✓ AI Pre-Certification Approved (Fast-Track 5 Min)
+                    </Text>
+                    <Text style={{ color: '#0F3460', fontSize: 11, marginTop: 2 }}>
+                      Quality Score: 100/100 • Dynamic Yield Lift: +43% Verified Premium
+                    </Text>
+                  </View>
+                )}
+
+                <TouchableOpacity
+                  disabled={mobileAiScanning}
+                  onPress={() => {
+                    setMobileAiScanning(true);
+                    setMobileAiScanResult(null);
+                    setTimeout(() => {
+                      setMobileAiScanning(false);
+                      setMobileAiScanResult({
+                        confidence: 95,
+                        tier: 'AI_CERTIFIED_GOLD',
+                        lift: '+43%'
+                      });
+                    }, 1800);
+                  }}
+                  style={{
+                    backgroundColor: '#E94560',
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12 }}>
+                    {mobileAiScanning ? 'Analyzing Equipment...' : '📸 Run Live AI Equipment Scan'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </ScrollView>
+        )}
       </View>
 
-      {/* Modern 4-Tab Bottom Navigation Bar */}
+      {/* Modern 5-Tab Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navItem} 
@@ -738,6 +1240,14 @@ export default function App() {
         >
           <Text style={[styles.navIcon, activeTab === 'EXPLORE' && styles.navIconActive]}>🏠</Text>
           <Text style={[styles.navText, activeTab === 'EXPLORE' && styles.navTextActive]}>Explore</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.navItem} 
+          onPress={() => setActiveTab('SCOUT')}
+        >
+          <Text style={[styles.navIcon, activeTab === 'SCOUT' && styles.navIconActive]}>🧭</Text>
+          <Text style={[styles.navText, activeTab === 'SCOUT' && styles.navTextActive]}>Scout Mode</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 

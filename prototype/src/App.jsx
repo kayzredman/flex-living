@@ -133,20 +133,32 @@ function App() {
               Host Hub
             </button>
             <button 
-              className={`nav-persona-btn ${persona === 'SCOUT' ? 'active-landlord' : ''}`}
+              className={`nav-persona-btn ${persona === 'SCOUT' ? 'active-scout' : ''}`}
               onClick={() => setPersona('SCOUT')}
-              style={{ background: persona === 'SCOUT' ? 'var(--gold)' : 'transparent', color: persona === 'SCOUT' ? '#0B1B26' : 'var(--text-secondary)' }}
             >
               🧭 Scout Portal
             </button>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'var(--gold)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.75rem' }}>
-              ✓
-            </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--teal)' }}>Tier 2 Verified</span>
-          </div>
+          {/* Quick Direct Scout Operations Button */}
+          <button
+            onClick={() => setPersona('SCOUT')}
+            style={{
+              background: persona === 'SCOUT' ? 'linear-gradient(135deg, var(--gold), var(--coral))' : '#0F2537',
+              border: '1px solid var(--gold)',
+              color: persona === 'SCOUT' ? '#0B1B26' : 'var(--gold-light)',
+              padding: '0.4rem 0.9rem',
+              borderRadius: '20px',
+              fontWeight: 800,
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <span>🧭</span> Scout Portal
+          </button>
         </div>
       </header>
 
