@@ -17,6 +17,7 @@ const SERVICES = {
   iot: process.env.IOT_SERVICE_URL || 'http://localhost:3002',
   sla: process.env.SLA_SERVICE_URL || 'http://localhost:3003',
   pricing: process.env.PRICING_SERVICE_URL || 'http://localhost:3005',
+  comms: process.env.COMMUNICATION_SERVICE_URL || 'http://localhost:3006',
 };
 
 // Gateway Health Check & Service Registry Info
@@ -31,7 +32,9 @@ app.get('/health', (req, res) => {
       scouts: `${SERVICES.scouts}/v1/scouts`,
       iot: `${SERVICES.iot}/v1/iot`,
       sla: `${SERVICES.sla}/v1/sla`,
-      pricing: `${SERVICES.pricing}/v1/pricing`
+      pricing: `${SERVICES.pricing}/v1/pricing`,
+      notifications: `${SERVICES.comms}/v1/notifications`,
+      hosts: `${SERVICES.comms}/v1/hosts`
     }
   });
 });
@@ -66,6 +69,14 @@ app.use('/v1/fintech', proxy(SERVICES.sla, {
 }));
 
 app.use('/v1/pricing', proxy(SERVICES.pricing || 'http://localhost:3005', {
+  proxyReqPathResolver: (req) => req.originalUrl
+}));
+
+app.use('/v1/notifications', proxy(SERVICES.comms || 'http://localhost:3006', {
+  proxyReqPathResolver: (req) => req.originalUrl
+}));
+
+app.use('/v1/hosts', proxy(SERVICES.comms || 'http://localhost:3006', {
   proxyReqPathResolver: (req) => req.originalUrl
 }));
 

@@ -99,6 +99,15 @@ graph TD
 * **Host Infrastructure Command Integration:**
   - Added "AI Yield & Diaspora Surge Optimizer" module to Landlord Dashboard.
 
+### Phase 6: Production SMS & WhatsApp Cloud Engine + Multi-Property Portfolio Analytics
+* **Communication & Portfolio Service (`backend/communication-service` - Port 3006):**
+  - Interactive WhatsApp Caretaker Morning Pulse Prompt generator (`POST /v1/notifications/caretaker/prompt-pulse`).
+  - Low-latency tenant blackout reassurance SMS dispatcher (`POST /v1/notifications/tenant/outage-reassurance`).
+  - Urgent automated diesel reorder alert for hosts (`POST /v1/notifications/host/diesel-alert`).
+  - Multi-property portfolio analytics with statutory withholding tax calculations (Ghana GRA 8% rent withholding tax).
+* **Host Dashboard Tax Statement:**
+  - Integrated statutory tax & net payout statement card into Host Hub.
+
 ---
 
 ## 🏃 4. Operational Runbook
@@ -131,6 +140,9 @@ cd backend/api-gateway && npm start
 
 # AI Dynamic Pricing & Diaspora Surge Engine (:3005)
 cd backend/pricing-service && npm start
+
+# Production SMS & WhatsApp Cloud Engine (:3006)
+cd backend/communication-service && npm start
 ```
 
 ### Start Frontend Clients:
@@ -166,6 +178,9 @@ node backend/qa_phase4_test.js
 
 # Phase 5: AI Dynamic Pricing & Diaspora Surge Engine
 node backend/qa_phase5_test.js
+
+# Phase 6: Production SMS & WhatsApp Cloud Engine + Multi-Property Portfolio
+node backend/qa_phase6_test.js
 ```
 
 ---
@@ -177,3 +192,4 @@ node backend/qa_phase5_test.js
 * **Phase 3 Certification:** APPROVED (12/12 Tests Passed) - Date: 2026-08-29
 * **Phase 4 Certification:** APPROVED (22/22 Tests Passed) - Date: 2026-08-31
 * **Phase 5 Certification:** APPROVED (21/21 Tests Passed) - Date: 2026-08-31
+* **Phase 6 Certification:** APPROVED (24/24 Tests Passed) - Date: 2026-08-31

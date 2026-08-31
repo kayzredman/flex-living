@@ -220,6 +220,39 @@ export default function LandlordDashboard() {
               <span style={{ color: 'var(--coral-light)', fontWeight: 'bold' }}>Dec Peak (1.85x)</span>
             </div>
           </div>
+
+          {/* Phase 6: Ghana GRA Tax Withholding & Net Payout Certificate */}
+          <div className="glass p-4 mt-4" style={{ borderRadius: '20px', borderTop: '4px solid var(--gold)' }}>
+            <div className="d-flex justify-between align-center mb-2">
+              <h4 style={{ margin: 0, color: 'var(--teal)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem' }}>
+                <span>📜</span> Statutory Tax & Payout Statement
+              </h4>
+              <span className="badge badge-verified" style={{ fontSize: '0.7rem' }}>
+                GRA COMPLIANT
+              </span>
+            </div>
+            <div className="d-flex justify-between align-center text-xs mb-1">
+              <span className="text-secondary">Gross Monthly Rent (3 Units):</span>
+              <span className="font-bold text-teal">GHS 38,000 ($2,500)</span>
+            </div>
+            <div className="d-flex justify-between align-center text-xs mb-1">
+              <span className="text-secondary">10% Preferred Escrow Hold:</span>
+              <span className="font-bold text-teal">-GHS 3,800</span>
+            </div>
+            <div className="d-flex justify-between align-center text-xs mb-2">
+              <span className="text-secondary">Ghana GRA 8% Withholding Tax:</span>
+              <span className="font-bold" style={{ color: 'var(--coral)' }}>-GHS 3,040 (Auto-Remitted)</span>
+            </div>
+            <div className="d-flex justify-between align-center pt-2" style={{ borderTop: '1px dashed var(--border)' }}>
+              <div>
+                <span className="text-xs font-bold text-teal">Net Payout to Bank:</span>
+                <div className="text-xs text-secondary">Cert: GRA-WHT-2026-ACCRA</div>
+              </div>
+              <span className="font-bold font-display text-teal" style={{ fontSize: '1.25rem' }}>
+                GHS 31,160
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
