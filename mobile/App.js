@@ -767,11 +767,11 @@ export default function App() {
               <ScrollView style={{ padding: 20 }}>
                 {/* Stepper Progress */}
                 <View style={styles.stepperContainer}>
-                  {[1, 2, 3].map(stepNum => (
+                  {[1, 2, 3, 4].map(stepNum => (
                     <View key={stepNum} style={{ flex: 1, alignItems: 'center' }}>
                       <View style={[styles.stepperBar, hostStep >= stepNum && styles.stepperBarActive]} />
                       <Text style={[styles.stepperLabel, hostStep === stepNum && styles.stepperLabelActive]}>
-                        {stepNum === 1 ? 'Details' : stepNum === 2 ? 'Badges' : 'Scout & Phone'}
+                        {stepNum === 1 ? 'Details' : stepNum === 2 ? 'Badges' : stepNum === 3 ? 'Photos' : 'Scout'}
                       </Text>
                     </View>
                   ))}
@@ -859,16 +859,92 @@ export default function App() {
                         <Text style={styles.secondaryModalBtnText}>← Back</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => setHostStep(3)} style={[styles.primaryModalBtn, { flex: 1 }]}>
+                        <Text style={styles.primaryModalBtnText}>Continue to Photos →</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+
+                {/* STEP 3: Photos & Infrastructure Proof */}
+                {hostStep === 3 && (
+                  <View>
+                    <Text style={styles.stepHeader}>Step 3: Upload Photos & Proof</Text>
+                    <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 12 }}>
+                      Add interior living photos and equipment proof photos for badge certification.
+                    </Text>
+
+                    {/* Photo Slots Grid */}
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+                      {[
+                        { label: '🛋️ Living Area', url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80' },
+                        { label: '⚡ Solar Inverter', url: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=80' },
+                        { label: '🛰️ Starlink Dish', url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80' },
+                        { label: '💧 Water Tank', url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&q=80' }
+                      ].map((slot, idx) => (
+                        <View key={idx} style={{
+                          width: '48%',
+                          backgroundColor: '#F8FAFC',
+                          borderRadius: 12,
+                          borderWidth: 1,
+                          borderColor: '#E2E8F0',
+                          overflow: 'hidden'
+                        }}>
+                          <View style={{ height: 80, position: 'relative' }}>
+                            <Image source={{ uri: slot.url }} style={{ width: '100%', height: '100%' }} />
+                            <View style={{
+                              position: 'absolute',
+                              top: 4,
+                              right: 4,
+                              backgroundColor: '#10B981',
+                              borderRadius: 10,
+                              paddingHorizontal: 6,
+                              paddingVertical: 2
+                            }}>
+                              <Text style={{ color: '#FFFFFF', fontSize: 9, fontWeight: 'bold' }}>✓ Uploaded</Text>
+                            </View>
+                          </View>
+                          <Text style={{ padding: 6, fontSize: 11, fontWeight: '700', color: '#0F3460', textAlign: 'center' }}>
+                            {slot.label}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+
+                    {/* Camera Trigger Card */}
+                    <TouchableOpacity
+                      onPress={() => alert('📸 Camera / Photo Library: 4 photos selected and verified.')}
+                      style={{
+                        backgroundColor: 'rgba(233,69,96,0.08)',
+                        borderWidth: 1,
+                        borderColor: '#E94560',
+                        borderStyle: 'dashed',
+                        borderRadius: 14,
+                        padding: 12,
+                        alignItems: 'center',
+                        marginBottom: 14
+                      }}
+                    >
+                      <Text style={{ fontSize: 20, marginBottom: 2 }}>📸</Text>
+                      <Text style={{ fontWeight: '800', color: '#E94560', fontSize: 12 }}>
+                        Tap to Take More Photos or Browse Library
+                      </Text>
+                    </TouchableOpacity>
+
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <TouchableOpacity onPress={() => setHostStep(2)} style={styles.secondaryModalBtn}>
+                        <Text style={styles.secondaryModalBtnText}>← Back</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => setHostStep(4)} style={[styles.primaryModalBtn, { flex: 1 }]}>
                         <Text style={styles.primaryModalBtnText}>Continue to Rent & Scout →</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
                 )}
 
-                {/* STEP 3: Rent & Caretaker WhatsApp */}
-                {hostStep === 3 && (
+                {/* STEP 4: Rent & Caretaker WhatsApp */}
+                {hostStep === 4 && (
                   <View>
-                    <Text style={styles.stepHeader}>Step 3: Base Rent & Caretaker Setup</Text>
+                    <Text style={styles.stepHeader}>Step 4: Base Rent & Caretaker Setup</Text>
 
                     <Text style={styles.fieldLabel}>Target Monthly Rent (GHS)</Text>
                     <TextInput

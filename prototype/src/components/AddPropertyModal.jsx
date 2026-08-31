@@ -457,17 +457,108 @@ export default function AddPropertyModal({ isOpen, onClose, onPropertyAdded, cur
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8, marginBottom: '8px' }}>
-                      📸 Photos (Interior + Inverter / Starlink / Tank Proof)
-                    </label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                      {formData.imageUrls.map((url, idx) => (
-                        <div key={idx} style={{ height: '110px', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)', position: 'relative' }}>
-                          <img src={url} alt="Proof" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          <span style={{ position: 'absolute', bottom: '6px', left: '6px', background: 'rgba(0,0,0,0.6)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem' }}>
-                            Proof #{idx + 1}
-                          </span>
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--gold-light)' }}>
+                        📸 Upload Property & Infrastructure Photos
+                      </label>
+                      <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
+                        {formData.imageUrls.length} photos selected
+                      </span>
+                    </div>
+
+                    <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+                      Flex-Living requires both interior photos for guests and infrastructure photos for badge certification.
+                    </p>
+
+                    {/* Interactive File Selector & Drag-Drop Trigger */}
+                    <div style={{
+                      border: '2px dashed rgba(233,163,25,0.4)',
+                      borderRadius: '14px',
+                      padding: '1.25rem',
+                      textAlign: 'center',
+                      background: 'rgba(233,163,25,0.04)',
+                      cursor: 'pointer',
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{ fontSize: '1.75rem', marginBottom: '4px' }}>📤</div>
+                      <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'white' }}>
+                        Click to Browse or Drag & Drop Photos
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '4px' }}>
+                        Supports JPG, PNG, WEBP up to 15MB each
+                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        id="host-photo-upload"
+                        style={{ display: 'none' }}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            const newFiles = Array.from(e.target.files).map(f => URL.createObjectURL(f));
+                            setFormData(prev => ({
+                              ...prev,
+                              imageUrls: [...prev.imageUrls, ...newFiles]
+                            }));
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('host-photo-upload').click()}
+                        style={{
+                          marginTop: '10px',
+                          background: 'rgba(255,255,255,0.12)',
+                          border: '1px solid rgba(255,255,255,0.25)',
+                          color: 'white',
+                          padding: '0.4rem 1rem',
+                          borderRadius: '8px',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Select Files from Device
+                      </button>
+                    </div>
+
+                    {/* 4 Categorized Upload Slots */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.6rem', marginBottom: '0.75rem' }}>
+                      {[
+                        { label: '🛋️ Living Area', tag: 'interior', url: formData.imageUrls[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80' },
+                        { label: '⚡ Inverter / Solar', tag: 'solar', url: formData.imageUrls[1] || 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80' },
+                        { label: '🛰️ Starlink Dish', tag: 'starlink', url: formData.imageUrls[2] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80' },
+                        { label: '💧 Borehole Tank', tag: 'water', url: formData.imageUrls[3] || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80' }
+                      ].map((slot, idx) => (
+                        <div key={idx} style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                          overflow: 'hidden',
+                          position: 'relative'
+                        }}>
+                          <div style={{ height: '70px', position: 'relative' }}>
+                            <img src={slot.url} alt={slot.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <span style={{
+                              position: 'absolute',
+                              top: '4px',
+                              right: '4px',
+                              background: 'rgba(16,185,129,0.9)',
+                              color: 'white',
+                              borderRadius: '50%',
+                              width: '18px',
+                              height: '18px',
+                              fontSize: '10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 'bold'
+                            }}>✓</span>
+                          </div>
+                          <div style={{ padding: '6px', fontSize: '0.7rem', fontWeight: 700, textAlign: 'center' }}>
+                            {slot.label}
+                          </div>
                         </div>
                       ))}
                     </div>
