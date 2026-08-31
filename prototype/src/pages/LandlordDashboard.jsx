@@ -1,37 +1,67 @@
 import React, { useState, useEffect } from 'react';
+import AddPropertyModal from '../components/AddPropertyModal';
 
 export default function LandlordDashboard() {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [propertiesCount, setPropertiesCount] = useState(3);
   const [telemetry, setTelemetry] = useState({
-    powerStatus: 'GRID',
-    voltage: 230,
-    routerOnline: true,
-    downloadSpeed: 120,
-    uploadSpeed: 50
+    voltage: 232,
+    gridStatus: 'NORMAL',
+    batteryPct: 88,
+    downloadSpeed: 184,
+    uploadSpeed: 42
   });
 
-  // Simulate some live fluctuations
   useEffect(() => {
     const interval = setInterval(() => {
-      setTelemetry(prev => ({
-        ...prev,
-        voltage: 220 + Math.floor(Math.random() * 20),
-        downloadSpeed: 110 + Math.floor(Math.random() * 20)
-      }));
+      setTelemetry({
+        voltage: 228 + Math.floor(Math.random() * 8),
+        gridStatus: 'NORMAL',
+        batteryPct: 86 + Math.floor(Math.random() * 6),
+        downloadSpeed: 175 + Math.floor(Math.random() * 20),
+        uploadSpeed: 40 + Math.floor(Math.random() * 5)
+      });
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="screen-container">
+      {isAddModalOpen && (
+        <AddPropertyModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onPropertyAdded={() => setPropertiesCount(prev => prev + 1)}
+        />
+      )}
       {/* Host Header */}
       <div className="d-flex justify-between align-center mb-4" style={{ flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <span className="text-secondary text-xs">Host Portal & Asset Management</span>
           <h2 style={{ fontSize: '1.75rem', margin: 0, color: 'var(--teal)' }}>Host Infrastructure Command</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            style={{
+              background: 'linear-gradient(135deg, var(--gold), var(--coral))',
+              border: 'none',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '20px',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 12px rgba(224,103,63,0.3)'
+            }}
+          >
+            <span>+</span> List New Property
+          </button>
           <div style={{ background: 'rgba(16,185,129,0.1)', color: 'var(--success)', border: '1px solid rgba(16,185,129,0.3)', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-            ● 3 Properties Online
+            ● {propertiesCount} Properties Online
           </div>
           <div style={{ background: 'var(--teal)', color: 'white', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold' }}>
             0 SLA Strikes

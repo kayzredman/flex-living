@@ -283,7 +283,54 @@ export default function App() {
     }, 1200);
   };
 
-  const filteredProperties = PROPERTIES.filter(p => {
+  const [propertyList, setPropertyList] = useState(PROPERTIES);
+  const [isHostModalOpen, setIsHostModalOpen] = useState(false);
+  const [hostStep, setHostStep] = useState(1);
+  const [hostSuccess, setHostSuccess] = useState(null);
+  const [hostForm, setHostForm] = useState({
+    title: '',
+    city: 'Accra',
+    neighborhood: 'Cantonments',
+    w3w: '///luxury.stay.flex',
+    priceGhs: 4500,
+    solar: true,
+    starlink: true,
+    borehole: true,
+    smartLock: true,
+    caretakerPhone: '+233 55 123 4999',
+    caretakerName: 'Kofi Mensah'
+  });
+
+  const handleHostSubmit = () => {
+    const badges = [];
+    if (hostForm.solar) badges.push('⚡ 24/7 Solar');
+    if (hostForm.starlink) badges.push('🌐 Starlink 180M');
+    if (hostForm.borehole) badges.push('💧 Borehole');
+    if (hostForm.smartLock) badges.push('🔐 Smart Lock');
+
+    const newProp = {
+      id: Date.now(),
+      title: hostForm.title || `${hostForm.neighborhood} Luxury Residence`,
+      city: `${hostForm.city}, ${hostForm.city === 'Accra' ? 'Ghana' : hostForm.city === 'Lagos' ? 'Nigeria' : 'Kenya'}`,
+      neighborhood: hostForm.neighborhood,
+      priceGhs: Number(hostForm.priceGhs) || 4500,
+      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+      rating: 5.0,
+      scout: hostForm.city === 'Accra' ? 'Ama (Senior Flex Guide)' : hostForm.city === 'Lagos' ? 'Chinedu (Lagos Lead)' : 'Njeri (Nairobi Lead)',
+      badges: badges.length ? badges : ['⚡ 24/7 Solar', '🌐 Starlink 180M'],
+      amenities: 'ATS < 6s • 38 dB Quiet • Dedicated Standing Desk'
+    };
+
+    setPropertyList(prev => [newProp, ...prev]);
+    setHostSuccess({
+      title: newProp.title,
+      scout: newProp.scout,
+      liftGhs: Math.round(newProp.priceGhs * 1.43),
+      surgeGhs: Math.round(newProp.priceGhs * 1.43 * 1.85)
+    });
+  };
+
+  const filteredProperties = propertyList.filter(p => {
     const matchesSearch = !searchQuery || p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.city.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCity = activeCity === 'All' || p.city.toLowerCase().includes(activeCity.toLowerCase());
     const matchesFilter = activeFilter === 'All' || p.badges.some(b => b.includes(activeFilter));
@@ -304,19 +351,33 @@ export default function App() {
           </View>
         </View>
 
-        {/* Currency Switcher */}
-        <View style={styles.currencyPill}>
-          {['GHS', 'USD', 'NGN'].map(c => (
-            <TouchableOpacity
-              key={c}
-              onPress={() => setCurrency(c)}
-              style={[styles.currencyBtn, currency === c && styles.currencyBtnActive]}
-            >
-              <Text style={[styles.currencyBtnText, currency === c && styles.currencyBtnTextActive]}>
-                {c}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          {/* Host Property Button */}
+          <TouchableOpacity
+            onPress={() => {
+              setHostSuccess(null);
+              setHostStep(1);
+              setIsHostModalOpen(true);
+            }}
+            style={styles.hostHeaderBtn}
+          >
+            <Text style={styles.hostHeaderBtnText}>+ Host</Text>
+          </TouchableOpacity>
+
+          {/* Currency Switcher */}
+          <View style={styles.currencyPill}>
+            {['GHS', 'USD', 'NGN'].map(c => (
+              <TouchableOpacity
+                key={c}
+                onPress={() => setCurrency(c)}
+                style={[styles.currencyBtn, currency === c && styles.currencyBtnActive]}
+              >
+                <Text style={[styles.currencyBtnText, currency === c && styles.currencyBtnTextActive]}>
+                  {c}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
 
@@ -640,11 +701,428 @@ export default function App() {
           <Text style={[styles.navText, activeTab === 'PROFILE' && styles.navTextActive]}>Flex-Profile</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Host Onboarding Modal */}
+      <Modal visible={isHostModalOpen} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 18 }}>🏡</Text>
+                  <Text style={styles.modalTitle}>List Your Property</Text>
+                </View>
+                <Text style={styles.modalSubtitle}>4-Step Verified African Host Pipeline</Text>
+              </View>
+              <TouchableOpacity onPress={() => setIsHostModalOpen(false)} style={styles.modalCloseBtn}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#64748B' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {hostSuccess ? (
+              <ScrollView style={{ padding: 20 }}>
+                <View style={{ alignItems: 'center', marginVertical: 10 }}>
+                  <View style={styles.successIconCircle}>
+                    <Text style={{ fontSize: 32, color: '#10B981' }}>✓</Text>
+                  </View>
+                  <Text style={{ fontSize: 18, fontWeight: '900', color: '#0F3460', textAlign: 'center', marginTop: 8 }}>
+                    Property Submitted for Verification!
+                  </Text>
+                  <Text style={{ fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 4 }}>
+                    Field Scout <Text style={{ fontWeight: 'bold', color: '#0F3460' }}>{hostSuccess.scout}</Text> has been dispatched to perform the 200-point physical inspection within 48 hours.
+                  </Text>
+                </View>
+
+                {/* AI Yield Estimate Card */}
+                <View style={styles.yieldCard}>
+                  <Text style={styles.yieldCardTitle}>💰 AI DYNAMIC YIELD PROJECTION</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+                    <View>
+                      <Text style={styles.yieldLabel}>Baseline Rent</Text>
+                      <Text style={styles.yieldVal}>GHS {hostForm.priceGhs.toLocaleString()}</Text>
+                    </View>
+                    <View>
+                      <Text style={[styles.yieldLabel, { color: '#10B981' }]}>+43% Verified Lift</Text>
+                      <Text style={[styles.yieldVal, { color: '#10B981' }]}>GHS {hostSuccess.liftGhs.toLocaleString()}</Text>
+                    </View>
+                    <View>
+                      <Text style={[styles.yieldLabel, { color: '#E94560' }]}>Dec Detty Surge</Text>
+                      <Text style={[styles.yieldVal, { color: '#E94560' }]}>GHS {hostSuccess.surgeGhs.toLocaleString()}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsHostModalOpen(false);
+                    setActiveTab('EXPLORE');
+                  }}
+                  style={styles.primaryModalBtn}
+                >
+                  <Text style={styles.primaryModalBtnText}>View In Live Explore Feed</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            ) : (
+              <ScrollView style={{ padding: 20 }}>
+                {/* Stepper Progress */}
+                <View style={styles.stepperContainer}>
+                  {[1, 2, 3].map(stepNum => (
+                    <View key={stepNum} style={{ flex: 1, alignItems: 'center' }}>
+                      <View style={[styles.stepperBar, hostStep >= stepNum && styles.stepperBarActive]} />
+                      <Text style={[styles.stepperLabel, hostStep === stepNum && styles.stepperLabelActive]}>
+                        {stepNum === 1 ? 'Details' : stepNum === 2 ? 'Badges' : 'Scout & Phone'}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* STEP 1: Title & Location */}
+                {hostStep === 1 && (
+                  <View>
+                    <Text style={styles.stepHeader}>Step 1: Property Identity</Text>
+                    
+                    <Text style={styles.fieldLabel}>Property Title</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="e.g. Cantonments Luxury Penthouse with Solar"
+                      value={hostForm.title}
+                      onChangeText={t => setHostForm({ ...hostForm, title: t })}
+                    />
+
+                    <Text style={styles.fieldLabel}>City Hub</Text>
+                    <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
+                      {['Accra', 'Lagos', 'Nairobi'].map(city => (
+                        <TouchableOpacity
+                          key={city}
+                          onPress={() => setHostForm({ ...hostForm, city })}
+                          style={[styles.cityPickerBtn, hostForm.city === city && styles.cityPickerBtnActive]}
+                        >
+                          <Text style={[styles.cityPickerText, hostForm.city === city && styles.cityPickerTextActive]}>
+                            {city}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+
+                    <Text style={styles.fieldLabel}>Neighborhood</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="e.g. Cantonments, Ikoyi, Kilimani"
+                      value={hostForm.neighborhood}
+                      onChangeText={t => setHostForm({ ...hostForm, neighborhood: t })}
+                    />
+
+                    <Text style={styles.fieldLabel}>📍 What3Words / Digital Address</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="e.g. ///luxury.stay.cantonments"
+                      value={hostForm.w3w}
+                      onChangeText={t => setHostForm({ ...hostForm, w3w: t })}
+                    />
+
+                    <TouchableOpacity onPress={() => setHostStep(2)} style={styles.primaryModalBtn}>
+                      <Text style={styles.primaryModalBtnText}>Continue to Infrastructure →</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {/* STEP 2: Infrastructure Checkboxes */}
+                {hostStep === 2 && (
+                  <View>
+                    <Text style={styles.stepHeader}>Step 2: Backup Infrastructure</Text>
+                    <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 14 }}>
+                      Select the systems installed. These will be load-tested by the Field Scout.
+                    </Text>
+
+                    {[
+                      { key: 'solar', label: '⚡ 24/7 Solar Inverter (10kVA Victron/Deye)', badge: '+18% Price Lift' },
+                      { key: 'starlink', label: '🌐 Starlink Gen 3 Satellite (180Mbps)', badge: '+12% Price Lift' },
+                      { key: 'borehole', label: '💧 Deep Borehole & 5,000L Water Tank', badge: '+8% Price Lift' },
+                      { key: 'smartLock', label: '🔐 Smart NFC/Digital Keypad Lock', badge: '+5% Price Lift' }
+                    ].map(item => (
+                      <TouchableOpacity
+                        key={item.key}
+                        onPress={() => setHostForm({ ...hostForm, [item.key]: !hostForm[item.key] })}
+                        style={[styles.checkboxRow, hostForm[item.key] && styles.checkboxRowActive]}
+                      >
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontWeight: '700', color: '#0F3460', fontSize: 13 }}>{item.label}</Text>
+                          <Text style={{ color: '#10B981', fontSize: 11, fontWeight: 'bold', marginTop: 2 }}>{item.badge}</Text>
+                        </View>
+                        <Text style={{ fontSize: 18 }}>{hostForm[item.key] ? '✅' : '⬜'}</Text>
+                      </TouchableOpacity>
+                    ))}
+
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+                      <TouchableOpacity onPress={() => setHostStep(1)} style={styles.secondaryModalBtn}>
+                        <Text style={styles.secondaryModalBtnText}>← Back</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => setHostStep(3)} style={[styles.primaryModalBtn, { flex: 1 }]}>
+                        <Text style={styles.primaryModalBtnText}>Continue to Rent & Scout →</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+
+                {/* STEP 3: Rent & Caretaker WhatsApp */}
+                {hostStep === 3 && (
+                  <View>
+                    <Text style={styles.stepHeader}>Step 3: Base Rent & Caretaker Setup</Text>
+
+                    <Text style={styles.fieldLabel}>Target Monthly Rent (GHS)</Text>
+                    <TextInput
+                      style={[styles.textInput, { fontSize: 18, fontWeight: '800', color: '#0F3460' }]}
+                      keyboardType="numeric"
+                      value={String(hostForm.priceGhs)}
+                      onChangeText={t => setHostForm({ ...hostForm, priceGhs: Number(t) || 0 })}
+                    />
+
+                    <Text style={styles.fieldLabel}>Resident Caretaker Full Name</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="e.g. Kofi Mensah"
+                      value={hostForm.caretakerName}
+                      onChangeText={t => setHostForm({ ...hostForm, caretakerName: t })}
+                    />
+
+                    <Text style={styles.fieldLabel}>📱 Caretaker WhatsApp Phone (Daily Morning Pulse)</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="+233 55 123 4999"
+                      value={hostForm.caretakerPhone}
+                      onChangeText={t => setHostForm({ ...hostForm, caretakerPhone: t })}
+                    />
+
+                    <View style={styles.scoutNoticeBox}>
+                      <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 12 }}>
+                        🛡️ Certified Field Scout Dispatch
+                      </Text>
+                      <Text style={{ fontSize: 11, color: '#475569', marginTop: 4, lineHeight: 15 }}>
+                        Submitting will automatically assign an on-ground Scout ({hostForm.city === 'Accra' ? 'Ama' : hostForm.city === 'Lagos' ? 'Chinedu' : 'Njeri'}) to visit with an acoustic meter and power multi-meter.
+                      </Text>
+                    </View>
+
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+                      <TouchableOpacity onPress={() => setHostStep(2)} style={styles.secondaryModalBtn}>
+                        <Text style={styles.secondaryModalBtnText}>← Back</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={handleHostSubmit} style={[styles.primaryModalBtn, { flex: 1, backgroundColor: '#E94560' }]}>
+                        <Text style={styles.primaryModalBtnText}>🚀 Submit & Dispatch Scout</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  // Host Header Button
+  hostHeaderBtn: {
+    backgroundColor: '#0F3460',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E94560',
+  },
+  hostHeaderBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 11,
+  },
+  // Host Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(11,27,38,0.7)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    maxHeight: '85%',
+    paddingBottom: 24,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#0F3460',
+  },
+  modalSubtitle: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  stepperBar: {
+    height: 4,
+    width: '100%',
+    backgroundColor: '#E2E8F0',
+    borderRadius: 2,
+    marginBottom: 4,
+  },
+  stepperBarActive: {
+    backgroundColor: '#E94560',
+  },
+  stepperLabel: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+  stepperLabelActive: {
+    color: '#0F3460',
+    fontWeight: '800',
+  },
+  stepHeader: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F3460',
+    marginBottom: 12,
+  },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#475569',
+    marginBottom: 5,
+  },
+  textInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 13,
+    color: '#0F3460',
+    marginBottom: 12,
+  },
+  cityPickerBtn: {
+    flex: 1,
+    paddingVertical: 9,
+    borderRadius: 10,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+  },
+  cityPickerBtnActive: {
+    backgroundColor: '#0F3460',
+  },
+  cityPickerText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  cityPickerTextActive: {
+    color: '#FFFFFF',
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
+  },
+  checkboxRowActive: {
+    borderColor: '#10B981',
+    backgroundColor: 'rgba(16,185,129,0.04)',
+  },
+  scoutNoticeBox: {
+    backgroundColor: '#F1F5F9',
+    borderLeftWidth: 4,
+    borderLeftColor: '#0F3460',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 10,
+  },
+  primaryModalBtn: {
+    backgroundColor: '#0F3460',
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  primaryModalBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  secondaryModalBtn: {
+    backgroundColor: '#F1F5F9',
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  secondaryModalBtnText: {
+    color: '#475569',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  successIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(16,185,129,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  yieldCard: {
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    borderRadius: 16,
+    padding: 14,
+    marginVertical: 14,
+  },
+  yieldCardTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#92400E',
+    letterSpacing: 0.5,
+  },
+  yieldLabel: {
+    fontSize: 10,
+    color: '#78350F',
+    fontWeight: '600',
+  },
+  yieldVal: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#78350F',
+    marginTop: 2,
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
