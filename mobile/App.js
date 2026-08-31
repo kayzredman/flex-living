@@ -9,7 +9,11 @@ import {
   ScrollView, 
   Image, 
   Modal, 
-  ActivityIndicator 
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -464,62 +468,67 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Mobile Top Header */}
+      {/* Top Header: Row 1 (Brand & Currency) */}
       <View style={styles.header}>
         <View style={styles.headerBrand}>
           <View style={styles.brandLogo}>
             <Text style={styles.brandLogoText}>FL</Text>
           </View>
           <View>
-            <Text style={styles.brandTitle}>Flex-Living</Text>
-            <Text style={styles.brandSubtitle}>Verified Stays & SLA Guarantee</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.brandTitle}>Flex-Living</Text>
+              <View style={styles.verifiedShieldBadge}>
+                <Text style={styles.verifiedShieldText}>✓ Verified</Text>
+              </View>
+            </View>
+            <Text style={styles.brandSubtitle}>24/7 Power • Starlink • SLA Guarantee</Text>
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          {/* Host Property Button */}
-          <TouchableOpacity
-            onPress={() => {
-              setHostSuccess(null);
-              setHostStep(1);
-              setIsHostModalOpen(true);
-            }}
-            style={styles.hostHeaderBtn}
-          >
-            <Text style={styles.hostHeaderBtnText}>+ Host</Text>
-          </TouchableOpacity>
-
-          {/* Scout Mode Header Button */}
-          <TouchableOpacity
-            onPress={() => setActiveTab('SCOUT')}
-            style={[
-              styles.hostHeaderBtn,
-              {
-                backgroundColor: activeTab === 'SCOUT' ? '#E9A319' : '#0F2537',
-                borderColor: '#E9A319'
-              }
-            ]}
-          >
-            <Text style={[styles.hostHeaderBtnText, { color: activeTab === 'SCOUT' ? '#0B1B26' : '#E9A319' }]}>
-              🧭 Scout
-            </Text>
-          </TouchableOpacity>
-
-          {/* Currency Switcher */}
-          <View style={styles.currencyPill}>
-            {['GHS', 'USD', 'NGN'].map(c => (
-              <TouchableOpacity
-                key={c}
-                onPress={() => setCurrency(c)}
-                style={[styles.currencyBtn, currency === c && styles.currencyBtnActive]}
-              >
-                <Text style={[styles.currencyBtnText, currency === c && styles.currencyBtnTextActive]}>
-                  {c}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+        {/* Currency Switcher Pill */}
+        <View style={styles.currencyPill}>
+          {['GHS', 'USD', 'NGN'].map(c => (
+            <TouchableOpacity
+              key={c}
+              onPress={() => setCurrency(c)}
+              style={[styles.currencyBtn, currency === c && styles.currencyBtnActive]}
+            >
+              <Text style={[styles.currencyBtnText, currency === c && styles.currencyBtnTextActive]}>
+                {c}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
+      </View>
+
+      {/* Top Header: Row 2 (Quick Action Nav Bar) */}
+      <View style={styles.headerActionBar}>
+        <TouchableOpacity
+          onPress={() => {
+            setHostSuccess(null);
+            setHostStep(1);
+            setIsHostModalOpen(true);
+          }}
+          style={styles.actionPillHost}
+        >
+          <Text style={styles.actionPillHostText}>🏡 + List Property</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab('SCOUT')}
+          style={[styles.actionPillScout, activeTab === 'SCOUT' && styles.actionPillScoutActive]}
+        >
+          <Text style={[styles.actionPillScoutText, activeTab === 'SCOUT' && styles.actionPillScoutTextActive]}>
+            🧭 Scout Mode
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab('SLA')}
+          style={styles.actionPillSla}
+        >
+          <Text style={styles.actionPillSlaText}>⚡ SLA 99.5%</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Screen Content */}
@@ -1519,10 +1528,14 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* Host Onboarding Modal */}
+      {/* Host Onboarding Modal with Keyboard Avoiding */}
       <Modal visible={isHostModalOpen} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+        >
+          <View style={[styles.modalContent, { maxHeight: '92%' }]}>
             {/* Modal Header */}
             <View style={styles.modalHeader}>
               <View>
@@ -1532,13 +1545,22 @@ export default function App() {
                 </View>
                 <Text style={styles.modalSubtitle}>4-Step Verified African Host Pipeline</Text>
               </View>
-              <TouchableOpacity onPress={() => setIsHostModalOpen(false)} style={styles.modalCloseBtn}>
+              <TouchableOpacity
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setIsHostModalOpen(false);
+                }}
+                style={styles.modalCloseBtn}
+              >
                 <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#64748B' }}>✕</Text>
               </TouchableOpacity>
             </View>
 
             {hostSuccess ? (
-              <ScrollView style={{ padding: 20 }}>
+              <ScrollView 
+                style={{ padding: 20 }}
+                keyboardShouldPersistTaps="handled"
+              >
                 <View style={{ alignItems: 'center', marginVertical: 10 }}>
                   <View style={styles.successIconCircle}>
                     <Text style={{ fontSize: 32, color: '#10B981' }}>✓</Text>
@@ -1581,14 +1603,25 @@ export default function App() {
                 </TouchableOpacity>
               </ScrollView>
             ) : (
-              <ScrollView style={{ padding: 20 }}>
+              <ScrollView 
+                style={{ flex: 1 }}
+                contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 14, paddingBottom: 220 }}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
+                showsVerticalScrollIndicator={false}
+              >
                 {/* Stepper Progress */}
                 <View style={styles.stepperContainer}>
-                  {[1, 2, 3, 4].map(stepNum => (
-                    <View key={stepNum} style={{ flex: 1, alignItems: 'center' }}>
-                      <View style={[styles.stepperBar, hostStep >= stepNum && styles.stepperBarActive]} />
-                      <Text style={[styles.stepperLabel, hostStep === stepNum && styles.stepperLabelActive]}>
-                        {stepNum === 1 ? 'Details' : stepNum === 2 ? 'Badges' : stepNum === 3 ? 'Photos' : 'Scout'}
+                  {[
+                    { num: 1, label: 'Details' },
+                    { num: 2, label: 'Badges' },
+                    { num: 3, label: 'Photos' },
+                    { num: 4, label: 'Scout' }
+                  ].map(s => (
+                    <View key={s.num} style={{ flex: 1, alignItems: 'center' }}>
+                      <View style={[styles.stepperBar, hostStep >= s.num && styles.stepperBarActive]} />
+                      <Text style={[styles.stepperLabel, hostStep === s.num && styles.stepperLabelActive]}>
+                        {s.num}. {s.label}
                       </Text>
                     </View>
                   ))}
@@ -1603,7 +1636,10 @@ export default function App() {
                     <TextInput
                       style={styles.textInput}
                       placeholder="e.g. Cantonments Luxury Penthouse with Solar"
+                      placeholderTextColor="#94A3B8"
                       value={hostForm.title}
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
                       onChangeText={t => setHostForm({ ...hostForm, title: t })}
                     />
 
@@ -1626,7 +1662,10 @@ export default function App() {
                     <TextInput
                       style={styles.textInput}
                       placeholder="e.g. Cantonments, Ikoyi, Kilimani"
+                      placeholderTextColor="#94A3B8"
                       value={hostForm.neighborhood}
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
                       onChangeText={t => setHostForm({ ...hostForm, neighborhood: t })}
                     />
 
@@ -1634,7 +1673,10 @@ export default function App() {
                     <TextInput
                       style={styles.textInput}
                       placeholder="e.g. ///luxury.stay.cantonments"
+                      placeholderTextColor="#94A3B8"
                       value={hostForm.w3w}
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
                       onChangeText={t => setHostForm({ ...hostForm, w3w: t })}
                     />
 
@@ -1797,6 +1839,8 @@ export default function App() {
                     <TextInput
                       style={[styles.textInput, { fontSize: 18, fontWeight: '800', color: '#0F3460' }]}
                       keyboardType="numeric"
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
                       value={String(hostForm.priceGhs)}
                       onChangeText={t => setHostForm({ ...hostForm, priceGhs: Number(t) || 0 })}
                     />
@@ -1805,6 +1849,9 @@ export default function App() {
                     <TextInput
                       style={styles.textInput}
                       placeholder="e.g. Kofi Mensah"
+                      placeholderTextColor="#94A3B8"
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
                       value={hostForm.caretakerName}
                       onChangeText={t => setHostForm({ ...hostForm, caretakerName: t })}
                     />
@@ -1813,6 +1860,9 @@ export default function App() {
                     <TextInput
                       style={styles.textInput}
                       placeholder="+233 55 123 4999"
+                      placeholderTextColor="#94A3B8"
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
                       value={hostForm.caretakerPhone}
                       onChangeText={t => setHostForm({ ...hostForm, caretakerPhone: t })}
                     />
@@ -1827,7 +1877,7 @@ export default function App() {
                     </View>
 
                     <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-                      <TouchableOpacity onPress={() => setHostStep(2)} style={styles.secondaryModalBtn}>
+                      <TouchableOpacity onPress={() => setHostStep(3)} style={styles.secondaryModalBtn}>
                         <Text style={styles.secondaryModalBtnText}>← Back</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={handleHostSubmit} style={[styles.primaryModalBtn, { flex: 1, backgroundColor: '#E94560' }]}>
@@ -1839,7 +1889,7 @@ export default function App() {
               </ScrollView>
             )}
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
@@ -2049,16 +2099,83 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+    paddingTop: Platform.OS === 'ios' ? 8 : 34,
   },
   header: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 10,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerActionBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
+  },
+  verifiedShieldBadge: {
+    backgroundColor: 'rgba(233,163,25,0.15)',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E9A319',
+  },
+  verifiedShieldText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  actionPillHost: {
+    backgroundColor: '#0F3460',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+  },
+  actionPillHostText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 11,
+  },
+  actionPillScout: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E9A319',
+  },
+  actionPillScoutActive: {
+    backgroundColor: '#E9A319',
+  },
+  actionPillScoutText: {
+    color: '#B45309',
+    fontWeight: '800',
+    fontSize: 11,
+  },
+  actionPillScoutTextActive: {
+    color: '#0B1B26',
+  },
+  actionPillSla: {
+    backgroundColor: 'rgba(16,185,129,0.08)',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#10B981',
+    marginLeft: 'auto',
+  },
+  actionPillSlaText: {
+    color: '#10B981',
+    fontWeight: '800',
+    fontSize: 11,
   },
   headerBrand: {
     flexDirection: 'row',
