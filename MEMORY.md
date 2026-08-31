@@ -121,6 +121,28 @@ Flex-Living is a tech-enabled real estate operating system for emerging African 
 3. **Automated QA Phase 6 Test Suite (`backend/qa_phase6_test.js`):**
    - 24/24 tests passing across Gateway routing, WhatsApp prompts, SMS reassurance broadcasts, diesel alerts, and host portfolio tax rollups.
 
+### ✅ Phase 8: 5 Strategic Gap Pillars (Certified across Web & Mobile)
+1. **Pillar 1: Interactive Mobile Money (MoMo / M-Pesa) STK Push Payment Rails:**
+   - Real-time network selector: MTN MoMo, Telecel Cash, M-Pesa Safaricom, and Visa/Card.
+   - Realistic phone USSD modal overlay simulating live STK prompt with 4-digit PIN authorization.
+   - Automated 15% Escrow lock, transaction receipt issuance, and instant Digital Smart Key unlocking.
+2. **Pillar 2: Offline-First Field Scout Engine (Basement / Borehole Pit Mode):**
+   - Toggleable cellular signal simulation (`[🟢 4G Connected]` vs `[🔴 0 Bars - Basement/Borehole Pit]`).
+   - Offline local caching queue for 200-point audits, acoustic readings, and equipment photos.
+   - Amber offline alert banner and 1-tap `⚡ Sync Queued Audits` cloud auto-upload upon re-establishing connection.
+3. **Pillar 3: Interactive WhatsApp Caretaker Daily Pulse Bot Simulator:**
+   - Simulated Meta Cloud API 07:00 AM daily check with live chatbox log.
+   - 3 interactive 1-tap quick buttons: `[🟢 Grid OK & Tank 100%]`, `[⚡ ECG Outage - Inverter Active]`, and `[🚨 Diesel Below 20%]`.
+   - Real-time IoT SLA monitor telemetry updates and automated fuel dispatch triggers.
+4. **Pillar 4: TTLock / Tuya Hardware Smart Lock Time-Bound PIN Engine:**
+   - Active 6-digit Master Keypad PIN (`849 201`) synced with physical lock status.
+   - Self-expiring temporary guest pass generator: `🧹 Cleaner (2h)`, `🛵 Delivery (45m)`, `👥 Guest (24h)`.
+   - 1-tap `📲 Share PIN via WhatsApp` trigger with direct message formatting.
+5. **Pillar 5: SmileID Diaspora Biometric Liveness & KYC Fast-Track:**
+   - Interactive 3D selfie liveness check modal with face oval alignment and blink detection.
+   - Cross-border national database clearance (Ghana Card / Nigerian NIN / Passport AML).
+   - Unlocks full Tier-2 GHS 24,000 / $18,000 Flex-Advance rent financing facility with zero paperwork.
+
 ---
 
 ## 🚀 Next Milestone: Production Readiness & Deployment Verification
@@ -138,5 +160,6 @@ Flex-Living is a tech-enabled real estate operating system for emerging African 
    git merge dev
    git push origin main
    git checkout dev
+
    git push origin dev
    ```

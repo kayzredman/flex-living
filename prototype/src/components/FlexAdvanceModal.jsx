@@ -133,12 +133,39 @@ export default function FlexAdvanceModal({ property, isOpen, onClose, onApply, c
           </div>
         </div>
 
+        {/* Pillar 5: SmileID Biometric Liveness Indicator */}
+        <div style={{
+          background: 'rgba(16, 185, 129, 0.08)',
+          border: '1px dashed #10B981',
+          borderRadius: '12px',
+          padding: '0.75rem',
+          marginBottom: '1.25rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.2rem' }}>🤳</span>
+            <div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#10B981' }}>
+                SmileID Diaspora Biometric Fast-Track
+              </div>
+              <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)' }}>
+                Instant Ghana Card / NIN + 3D selfie liveness verification
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--gold)', fontWeight: 800 }}>
+            0 Paperwork
+          </span>
+        </div>
+
         <button
           className="btn btn-primary w-100"
           style={{ padding: '1rem', fontSize: '1.1rem', fontWeight: 800, borderRadius: '12px' }}
           onClick={() => { onClose(); onApply(); }}
         >
-          Apply with 1-Minute Credit Check →
+          Apply with SmileID Biometrics →
         </button>
       </div>
     </div>

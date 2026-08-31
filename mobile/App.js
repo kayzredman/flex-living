@@ -369,6 +369,44 @@ export default function App() {
   const [mobileNewCity, setMobileNewCity] = useState('Accra');
   const [mobileNewNationalId, setMobileNewNationalId] = useState('GHA-');
 
+  // Strategic Pillar 1: Mobile Property Details & MoMo STK Push
+  const [selectedMobileProperty, setSelectedMobileProperty] = useState(null);
+  const [isMobileMomoUssdOpen, setIsMobileMomoUssdOpen] = useState(false);
+  const [mobileMomoPin, setMobileMomoPin] = useState('');
+  const [isMobileMomoProcessing, setIsMobileMomoProcessing] = useState(false);
+  const [mobileMomoSuccess, setMobileMomoSuccess] = useState(false);
+  const [mobileMomoPhone, setMobileMomoPhone] = useState('+233 24 555 1234');
+  const [currentResidence, setCurrentResidence] = useState({
+    title: 'Luxury Cantonments Penthouse',
+    unit: 'Unit 402',
+    city: 'Accra, Ghana'
+  });
+
+  // Strategic Pillar 2: Mobile Offline-First Scout Mode
+  const [isMobileScoutOffline, setIsMobileScoutOffline] = useState(false);
+  const [mobileScoutOfflineQueue, setMobileScoutOfflineQueue] = useState([]);
+  const [isMobileSyncing, setIsMobileSyncing] = useState(false);
+
+  // Strategic Pillar 3: Mobile WhatsApp Caretaker Quick-Reply Bot
+  const [mobileCaretakerChat, setMobileCaretakerChat] = useState([
+    {
+      sender: 'BOT',
+      text: 'Flex-Living Bot: Good morning Kofi! Morning pulse check: please verify backup power, borehole tank & smart lock.',
+      time: '07:00 AM'
+    }
+  ]);
+  const [isMobileCaretakerTyping, setIsMobileCaretakerTyping] = useState(false);
+
+  // Strategic Pillar 4: Mobile TTLock Smart Key PIN Generator
+  const [mobileMasterPin, setMobileMasterPin] = useState('849 201');
+  const [mobileGuestPins, setMobileGuestPins] = useState([
+    { id: 1, label: 'Weekly Cleaner', pin: '312 904', validity: 'Active (2h left)' }
+  ]);
+
+  // Strategic Pillar 5: Mobile SmileID Diaspora Biometric Liveness
+  const [isSmileIdModalOpen, setIsSmileIdModalOpen] = useState(false);
+  const [smileIdStep, setSmileIdStep] = useState('IDLE'); // IDLE, SCANNING, BLINKING, MATCHED
+
   const handlePickImage = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -617,9 +655,9 @@ export default function App() {
                     
                     <TouchableOpacity 
                       style={styles.bookBtn}
-                      onPress={() => setActiveTab('KEY')}
+                      onPress={() => setSelectedMobileProperty(prop)}
                     >
-                      <Text style={styles.bookBtnText}>View Stay</Text>
+                      <Text style={styles.bookBtnText}>View & Book</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -628,13 +666,13 @@ export default function App() {
           </ScrollView>
         )}
 
-        {/* TAB 2: SMART DIGITAL KEY */}
+        {/* TAB 2: SMART DIGITAL KEY & TTLOCK CLOUD PASS */}
         {activeTab === 'KEY' && (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.heroCardDark}>
               <Text style={styles.heroTag}>CURRENT RESIDENCE</Text>
-              <Text style={styles.heroTitle}>Luxury Cantonments Apartment</Text>
-              <Text style={styles.heroSubtitle}>Unit 402 • Accra, Ghana</Text>
+              <Text style={styles.heroTitle}>{currentResidence.title}</Text>
+              <Text style={styles.heroSubtitle}>{currentResidence.unit} • {currentResidence.city}</Text>
 
               {/* Digital Lock Controller */}
               <View style={styles.lockContainer}>
@@ -682,6 +720,95 @@ export default function App() {
               </View>
             </View>
 
+            {/* Pillar 4: TTLock Keypad Door PIN & Temporary Guest Passes */}
+            <View style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 16,
+              padding: 16,
+              marginBottom: 14,
+              borderWidth: 1,
+              borderColor: '#E2E8F0'
+            }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 18 }}>🔑</Text>
+                  <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 13 }}>Keypad Door PIN (TTLock Engine)</Text>
+                </View>
+                <View style={{ backgroundColor: 'rgba(16,185,129,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                  <Text style={{ color: '#10B981', fontSize: 9, fontWeight: '800' }}>● ONLINE</Text>
+                </View>
+              </View>
+
+              <View style={{
+                backgroundColor: '#0F3460',
+                borderRadius: 12,
+                padding: 12,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 10
+              }}>
+                <View>
+                  <Text style={{ color: '#94A3B8', fontSize: 9, fontWeight: '700' }}>MASTER TENANT PIN</Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '900', letterSpacing: 4, marginTop: 2 }}>
+                    {mobileMasterPin}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => alert(`Master PIN ${mobileMasterPin} copied to clipboard!`)}
+                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }}
+                >
+                  <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 10 }}>📋 Copy</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Guest PIN Generator Buttons */}
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#64748B', marginBottom: 6 }}>
+                Generate Self-Expiring Visitor Pass:
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 6, marginBottom: 10 }}>
+                {[
+                  { label: '🧹 Cleaner (2h)', val: '2h' },
+                  { label: '🛵 Delivery (45m)', val: '45m' },
+                  { label: '👥 Guest (24h)', val: '24h' }
+                ].map((g, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => {
+                      const code = `${Math.floor(100 + Math.random() * 900)} ${Math.floor(100 + Math.random() * 900)}`;
+                      setMobileGuestPins(prev => [{ id: Date.now(), label: g.label, pin: code, validity: `Active (${g.val} left)` }, ...prev]);
+                      alert(`✓ Generated ${g.label} PIN: ${code}`);
+                    }}
+                    style={{ flex: 1, backgroundColor: '#F1F5F9', paddingVertical: 7, borderRadius: 8, alignItems: 'center' }}
+                  >
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: '#0F3460' }}>{g.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {mobileGuestPins.map(gp => (
+                <View key={gp.id} style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingVertical: 6,
+                  borderTopWidth: 1,
+                  borderTopColor: '#F1F5F9'
+                }}>
+                  <View>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#0F3460' }}>{gp.label}: <Text style={{ color: '#E9A319' }}>{gp.pin}</Text></Text>
+                    <Text style={{ fontSize: 9, color: '#10B981' }}>{gp.validity}</Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => alert(`Opening WhatsApp to share temporary PIN ${gp.pin}...`)}
+                    style={{ backgroundColor: '#25D366', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}
+                  >
+                    <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>📲 WhatsApp</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+
             {/* Fast WiFi Credentials */}
             <View style={styles.wifiCard}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -708,6 +835,94 @@ export default function App() {
               </View>
             </View>
 
+            {/* Pillar 3: WhatsApp Caretaker Daily Pulse Simulator */}
+            <View style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 16,
+              padding: 14,
+              marginBottom: 14,
+              borderWidth: 1,
+              borderColor: '#25D366'
+            }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 16 }}>💬</Text>
+                  <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 12 }}>Caretaker WhatsApp Pulse Bot</Text>
+                </View>
+                <View style={{ backgroundColor: '#25D366', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                  <Text style={{ color: 'white', fontSize: 9, fontWeight: '900' }}>LIVE WEBHOOK</Text>
+                </View>
+              </View>
+
+              {/* Chat Message Box */}
+              <View style={{ backgroundColor: '#0B141B', borderRadius: 10, padding: 10, marginBottom: 10 }}>
+                {mobileCaretakerChat.map((m, i) => (
+                  <View key={i} style={{
+                    alignSelf: m.sender === 'CARETAKER' ? 'flex-end' : 'flex-start',
+                    backgroundColor: m.sender === 'CARETAKER' ? '#005C4B' : '#202C33',
+                    padding: 8,
+                    borderRadius: 8,
+                    marginBottom: 4,
+                    maxWidth: '90%'
+                  }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 11, lineHeight: 14 }}>{m.text}</Text>
+                    <Text style={{ color: '#94A3B8', fontSize: 8, textAlign: 'right', marginTop: 2 }}>{m.time}</Text>
+                  </View>
+                ))}
+                {isMobileCaretakerTyping && (
+                  <Text style={{ color: '#25D366', fontSize: 10, fontStyle: 'italic' }}>Caretaker typing...</Text>
+                )}
+              </View>
+
+              {/* Quick Reply Action Pills */}
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#64748B', marginBottom: 6 }}>
+                Simulate Caretaker 1-Tap Response:
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsMobileCaretakerTyping(true);
+                    setMobileCaretakerChat(prev => [...prev, { sender: 'CARETAKER', text: '🟢 Grid live, borehole tank full.', time: '07:02 AM' }]);
+                    setTimeout(() => {
+                      setIsMobileCaretakerTyping(false);
+                      setMobileCaretakerChat(prev => [...prev, { sender: 'BOT', text: '✅ Verified & logged in Escrow Ledger.', time: '07:02 AM' }]);
+                    }, 600);
+                  }}
+                  style={{ flex: 1, backgroundColor: 'rgba(16,185,129,0.1)', paddingVertical: 6, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#10B981' }}
+                >
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: '#10B981' }}>🟢 Grid Normal</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsMobileCaretakerTyping(true);
+                    setMobileCaretakerChat(prev => [...prev, { sender: 'CARETAKER', text: '⚡ Inverter running (85% batt).', time: '07:03 AM' }]);
+                    setTimeout(() => {
+                      setIsMobileCaretakerTyping(false);
+                      setMobileCaretakerChat(prev => [...prev, { sender: 'BOT', text: '⚡ Outage noted. Zero downtime logged.', time: '07:03 AM' }]);
+                    }, 600);
+                  }}
+                  style={{ flex: 1, backgroundColor: 'rgba(233,163,25,0.1)', paddingVertical: 6, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#E9A319' }}
+                >
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: '#B45309' }}>⚡ Inverter Active</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsMobileCaretakerTyping(true);
+                    setMobileCaretakerChat(prev => [...prev, { sender: 'CARETAKER', text: '🚨 Diesel < 20% refill needed.', time: '07:04 AM' }]);
+                    setTimeout(() => {
+                      setIsMobileCaretakerTyping(false);
+                      setMobileCaretakerChat(prev => [...prev, { sender: 'BOT', text: '🚨 Alert sent to StarOil Ghana fuel truck.', time: '07:04 AM' }]);
+                    }, 600);
+                  }}
+                  style={{ flex: 1, backgroundColor: 'rgba(233,69,96,0.1)', paddingVertical: 6, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#E94560' }}
+                >
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: '#E94560' }}>🚨 Diesel Low</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {/* SLA Active Breach Status */}
             {outageReported ? (
               <View style={styles.activeBreachCard}>
@@ -727,9 +942,28 @@ export default function App() {
 
                 <View style={styles.escrowBox}>
                   <Text style={{ color: '#FFFFFF', fontSize: 13, lineHeight: 18 }}>
-                    If power/internet is not restored within 2 hours, <Text style={{ fontWeight: 'bold', color: '#E9A319' }}>$35.00</Text> will be automatically transferred from the host's escrow to your account.
+                    If power/internet is not restored within 2 hours, <Text style={{ fontWeight: 'bold', color: '#E9A319' }}>$35.00 (GHS 420)</Text> will be automatically transferred from host escrow to your MTN MoMo account.
                   </Text>
                 </View>
+
+                {/* 1-Tap MoMo Claim Refund Button */}
+                <TouchableOpacity
+                  onPress={() => {
+                    alert('💸 Escrow Penalty Disbursed! GHS 420 transferred to your MTN Mobile Money wallet (+233 24 ...). Transaction Ref: MOMO-SLA-902184.');
+                    setOutageReported(false);
+                  }}
+                  style={{
+                    backgroundColor: '#10B981',
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                    marginBottom: 8
+                  }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12 }}>
+                    💸 Claim Instant Escrow Compensation (+GHS 420 MoMo)
+                  </Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity 
                   style={styles.cancelClaimBtn}
@@ -767,7 +1001,7 @@ export default function App() {
           </ScrollView>
         )}
 
-        {/* TAB 4: FLEX-ADVANCE PROFILE & KYC */}
+        {/* TAB 4: FLEX-ADVANCE PROFILE & SMILEID BIOMETRICS */}
         {activeTab === 'PROFILE' && (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             {/* User KYC Card */}
@@ -786,6 +1020,36 @@ export default function App() {
                 <Text style={styles.tierPillText}>✓ Tier 2 Verified (Ghana Card: GHA-712839120-1)</Text>
               </View>
             </View>
+
+            {/* Pillar 5: SmileID Diaspora Biometrics Fast-Track Button */}
+            <TouchableOpacity
+              onPress={() => {
+                setSmileIdStep('SCANNING');
+                setIsSmileIdModalOpen(true);
+                setTimeout(() => setSmileIdStep('BLINKING'), 1400);
+                setTimeout(() => setSmileIdStep('MATCHED'), 2800);
+              }}
+              style={{
+                backgroundColor: '#0F3460',
+                borderRadius: 14,
+                padding: 14,
+                marginBottom: 14,
+                borderWidth: 1,
+                borderColor: '#10B981',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Text style={{ fontSize: 24 }}>🤳</Text>
+                <View>
+                  <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>SmileID Biometric Fast-Track</Text>
+                  <Text style={{ color: '#10B981', fontSize: 11, fontWeight: '600' }}>3D Selfie Liveness & National ID Check</Text>
+                </View>
+              </View>
+              <Text style={{ color: '#E9A319', fontWeight: '800', fontSize: 12 }}>Run Scan →</Text>
+            </TouchableOpacity>
 
             {/* Flex-Advance Credit Limit Card */}
             <View style={styles.creditCard}>
@@ -899,6 +1163,63 @@ export default function App() {
                 >
                   <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 11 }}>MoMo Cashout</Text>
                 </TouchableOpacity>
+              </View>
+
+              {/* Cellular Signal & Offline Sync Control (Pillar 2) */}
+              <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    const next = !isMobileScoutOffline;
+                    setIsMobileScoutOffline(next);
+                    if (!next && mobileScoutOfflineQueue.length > 0) {
+                      setIsMobileSyncing(true);
+                      setTimeout(() => {
+                        setIsMobileSyncing(false);
+                        setScoutWalletGhs(prev => prev + (mobileScoutOfflineQueue.length * 750));
+                        alert(`⚡ 4G Restored! Successfully uploaded ${mobileScoutOfflineQueue.length} audits to cloud. Wallet credited!`);
+                        setMobileScoutOfflineQueue([]);
+                      }, 1000);
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    backgroundColor: isMobileScoutOffline ? 'rgba(233,69,96,0.2)' : 'rgba(16,185,129,0.2)',
+                    paddingVertical: 6,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: isMobileScoutOffline ? '#E94560' : '#10B981'
+                  }}
+                >
+                  <Text style={{ fontSize: 10, fontWeight: '800', color: isMobileScoutOffline ? '#E94560' : '#10B981' }}>
+                    {isMobileScoutOffline ? '🔴 0 Bars (Basement Offline)' : '🟢 4G Connected'}
+                  </Text>
+                </TouchableOpacity>
+
+                {mobileScoutOfflineQueue.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setIsMobileSyncing(true);
+                      setTimeout(() => {
+                        setIsMobileSyncing(false);
+                        setScoutWalletGhs(prev => prev + (mobileScoutOfflineQueue.length * 750));
+                        alert(`⚡ Cloud Synced ${mobileScoutOfflineQueue.length} cached inspection reports!`);
+                        setMobileScoutOfflineQueue([]);
+                      }, 1000);
+                    }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#E9A319',
+                      paddingVertical: 6,
+                      borderRadius: 8,
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#0B1B26' }}>
+                      {isMobileSyncing ? '⚡ Syncing...' : `📥 Sync ${mobileScoutOfflineQueue.length} Queued`}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
@@ -1148,23 +1469,33 @@ export default function App() {
                     {/* Certify Button */}
                     <TouchableOpacity
                       onPress={() => {
-                        setScoutWalletGhs(prev => prev + 750);
-                        setScoutCertifiedSuccess(true);
+                        if (isMobileScoutOffline) {
+                          setMobileScoutOfflineQueue(prev => [{
+                            id: Date.now(),
+                            title: activeAuditTask.title,
+                            time: 'Just now'
+                          }, ...prev]);
+                          alert('📥 Basement / Borehole Offline Mode: Audit safely saved to local queue. Auto-sync will upload upon re-establishing 4G signal.');
+                          setScoutSubTab('TASKS');
+                        } else {
+                          setScoutWalletGhs(prev => prev + 750);
+                          setScoutCertifiedSuccess(true);
+                        }
                       }}
                       style={{
-                        backgroundColor: '#E94560',
+                        backgroundColor: isMobileScoutOffline ? '#E9A319' : '#E94560',
                         paddingVertical: 14,
                         borderRadius: 14,
                         alignItems: 'center',
-                        shadowColor: '#E94560',
+                        shadowColor: isMobileScoutOffline ? '#E9A319' : '#E94560',
                         shadowOffset: { width: 0, height: 4 },
                         shadowOpacity: 0.3,
                         shadowRadius: 8,
                         elevation: 4
                       }}
                     >
-                      <Text style={{ color: '#FFFFFF', fontWeight: '900', fontSize: 13 }}>
-                        🏆 Certify Audit & Issue Flex-Trust Badges (+43% Lift)
+                      <Text style={{ color: isMobileScoutOffline ? '#0B1B26' : '#FFFFFF', fontWeight: '900', fontSize: 13 }}>
+                        {isMobileScoutOffline ? '📥 Save Audit to Local Offline Queue' : '🏆 Certify Audit & Issue Flex-Trust Badges (+43% Lift)'}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -1890,6 +2221,267 @@ export default function App() {
             )}
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Property Detail & MoMo Checkout Modal (Pillar 1) */}
+      <Modal visible={!!selectedMobileProperty} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: '90%' }]}>
+            {selectedMobileProperty && (
+              <ScrollView style={{ padding: 20 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <Text style={{ fontSize: 18, fontWeight: '900', color: '#0F3460' }}>Property Details & Checkout</Text>
+                  <TouchableOpacity onPress={() => setSelectedMobileProperty(null)}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#64748B' }}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Image
+                  source={{ uri: selectedMobileProperty.image }}
+                  style={{ width: '100%', height: 180, borderRadius: 16, marginBottom: 12 }}
+                />
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F3460' }}>{selectedMobileProperty.title}</Text>
+                  <Text style={{ color: '#E9A319', fontWeight: '800' }}>⭐ {selectedMobileProperty.rating}</Text>
+                </View>
+                <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 12 }}>{selectedMobileProperty.city} • Verified Escrow Guarantee</Text>
+
+                {/* 200-Point Audited Infrastructure Badges */}
+                <View style={{ backgroundColor: '#F8FAFC', borderRadius: 14, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F3460', marginBottom: 6, textTransform: 'uppercase' }}>
+                    🛡️ Verified Infrastructure Telemetry
+                  </Text>
+                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700' }}>✓ ⚡ 24/7 Solar Backup • ATS Switchover &lt; 6.2s</Text>
+                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 🌐 Starlink Gen 3 Satellite • 185 Mbps / 26ms</Text>
+                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 💧 Deep Borehole Reserve • TDS 65 PPM Pure</Text>
+                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 🔐 Keyless Digital Smart Deadbolt (94% Batt)</Text>
+                </View>
+
+                {/* Pricing Breakdown */}
+                <View style={{ backgroundColor: '#0F3460', borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ color: '#94A3B8', fontSize: 12 }}>Monthly Rent (Flex-Advance)</Text>
+                    <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '900' }}>
+                      {formatPrice(selectedMobileProperty.priceGhs)} / mo
+                    </Text>
+                  </View>
+                  <Text style={{ color: '#10B981', fontSize: 11, marginTop: 4 }}>
+                    ✓ 15% automatically locked in tenant protection escrow
+                  </Text>
+                </View>
+
+                {/* Mobile Money Input */}
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F3460', marginBottom: 4 }}>
+                  Mobile Money Account for Instant USSD Push:
+                </Text>
+                <TextInput
+                  value={mobileMomoPhone}
+                  onChangeText={setMobileMomoPhone}
+                  placeholder="+233 24 000 0000"
+                  style={{
+                    backgroundColor: '#F1F5F9',
+                    borderRadius: 10,
+                    padding: 12,
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    color: '#0F3460',
+                    marginBottom: 14
+                  }}
+                />
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsMobileMomoUssdOpen(true);
+                    setMobileMomoSuccess(false);
+                    setMobileMomoPin('');
+                  }}
+                  style={{
+                    backgroundColor: '#E9A319',
+                    paddingVertical: 14,
+                    borderRadius: 14,
+                    alignItems: 'center',
+                    marginBottom: 20
+                  }}
+                >
+                  <Text style={{ color: '#0B1B26', fontWeight: '900', fontSize: 14 }}>
+                    ⚡ Pay {formatPrice(selectedMobileProperty.priceGhs)} via MoMo STK Push →
+                  </Text>
+                </TouchableOpacity>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Authentic Mobile Money USSD STK Push Modal (Pillar 1) */}
+      <Modal visible={isMobileMomoUssdOpen} animationType="fade" transparent={true}>
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 20
+        }}>
+          <View style={{
+            backgroundColor: '#1E1E1E',
+            borderRadius: 24,
+            padding: 24,
+            width: '100%',
+            maxWidth: 340,
+            borderWidth: 2,
+            borderColor: '#E9A319',
+            alignItems: 'center'
+          }}>
+            {mobileMomoSuccess ? (
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 44, marginBottom: 8 }}>✅</Text>
+                <Text style={{ color: '#10B981', fontWeight: '900', fontSize: 18 }}>Payment Approved!</Text>
+                <Text style={{ color: '#CBD5E1', fontSize: 12, textAlign: 'center', marginTop: 4 }}>
+                  Escrow reserved. Digital Key unlocked.
+                </Text>
+              </View>
+            ) : isMobileMomoProcessing ? (
+              <View style={{ alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#E9A319" style={{ marginBottom: 12 }} />
+                <Text style={{ color: '#E9A319', fontWeight: '800', fontSize: 16 }}>Processing USSD Handshake...</Text>
+                <Text style={{ color: '#94A3B8', fontSize: 11, marginTop: 4 }}>Communicating with telco core...</Text>
+              </View>
+            ) : (
+              <View style={{ width: '100%', alignItems: 'center' }}>
+                <View style={{ backgroundColor: '#E9A319', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10, marginBottom: 10 }}>
+                  <Text style={{ color: '#0B1B26', fontWeight: '900', fontSize: 10 }}>MTN MOMO USSD PUSH</Text>
+                </View>
+
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16, marginBottom: 6 }}>
+                  Authorize Flex-Living Stay
+                </Text>
+
+                <View style={{ backgroundColor: '#2B2B2B', borderRadius: 12, padding: 10, width: '100%', marginBottom: 14 }}>
+                  <Text style={{ color: '#E2E8F0', fontSize: 11 }}>Merchant: <Text style={{ fontWeight: 'bold' }}>Flex-Living Escrow</Text></Text>
+                  <Text style={{ color: '#E2E8F0', fontSize: 11, marginTop: 2 }}>Amount: <Text style={{ fontWeight: 'bold', color: '#E9A319' }}>{selectedMobileProperty ? formatPrice(selectedMobileProperty.priceGhs) : 'GHS 4,500'}</Text></Text>
+                  <Text style={{ color: '#E2E8F0', fontSize: 11, marginTop: 2 }}>Account: {mobileMomoPhone}</Text>
+                </View>
+
+                <Text style={{ color: '#94A3B8', fontSize: 11, marginBottom: 8 }}>Enter 4-Digit MoMo PIN:</Text>
+                <TextInput
+                  value={mobileMomoPin}
+                  onChangeText={setMobileMomoPin}
+                  secureTextEntry
+                  maxLength={4}
+                  keyboardType="numeric"
+                  placeholder="••••"
+                  placeholderTextColor="#64748B"
+                  style={{
+                    backgroundColor: '#0F0F0F',
+                    borderWidth: 2,
+                    borderColor: '#E9A319',
+                    borderRadius: 12,
+                    color: '#FFFFFF',
+                    fontSize: 22,
+                    textAlign: 'center',
+                    letterSpacing: 8,
+                    width: 140,
+                    paddingVertical: 8,
+                    marginBottom: 16
+                  }}
+                />
+
+                <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+                  <TouchableOpacity
+                    onPress={() => setIsMobileMomoUssdOpen(false)}
+                    style={{ flex: 1, backgroundColor: '#333333', paddingVertical: 10, borderRadius: 10, alignItems: 'center' }}
+                  >
+                    <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }}>Cancel (2)</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (!mobileMomoPin || mobileMomoPin.length < 4) {
+                        alert('Please enter your 4-digit PIN');
+                        return;
+                      }
+                      setIsMobileMomoProcessing(true);
+                      setTimeout(() => {
+                        setIsMobileMomoProcessing(false);
+                        setMobileMomoSuccess(true);
+                        if (selectedMobileProperty) {
+                          setCurrentResidence({
+                            title: selectedMobileProperty.title,
+                            unit: 'Penthouse Unit 402',
+                            city: selectedMobileProperty.city
+                          });
+                        }
+                        setTimeout(() => {
+                          setIsMobileMomoUssdOpen(false);
+                          setSelectedMobileProperty(null);
+                          setActiveTab('KEY');
+                        }, 1200);
+                      }, 1000);
+                    }}
+                    style={{ flex: 1, backgroundColor: '#E9A319', paddingVertical: 10, borderRadius: 10, alignItems: 'center' }}
+                  >
+                    <Text style={{ color: '#0B1B26', fontWeight: 'bold', fontSize: 12 }}>Approve (1)</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* SmileID Diaspora Biometric Liveness Scanner Modal (Pillar 5) */}
+      <Modal visible={isSmileIdModalOpen} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { padding: 20, alignItems: 'center' }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: 20 }}>🤳</Text>
+                <Text style={{ fontSize: 16, fontWeight: '900', color: '#0F3460' }}>SmileID 3D Liveness Check</Text>
+              </View>
+              <TouchableOpacity onPress={() => setIsSmileIdModalOpen(false)}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#64748B' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Simulated 3D Face Oval */}
+            <View style={{
+              width: 170,
+              height: 220,
+              borderRadius: 85,
+              borderWidth: 3,
+              borderColor: smileIdStep === 'MATCHED' ? '#10B981' : '#E9A319',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#0F3460',
+              marginVertical: 16,
+              overflow: 'hidden'
+            }}>
+              <Text style={{ fontSize: 56 }}>
+                {smileIdStep === 'MATCHED' ? '😃' : smileIdStep === 'BLINKING' ? '😉' : '👤'}
+              </Text>
+            </View>
+
+            <Text style={{ fontSize: 15, fontWeight: '800', color: '#0F3460', textAlign: 'center', marginBottom: 4 }}>
+              {smileIdStep === 'SCANNING' ? 'Aligning 3D Face Geometry...' : smileIdStep === 'BLINKING' ? 'Please Blink to Verify Liveness...' : '✓ 100% Biometric Match!'}
+            </Text>
+
+            <Text style={{ fontSize: 11, color: '#64748B', textAlign: 'center', marginBottom: 16 }}>
+              {smileIdStep === 'MATCHED'
+                ? 'Ghana Card & Interpol AML Database cleared. Tier 2 Diaspora limit of GHS 24,000 active.'
+                : 'SmileID Enterprise SDK • Zero Paperwork • Instant Underwriting'}
+            </Text>
+
+            {smileIdStep === 'MATCHED' && (
+              <TouchableOpacity
+                onPress={() => setIsSmileIdModalOpen(false)}
+                style={{ backgroundColor: '#10B981', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12, width: '100%', alignItems: 'center' }}
+              >
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Done • Facility Active</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );

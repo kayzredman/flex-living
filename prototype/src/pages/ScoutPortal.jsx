@@ -167,6 +167,35 @@ export default function ScoutPortal() {
     setAuditSuccess(null);
   };
 
+  // Pillar 2: Offline-First Field Scout Engine State (Basement/Borehole Mode)
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [offlineQueue, setOfflineQueue] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleToggleOfflineMode = () => {
+    const next = !isOfflineMode;
+    setIsOfflineMode(next);
+    if (!next && offlineQueue.length > 0) {
+      handleSyncOfflineQueue();
+    }
+  };
+
+  const handleSyncOfflineQueue = () => {
+    if (offlineQueue.length === 0) return;
+    setIsSyncing(true);
+    setTimeout(() => {
+      const count = offlineQueue.length;
+      setTasks(prev => prev.map(t => {
+        const matching = offlineQueue.find(q => q.taskId === t.id);
+        return matching ? { ...t, status: 'CERTIFIED' } : t;
+      }));
+      setScoutWalletGhs(prev => prev + (count * 750));
+      setOfflineQueue([]);
+      setIsSyncing(false);
+      alert(`⚡ 4G Restored! Successfully uploaded and certified ${count} offline inspection reports to the cloud.`);
+    }, 1200);
+  };
+
   const handleCertifyAudit = () => {
     setIsSubmitting(true);
     setTimeout(() => {
@@ -177,19 +206,41 @@ export default function ScoutPortal() {
       if (auditForm.boreholeTdsPpm < 150) awarded.push('BOREHOLE_VERIFIED (+8%)');
       if (auditForm.smartLockBattery >= 50) awarded.push('SMART_ACCESS_VERIFIED (+5%)');
 
-      // Update Task in state
-      setTasks(prev => prev.map(t => t.id === selectedTask.id ? { ...t, status: 'CERTIFIED' } : t));
-      setScoutWalletGhs(prev => prev + 750);
-      setAuditSuccess({
-        taskTitle: selectedTask.title,
-        qualityScore: 96,
-        awardedBadges: awarded,
-        bountyEarned: 750,
-        dynamicLift: '+43% Verified Lift',
-        timestamp: new Date().toLocaleTimeString()
-      });
+      if (isOfflineMode) {
+        // Queue locally in offline cache
+        const queuedItem = {
+          id: `offline-${Date.now()}`,
+          taskId: selectedTask.id,
+          title: selectedTask.title,
+          auditForm: { ...auditForm },
+          awardedBadges: awarded,
+          timestamp: new Date().toLocaleTimeString()
+        };
+        setOfflineQueue(prev => [queuedItem, ...prev]);
+        setAuditSuccess({
+          taskTitle: selectedTask.title,
+          qualityScore: 96,
+          awardedBadges: awarded,
+          bountyEarned: 750,
+          dynamicLift: '+43% Verified Lift',
+          timestamp: new Date().toLocaleTimeString(),
+          isOfflineSaved: true
+        });
+      } else {
+        // Online direct certification
+        setTasks(prev => prev.map(t => t.id === selectedTask.id ? { ...t, status: 'CERTIFIED' } : t));
+        setScoutWalletGhs(prev => prev + 750);
+        setAuditSuccess({
+          taskTitle: selectedTask.title,
+          qualityScore: 96,
+          awardedBadges: awarded,
+          bountyEarned: 750,
+          dynamicLift: '+43% Verified Lift',
+          timestamp: new Date().toLocaleTimeString()
+        });
+      }
       setIsSubmitting(false);
-    }, 1000);
+    }, 800);
   };
 
   const handleTriggerAiScan = () => {
@@ -279,8 +330,72 @@ export default function ScoutPortal() {
               MoMo Cashout
             </button>
           </div>
+
+          {/* Pillar 2: Cellular Signal Mode & Offline Queue Indicator */}
+          <button
+            onClick={handleToggleOfflineMode}
+            style={{
+              background: isOfflineMode ? 'rgba(233,69,96,0.2)' : 'rgba(16,185,129,0.15)',
+              border: isOfflineMode ? '1px solid var(--coral)' : '1px solid var(--success)',
+              borderRadius: '20px',
+              padding: '0.4rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              color: isOfflineMode ? 'var(--coral)' : 'var(--success)',
+              fontWeight: 800,
+              fontSize: '0.78rem'
+            }}
+          >
+            <span>{isOfflineMode ? '🔴 0 Bars (Basement Offline)' : '🟢 4G Connected'}</span>
+          </button>
+
+          {offlineQueue.length > 0 && (
+            <button
+              onClick={handleSyncOfflineQueue}
+              disabled={isSyncing}
+              style={{
+                background: 'linear-gradient(135deg, var(--gold), var(--coral))',
+                border: 'none',
+                borderRadius: '20px',
+                padding: '0.4rem 1rem',
+                color: 'white',
+                fontWeight: 800,
+                fontSize: '0.78rem',
+                cursor: isSyncing ? 'wait' : 'pointer'
+              }}
+            >
+              {isSyncing ? '⚡ Syncing...' : `📥 Sync ${offlineQueue.length} Queued Audits`}
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Offline Mode Alert Banner */}
+      {isOfflineMode && (
+        <div style={{
+          background: 'rgba(233,163,25,0.12)',
+          border: '1px solid #E9A319',
+          borderRadius: '14px',
+          padding: '0.75rem 1.25rem',
+          marginBottom: '1.25rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.25rem' }}>📡</span>
+            <span style={{ fontSize: '0.85rem', color: '#FDE68A' }}>
+              <strong>Basement / Borehole Offline Mode Active:</strong> Cellular connection lost. 200-point physical audits and equipment photos will be safely stored in local offline cache and auto-synced when signal is restored.
+            </span>
+          </div>
+          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#E9A319', whiteSpace: 'nowrap' }}>
+            {offlineQueue.length} Cached in Local Queue
+          </span>
+        </div>
+      )}
 
       {/* Navigation Tabs */}
       <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
