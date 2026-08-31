@@ -81,11 +81,15 @@ Flex-Living is a tech-enabled real estate operating system for emerging African 
 4. **Automated QA Phase 4 Test Suite (`backend/qa_phase4_test.js`):**
    - 22/22 tests passing across Gateway health, spatial listing query, WhatsApp webhook, geofenced claims, underwriting, and scout queue.
 
-### ✅ Phase 7: Field Scout Management Portal & AI Vision Property Scanner (QA Certified - 6/6 Tests Passed):
+### ✅ Phase 7: Field Scout Management Portal, Fleet Governance & AI Vision Scanner (QA Certified - 9/9 Tests Passed):
   - **Field Scout Operations Portal (`prototype/src/pages/ScoutPortal.jsx`):**
     - Multi-city Scout workbench (Ama in Accra, Chinedu in Lagos, Njeri in Nairobi).
     - Interactive 200-point physical audit workbench: Power switchover (< 8s), generator acoustic level (< 45 dB), Starlink speedtest (> 50 Mbps), borehole TDS purity (< 150 PPM), smart lock pairing.
     - Scout Bounty Wallet ($50 / GHS 750 per certified audit) with instant MTN Mobile Money cashout trigger.
+    - **Scout Fleet Governance & Lifecycle (`prototype/src/pages/ScoutPortal.jsx` & `mobile/App.js`):**
+      - **Onboard Scout (`POST /v1/scout/onboard`):** Vets engineer name, phone, operating metro, KYC National ID (Ghana Card/NIN), hardware toolkit check, and payout details.
+      - **Yank / Offboard Scout (`PATCH /v1/scout/:id/status` or `DELETE /v1/scout/:id`):** Instantly revokes dispatch privileges, disables task queue, freezes wallet, and reassigns tickets.
+      - **Reinstate Scout:** Restores vetted status once equipment is re-calibrated.
   - **AI Vision Property Scanner (`backend/scout-service/src/ai_scanner.js` on Port `3001`):**
     - Multi-modal visual heuristics & telemetry OCR (`POST /v1/scout/ai-scan`).
     - Detects solar inverter models (Victron/Deye), Starlink satellite geometry, Sintex borehole tanks, and smart deadbolts.
