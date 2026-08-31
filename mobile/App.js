@@ -13,38 +13,226 @@ import {
 } from 'react-native';
 
 const PROPERTIES = [
+  // Accra Properties
   {
     id: 1,
-    title: 'Luxury Cantonments Apartment',
+    title: 'Luxury Cantonments Penthouse',
     city: 'Accra, Ghana',
-    priceGhs: 4000,
+    neighborhood: 'Cantonments',
+    priceGhs: 4200,
     image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80',
-    rating: 4.9,
-    scout: 'Ama (Flex Guide)',
+    rating: 4.95,
+    scout: 'Ama (Senior Flex Guide)',
     badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
-    amenities: 'ATS < 8s • 38 dB Quiet • Dedicated Desk'
+    amenities: 'ATS < 6s • 38 dB Silent Inverter • Dedicated Standing Desk'
   },
   {
     id: 2,
-    title: 'Sleek Lekki Studio',
-    city: 'Lagos, Nigeria',
-    priceGhs: 5700,
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
-    rating: 4.7,
-    scout: 'Chinedu (Flex Guide)',
-    badges: ['⚡ Inverter Backup', '🌐 30Mbps Fibre', '🛡️ Gated'],
-    amenities: 'Inverter 3.5kVA • Dual Power Source'
+    title: 'Airport Residential Executive Villa',
+    city: 'Accra, Ghana',
+    neighborhood: 'Airport Residential',
+    priceGhs: 4800,
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+    rating: 4.92,
+    scout: 'Kofi (Flex Scout Lead)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: '10kVA Victron Solar • Private Swimming Pool • Chef Kitchen'
   },
   {
     id: 3,
-    title: 'Spacious Kilimani Penthouse',
+    title: 'Labone Modern Duplex',
+    city: 'Accra, Ghana',
+    neighborhood: 'Labone',
+    priceGhs: 3800,
+    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
+    rating: 4.88,
+    scout: 'Ama (Senior Flex Guide)',
+    badges: ['⚡ 24/7 Solar', '🌐 100Mbps Fibre', '💧 Borehole'],
+    amenities: 'Dual Grid Transfer • 5,000L Overhead Water • Garden Patio'
+  },
+  {
+    id: 4,
+    title: 'Osu Contemporary Studio',
+    city: 'Accra, Ghana',
+    neighborhood: 'Osu Oxford St',
+    priceGhs: 2900,
+    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
+    rating: 4.81,
+    scout: 'Kwame (Flex Scout)',
+    badges: ['⚡ Inverter Backup', '🌐 50Mbps Fibre', '🔐 Smart Lock'],
+    amenities: 'Balcony View • Noise Insulated • 2 Mins to Oxford Street'
+  },
+  {
+    id: 5,
+    title: 'East Legon Tech Nomad Hub',
+    city: 'Accra, Ghana',
+    neighborhood: 'East Legon',
+    priceGhs: 3500,
+    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80',
+    rating: 4.90,
+    scout: 'Kofi (Flex Scout Lead)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '🔐 Smart Lock'],
+    amenities: 'Ergonomic Chair • 4K Monitor Station • Dual Battery Pack'
+  },
+  {
+    id: 6,
+    title: 'Dzorwulu Executive Garden Flat',
+    city: 'Accra, Ghana',
+    neighborhood: 'Dzorwulu',
+    priceGhs: 3200,
+    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    scout: 'Ama (Senior Flex Guide)',
+    badges: ['⚡ 24/7 Solar', '💧 Borehole', '🛡️ Gated 24/7'],
+    amenities: 'Quiet Sector • Solar Water Heating • Gated Perimeter'
+  },
+  {
+    id: 7,
+    title: 'Roman Ridge Diplomatic Residence',
+    city: 'Accra, Ghana',
+    neighborhood: 'Roman Ridge',
+    priceGhs: 5200,
+    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=600&q=80',
+    rating: 4.98,
+    scout: 'Kofi (Flex Scout Lead)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: 'Triple Redundancy Power • Embassy Sector • Private Gym'
+  },
+
+  // Lagos Properties
+  {
+    id: 8,
+    title: 'Banana Island Waterfront Villa',
+    city: 'Lagos, Nigeria',
+    neighborhood: 'Ikoyi (Banana Island)',
+    priceGhs: 7800,
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80',
+    rating: 4.99,
+    scout: 'Chinedu (Lagos Lead)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: '15kVA Solar Microgrid • Marina Access • 24/7 Armed Security'
+  },
+  {
+    id: 9,
+    title: 'Sleek Lekki Phase 1 Studio',
+    city: 'Lagos, Nigeria',
+    neighborhood: 'Lekki Phase 1',
+    priceGhs: 5400,
+    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
+    rating: 4.78,
+    scout: 'Chinedu (Lagos Lead)',
+    badges: ['⚡ Inverter Backup', '🌐 30Mbps Fibre', '🛡️ Gated'],
+    amenities: 'Dual Gen Transfer • Water Treatment Plant • Modern Kitchenette'
+  },
+  {
+    id: 10,
+    title: 'Victoria Island Skyline Loft',
+    city: 'Lagos, Nigeria',
+    neighborhood: 'Victoria Island',
+    priceGhs: 6200,
+    image: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=600&q=80',
+    rating: 4.91,
+    scout: 'Bolu (Flex Scout)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole'],
+    amenities: 'Atlantic Ocean View • Dedicated Zoom Room • 24/7 Concierge'
+  },
+  {
+    id: 11,
+    title: 'Ikoyi Colonial Garden Suite',
+    city: 'Lagos, Nigeria',
+    neighborhood: 'Ikoyi',
+    priceGhs: 6800,
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80',
+    rating: 4.94,
+    scout: 'Chinedu (Lagos Lead)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: 'Lithium Battery Storage • Lush Private Garden • High Perimeter'
+  },
+  {
+    id: 12,
+    title: 'Ikeja GRA Diplomatic Flat',
+    city: 'Lagos, Nigeria',
+    neighborhood: 'Ikeja GRA',
+    priceGhs: 4600,
+    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80',
+    rating: 4.82,
+    scout: 'Bolu (Flex Scout)',
+    badges: ['⚡ 24/7 Solar', '💧 Borehole', '🛡️ Gated'],
+    amenities: '10 Mins to Airport • Industrial Soundproofing • Full Backup'
+  },
+  {
+    id: 13,
+    title: 'Eko Atlantic Marina Penthouse',
+    city: 'Lagos, Nigeria',
+    neighborhood: 'Eko Atlantic City',
+    priceGhs: 8500,
+    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=600&q=80',
+    rating: 5.0,
+    scout: 'Chinedu (Lagos Lead)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: 'Panoramic Ocean Balcony • Smart Home Automation • Private Lift'
+  },
+
+  // Nairobi Properties
+  {
+    id: 14,
+    title: 'Westlands Skyview Penthouse',
     city: 'Nairobi, Kenya',
+    neighborhood: 'Westlands',
     priceGhs: 4300,
     image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
-    rating: 5.0,
-    scout: 'Njeri (Flex Guide)',
+    rating: 4.96,
+    scout: 'Njeri (Nairobi Lead)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: 'Rooftop Infinity Pool • Fibre + Starlink Failover • City Skyline'
+  },
+  {
+    id: 15,
+    title: 'Kilimani Tech Nomad Haven',
+    city: 'Nairobi, Kenya',
+    neighborhood: 'Kilimani',
+    priceGhs: 3600,
+    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80',
+    rating: 4.89,
+    scout: 'Njeri (Nairobi Lead)',
     badges: ['⚡ 24/7 Solar', '🌐 100Mbps Fibre', '💧 Reserve Tank'],
-    amenities: 'Balcony View • 5000L Water Backup'
+    amenities: 'Solar Inverter Backup • 5,000L Reserve Tank • Quiet Balcony'
+  },
+  {
+    id: 16,
+    title: 'Karen Country Garden Estate',
+    city: 'Nairobi, Kenya',
+    neighborhood: 'Karen',
+    priceGhs: 6900,
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+    rating: 4.98,
+    scout: 'Otieno (Flex Scout)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: 'Acre Private Forest • Solar Off-Grid Setup • Pure Borehole'
+  },
+  {
+    id: 17,
+    title: 'Lavington Serene Executive Flat',
+    city: 'Nairobi, Kenya',
+    neighborhood: 'Lavington',
+    priceGhs: 3900,
+    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80',
+    rating: 4.84,
+    scout: 'Njeri (Nairobi Lead)',
+    badges: ['⚡ 24/7 Solar', '💧 Borehole', '🛡️ Gated'],
+    amenities: 'Electric Fence • Solar Water Heating • Tree-lined Sanctuary'
+  },
+  {
+    id: 18,
+    title: 'Riverside UN Diplomatic Suite',
+    city: 'Nairobi, Kenya',
+    neighborhood: 'Riverside Drive',
+    priceGhs: 4700,
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80',
+    rating: 4.93,
+    scout: 'Otieno (Flex Scout)',
+    badges: ['⚡ 24/7 Solar', '🌐 Starlink 180M', '💧 Borehole', '🔐 Smart Lock'],
+    amenities: 'UN Blue Zone Security • Starlink Satellite • Sauna Access'
   }
 ];
 
