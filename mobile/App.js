@@ -11,6 +11,7 @@ import {
   Modal, 
   ActivityIndicator 
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 const PROPERTIES = [
   // Accra Properties
@@ -298,8 +299,70 @@ export default function App() {
     borehole: true,
     smartLock: true,
     caretakerPhone: '+233 55 123 4999',
-    caretakerName: 'Kofi Mensah'
+    caretakerName: 'Kofi Mensah',
+    photos: [] // ZERO preloaded pictures! Empty by default.
   });
+
+  const handlePickImage = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        // Fallback photo sample
+        const fallbackUrls = [
+          'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80'
+        ];
+        const nextUrl = fallbackUrls[hostForm.photos.length % fallbackUrls.length];
+        setHostForm(prev => ({
+          ...prev,
+          photos: [...prev.photos, { uri: nextUrl, label: `Property Photo #${prev.photos.length + 1}` }]
+        }));
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsMultipleSelection: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const newPics = result.assets.map((asset, i) => ({
+          uri: asset.uri,
+          label: `Property Photo #${hostForm.photos.length + i + 1}`
+        }));
+        setHostForm(prev => ({ ...prev, photos: [...prev.photos, ...newPics] }));
+      }
+    } catch (err) {
+      console.log('Image picker error:', err);
+      // Fallback
+      setHostForm(prev => ({
+        ...prev,
+        photos: [...prev.photos, { uri: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80', label: `Property Photo #${prev.photos.length + 1}` }]
+      }));
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        alert('Camera permission is required to take equipment photos.');
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setHostForm(prev => ({
+          ...prev,
+          photos: [...prev.photos, { uri: result.assets[0].uri, label: `Equipment Photo #${prev.photos.length + 1}` }]
+        }));
+      }
+    } catch (err) {
+      console.log('Camera capture error:', err);
+    }
+  };
 
   const handleHostSubmit = () => {
     const badges = [];
@@ -870,65 +933,95 @@ export default function App() {
                   <View>
                     <Text style={styles.stepHeader}>Step 3: Upload Photos & Proof</Text>
                     <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 12 }}>
-                      Add interior living photos and equipment proof photos for badge certification.
+                      Upload photos of your property and backup equipment. No photos are preloaded.
                     </Text>
 
-                    {/* Photo Slots Grid */}
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-                      {[
-                        { label: '🛋️ Living Area', url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80' },
-                        { label: '⚡ Solar Inverter', url: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=400&q=80' },
-                        { label: '🛰️ Starlink Dish', url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80' },
-                        { label: '💧 Water Tank', url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&q=80' }
-                      ].map((slot, idx) => (
-                        <View key={idx} style={{
-                          width: '48%',
-                          backgroundColor: '#F8FAFC',
-                          borderRadius: 12,
-                          borderWidth: 1,
-                          borderColor: '#E2E8F0',
-                          overflow: 'hidden'
-                        }}>
-                          <View style={{ height: 80, position: 'relative' }}>
-                            <Image source={{ uri: slot.url }} style={{ width: '100%', height: '100%' }} />
-                            <View style={{
-                              position: 'absolute',
-                              top: 4,
-                              right: 4,
-                              backgroundColor: '#10B981',
-                              borderRadius: 10,
-                              paddingHorizontal: 6,
-                              paddingVertical: 2
-                            }}>
-                              <Text style={{ color: '#FFFFFF', fontSize: 9, fontWeight: 'bold' }}>✓ Uploaded</Text>
-                            </View>
-                          </View>
-                          <Text style={{ padding: 6, fontSize: 11, fontWeight: '700', color: '#0F3460', textAlign: 'center' }}>
-                            {slot.label}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-
-                    {/* Camera Trigger Card */}
-                    <TouchableOpacity
-                      onPress={() => alert('📸 Camera / Photo Library: 4 photos selected and verified.')}
-                      style={{
-                        backgroundColor: 'rgba(233,69,96,0.08)',
-                        borderWidth: 1,
-                        borderColor: '#E94560',
+                    {/* Dynamic Photo Grid (Empty by default) */}
+                    {hostForm.photos.length === 0 ? (
+                      <View style={{
+                        backgroundColor: '#F8FAFC',
+                        borderWidth: 2,
+                        borderColor: '#CBD5E1',
                         borderStyle: 'dashed',
-                        borderRadius: 14,
-                        padding: 12,
+                        borderRadius: 16,
+                        padding: 24,
                         alignItems: 'center',
-                        marginBottom: 14
-                      }}
-                    >
-                      <Text style={{ fontSize: 20, marginBottom: 2 }}>📸</Text>
-                      <Text style={{ fontWeight: '800', color: '#E94560', fontSize: 12 }}>
-                        Tap to Take More Photos or Browse Library
-                      </Text>
-                    </TouchableOpacity>
+                        marginBottom: 16
+                      }}>
+                        <Text style={{ fontSize: 36, marginBottom: 6 }}>🖼️</Text>
+                        <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 14 }}>No photos added yet</Text>
+                        <Text style={{ fontSize: 12, color: '#64748B', textAlign: 'center', marginTop: 4 }}>
+                          Tap below to browse your photo library or take photos of your space.
+                        </Text>
+                      </View>
+                    ) : (
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+                        {hostForm.photos.map((pic, idx) => (
+                          <View key={idx} style={{
+                            width: '48%',
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 12,
+                            borderWidth: 1,
+                            borderColor: '#E2E8F0',
+                            overflow: 'hidden'
+                          }}>
+                            <View style={{ height: 85, position: 'relative' }}>
+                              <Image source={{ uri: pic.uri || pic.url }} style={{ width: '100%', height: '100%' }} />
+                              <TouchableOpacity
+                                onPress={() => setHostForm(prev => ({ ...prev, photos: prev.photos.filter((_, i) => i !== idx) }))}
+                                style={{
+                                  position: 'absolute',
+                                  top: 4,
+                                  right: 4,
+                                  backgroundColor: 'rgba(233,69,96,0.9)',
+                                  borderRadius: 10,
+                                  paddingHorizontal: 6,
+                                  paddingVertical: 2
+                                }}
+                              >
+                                <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}>✕ Remove</Text>
+                              </TouchableOpacity>
+                            </View>
+                            <Text style={{ padding: 6, fontSize: 11, fontWeight: '700', color: '#0F3460', textAlign: 'center' }}>
+                              {pic.label || `Photo #${idx + 1}`}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+
+                    {/* Interactive Action Buttons for Real Photo Selection */}
+                    <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+                      <TouchableOpacity
+                        onPress={handlePickImage}
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#0F3460',
+                          paddingVertical: 12,
+                          borderRadius: 12,
+                          alignItems: 'center'
+                        }}
+                      >
+                        <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12 }}>
+                          📁 Browse Library
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={handleTakePhoto}
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#E94560',
+                          paddingVertical: 12,
+                          borderRadius: 12,
+                          alignItems: 'center'
+                        }}
+                      >
+                        <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12 }}>
+                          📸 Take Photo
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
 
                     <View style={{ flexDirection: 'row', gap: 10 }}>
                       <TouchableOpacity onPress={() => setHostStep(2)} style={styles.secondaryModalBtn}>

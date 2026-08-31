@@ -23,10 +23,7 @@ export default function AddPropertyModal({ isOpen, onClose, onPropertyAdded, cur
     caretakerName: '',
     caretakerPhone: '+233 55 123 4999',
     scoutCity: 'Accra',
-    imageUrls: [
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=85',
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=85'
-    ]
+    imageUrls: [] // ZERO preloaded pictures! Empty by default.
   });
 
   if (!isOpen) return null;
@@ -472,21 +469,25 @@ export default function AddPropertyModal({ isOpen, onClose, onPropertyAdded, cur
                     </p>
 
                     {/* Interactive File Selector & Drag-Drop Trigger */}
-                    <div style={{
-                      border: '2px dashed rgba(233,163,25,0.4)',
-                      borderRadius: '14px',
-                      padding: '1.25rem',
-                      textAlign: 'center',
-                      background: 'rgba(233,163,25,0.04)',
-                      cursor: 'pointer',
-                      marginBottom: '1rem'
-                    }}>
-                      <div style={{ fontSize: '1.75rem', marginBottom: '4px' }}>📤</div>
-                      <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'white' }}>
-                        Click to Browse or Drag & Drop Photos
+                    <div 
+                      onClick={() => document.getElementById('host-photo-upload')?.click()}
+                      style={{
+                        border: '2px dashed rgba(233,163,25,0.5)',
+                        borderRadius: '14px',
+                        padding: '1.5rem',
+                        textAlign: 'center',
+                        background: 'rgba(233,163,25,0.06)',
+                        cursor: 'pointer',
+                        marginBottom: '1rem',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <div style={{ fontSize: '2rem', marginBottom: '6px' }}>📤</div>
+                      <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'white' }}>
+                        Click to Browse or Drag & Drop Photos Here
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '4px' }}>
-                        Supports JPG, PNG, WEBP up to 15MB each
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginTop: '4px' }}>
+                        Choose interior living photos and backup power / internet / water equipment
                       </div>
                       <input
                         type="file"
@@ -506,62 +507,118 @@ export default function AddPropertyModal({ isOpen, onClose, onPropertyAdded, cur
                       />
                       <button
                         type="button"
-                        onClick={() => document.getElementById('host-photo-upload').click()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          document.getElementById('host-photo-upload')?.click();
+                        }}
                         style={{
-                          marginTop: '10px',
-                          background: 'rgba(255,255,255,0.12)',
-                          border: '1px solid rgba(255,255,255,0.25)',
+                          marginTop: '12px',
+                          background: 'linear-gradient(135deg, var(--gold), var(--coral))',
+                          border: 'none',
                           color: 'white',
-                          padding: '0.4rem 1rem',
-                          borderRadius: '8px',
-                          fontSize: '0.8rem',
-                          fontWeight: 700,
+                          padding: '0.5rem 1.25rem',
+                          borderRadius: '10px',
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
                           cursor: 'pointer'
                         }}
                       >
-                        Select Files from Device
+                        Browse Files from Computer
                       </button>
                     </div>
 
-                    {/* 4 Categorized Upload Slots */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.6rem', marginBottom: '0.75rem' }}>
-                      {[
-                        { label: '🛋️ Living Area', tag: 'interior', url: formData.imageUrls[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80' },
-                        { label: '⚡ Inverter / Solar', tag: 'solar', url: formData.imageUrls[1] || 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80' },
-                        { label: '🛰️ Starlink Dish', tag: 'starlink', url: formData.imageUrls[2] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80' },
-                        { label: '💧 Borehole Tank', tag: 'water', url: formData.imageUrls[3] || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80' }
-                      ].map((slot, idx) => (
-                        <div key={idx} style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          borderRadius: '10px',
-                          border: '1px solid rgba(255,255,255,0.15)',
-                          overflow: 'hidden',
-                          position: 'relative'
-                        }}>
-                          <div style={{ height: '70px', position: 'relative' }}>
-                            <img src={slot.url} alt={slot.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            <span style={{
-                              position: 'absolute',
-                              top: '4px',
-                              right: '4px',
-                              background: 'rgba(16,185,129,0.9)',
+                    {/* Quick Sample Equipment Photo Triggers (Zero preloaded, optional on demand) */}
+                    <div style={{ marginBottom: '1rem' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '6px' }}>
+                        Quick Test: Click to attach sample verified equipment photos:
+                      </span>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {[
+                          { label: '🛋️ + Living Room', url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80' },
+                          { label: '⚡ + Solar Inverter', url: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80' },
+                          { label: '🛰️ + Starlink Dish', url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80' },
+                          { label: '💧 + Borehole Tank', url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80' }
+                        ].map((sample, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, imageUrls: [...prev.imageUrls, sample.url] }))}
+                            style={{
+                              background: 'rgba(255,255,255,0.08)',
+                              border: '1px solid rgba(255,255,255,0.2)',
                               color: 'white',
-                              borderRadius: '50%',
-                              width: '18px',
-                              height: '18px',
-                              fontSize: '10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontWeight: 'bold'
-                            }}>✓</span>
-                          </div>
-                          <div style={{ padding: '6px', fontSize: '0.7rem', fontWeight: 700, textAlign: 'center' }}>
-                            {slot.label}
-                          </div>
-                        </div>
-                      ))}
+                              padding: '4px 10px',
+                              borderRadius: '8px',
+                              fontSize: '0.72rem',
+                              cursor: 'pointer',
+                              fontWeight: 600
+                            }}
+                          >
+                            {sample.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
+
+                    {/* Uploaded Photos Grid or Empty State */}
+                    {formData.imageUrls.length === 0 ? (
+                      <div style={{
+                        background: 'rgba(255,255,255,0.03)',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        padding: '1.25rem',
+                        textAlign: 'center',
+                        color: 'rgba(255,255,255,0.5)',
+                        fontSize: '0.8rem'
+                      }}>
+                        No photos added yet. Upload files from your computer or click a quick sample above.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.6rem', marginBottom: '0.75rem' }}>
+                        {formData.imageUrls.map((url, idx) => (
+                          <div key={idx} style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            borderRadius: '10px',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            overflow: 'hidden',
+                            position: 'relative'
+                          }}>
+                            <div style={{ height: '75px', position: 'relative' }}>
+                              <img src={url} alt={`Upload ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  imageUrls: prev.imageUrls.filter((_, i) => i !== idx)
+                                }))}
+                                style={{
+                                  position: 'absolute',
+                                  top: '4px',
+                                  right: '4px',
+                                  background: 'rgba(233,69,96,0.9)',
+                                  border: 'none',
+                                  color: 'white',
+                                  borderRadius: '50%',
+                                  width: '20px',
+                                  height: '20px',
+                                  fontSize: '11px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                            <div style={{ padding: '4px', fontSize: '0.68rem', fontWeight: 700, textAlign: 'center', color: 'rgba(255,255,255,0.9)' }}>
+                              Photo #{idx + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
