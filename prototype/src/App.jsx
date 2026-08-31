@@ -6,6 +6,7 @@ import LandlordDashboard from './pages/LandlordDashboard';
 import StayManagement from './pages/StayManagement';
 import ScoutPortal from './pages/ScoutPortal';
 import AdminFlags from './pages/AdminFlags';
+import UIUXShowcase from './pages/UIUXShowcase';
 
 const properties = [
   {
@@ -283,6 +284,28 @@ function App() {
             </div>
           )}
 
+          {/* Prototype Preview Button */}
+          <button
+            onClick={() => navigateTo('PROTOTYPE_PREVIEW')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: currentScreen === 'PROTOTYPE_PREVIEW' ? 'linear-gradient(135deg, #0B1B26, #1E293B)' : 'rgba(233,163,25,0.12)',
+              border: '1.5px solid #E9A319',
+              color: currentScreen === 'PROTOTYPE_PREVIEW' ? '#E9A319' : '#B45309',
+              padding: '5px 12px',
+              borderRadius: '20px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(233,163,25,0.15)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span>✨</span> UI/UX Pro Max Prototype
+          </button>
+
           {/* Persona Switcher & Authenticated Profile Pill */}
           <div style={{ position: 'relative' }}>
             <button
@@ -503,11 +526,15 @@ function App() {
 
       {/* Main Content Area */}
       <main style={{ flex: 1 }}>
-        {persona === 'ADMIN' && <AdminFlags onBack={() => setPersona('TENANT')} />}
-        {persona === 'SCOUT' && <ScoutPortal flags={flags} />}
-        {persona === 'LANDLORD' && <LandlordDashboard currency={currency} flags={flags} />}
+        {currentScreen === 'PROTOTYPE_PREVIEW' && (
+          <UIUXShowcase onBack={() => navigateTo('HOME')} />
+        )}
+
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'ADMIN' && <AdminFlags onBack={() => setPersona('TENANT')} />}
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'SCOUT' && <ScoutPortal flags={flags} />}
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'LANDLORD' && <LandlordDashboard currency={currency} flags={flags} />}
         
-        {persona === 'TENANT' && currentScreen === 'HOME' && (
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'TENANT' && currentScreen === 'HOME' && (
           <Home 
             properties={properties} 
             searchQuery={searchQuery}
