@@ -2,12 +2,34 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const proxy = require('express-http-proxy');
+const featureFlags = require('./feature_flags');
 
 const app = express();
 const PORT = process.env.PORT || 3004;
 
 app.use(cors());
 app.use(morgan('dev'));
+
+// Parse JSON specifically for config API
+app.use('/v1/config', express.json());
+
+// Feature Flags API Endpoints (Granular Remote Config)
+app.get('/v1/config/flags', (req, res) => {
+  res.json(featureFlags.getFlags());
+});
+
+app.patch('/v1/config/flags', (req, res) => {
+  try {
+    const updated = featureFlags.updateFlags(req.body || {});
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/v1/config/flags/reset', (req, res) => {
+  res.json(featureFlags.resetFlags());
+});
 
 // Service Target URLs
 const SERVICES = {
@@ -26,6 +48,7 @@ app.get('/health', (req, res) => {
     status: 'HEALTHY',
     service: 'flexliving-api-gateway',
     timestamp: new Date().toISOString(),
+    featureFlags: '/v1/config/flags',
     routes: {
       auth: `${SERVICES.auth}/v1/auth`,
       listings: `${SERVICES.listings}/v1/listings`,

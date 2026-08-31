@@ -135,10 +135,10 @@ export default function Home({ properties, onSelect, searchQuery = '', currency 
             onClick={() => setShowMap(!showMap)}
             className="btn glass"
             style={{
-              padding: '0.55rem 1.25rem',
-              borderRadius: '24px',
+              padding: '6px 14px',
+              borderRadius: '20px',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               color: 'var(--teal)',
               display: 'flex',
               alignItems: 'center',
@@ -147,46 +147,31 @@ export default function Home({ properties, onSelect, searchQuery = '', currency 
               background: showMap ? 'rgba(15, 52, 96, 0.08)' : 'white'
             }}
           >
-            <span>{showMap ? '🗺️' : '▦'}</span>
-            {showMap ? 'Hide Map' : 'Show Split Map'}
+            {showMap ? 'Hide Map ✕' : 'Show Map 🗺️'}
           </button>
-          <span className="text-secondary text-sm font-bold" style={{ whiteSpace: 'nowrap' }}>
-            {filtered.length} verified stays
-          </span>
         </div>
       </div>
 
-      {/* Split Map View Container */}
-      <div className={`split-view-container ${showMap ? 'with-map' : ''}`}>
-        {/* Left Side: Property Listings */}
-        <div className="property-grid">
+      {/* Main Content Layout: Grid + Side Map */}
+      <div style={{ display: 'grid', gridTemplateColumns: showMap ? '1fr 480px' : '1fr', gap: '2rem', alignItems: 'start' }}>
+        {/* Left Side: Property Cards Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: showMap ? 'repeat(auto-fill, minmax(280px, 1fr))' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
           {filtered.map(property => {
             const isLiked = likedProperties.has(property.id);
-
             return (
-              <div
-                key={property.id}
-                className="property-card glass"
+              <div 
+                key={property.id} 
+                className="property-card"
                 onClick={() => onSelect(property)}
-                style={{
-                  cursor: 'pointer',
-                  borderRadius: '20px',
-                  overflow: 'hidden',
-                  position: 'relative'
-                }}
+                style={{ cursor: 'pointer' }}
               >
-                {/* Image & Badges */}
-                <div className="property-card-image" style={{ height: '240px', position: 'relative' }}>
-                  <img src={property.image} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  
-                  {/* Top Badges */}
-                  <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                    <span className="badge badge-verified" style={{ backdropFilter: 'blur(8px)', background: 'rgba(16,185,129,0.95)', color: 'white', fontWeight: 800 }}>
-                      ✓ 200+ Point Audited
-                    </span>
-                  </div>
-
-                  {/* Heart Favorite Button */}
+                {/* Image Container with Badges */}
+                <div style={{ position: 'relative', width: '100%', height: '200px' }}>
+                  <img 
+                    src={property.image} 
+                    alt={property.title} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
                   <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
                     <button
                       onClick={(e) => toggleLike(e, property.id)}
@@ -197,9 +182,11 @@ export default function Home({ properties, onSelect, searchQuery = '', currency 
                   </div>
 
                   {/* Scout Signature Pill */}
-                  <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(15,52,96,0.9)', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: '12px', color: 'white', fontSize: '0.75rem', fontWeight: 600 }}>
-                    Audited by {property.scout}
-                  </div>
+                  {flags.FLAG_200_POINT_TELEMETRY !== false && (
+                    <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(15,52,96,0.9)', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: '12px', color: 'white', fontSize: '0.75rem', fontWeight: 600 }}>
+                      Audited by {property.scout}
+                    </div>
+                  )}
                 </div>
 
                 {/* Card Content */}
@@ -222,27 +209,31 @@ export default function Home({ properties, onSelect, searchQuery = '', currency 
                     </div>
 
                     {/* Flex-Advance Mini Badge */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setCalcProperty(property); }}
-                      style={{
-                        background: 'rgba(233,69,96,0.1)',
-                        border: '1px solid rgba(233,69,96,0.25)',
-                        color: 'var(--coral)',
-                        padding: '4px 10px',
-                        borderRadius: '12px',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      🚀 Flex-Advance
-                    </button>
+                    {flags.FLAG_FLEX_ADVANCE_MONTHLY !== false && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setCalcProperty(property); }}
+                        style={{
+                          background: 'rgba(233,69,96,0.1)',
+                          border: '1px solid rgba(233,69,96,0.25)',
+                          color: 'var(--coral)',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🚀 Flex-Advance
+                      </button>
+                    )}
                   </div>
 
                   {/* Amenity Badges */}
-                  <div className="d-flex gap-2" style={{ flexWrap: 'wrap' }}>
-                    {property.badges.map(b => <Badge key={b} type={b} />)}
-                  </div>
+                  {flags.FLAG_VERIFIED_BADGES !== false && (
+                    <div className="d-flex gap-2" style={{ flexWrap: 'wrap' }}>
+                      {property.badges.map(b => <Badge key={b} type={b} />)}
+                    </div>
+                  )}
                 </div>
               </div>
             );

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 
-export default function Booking({ property, onBack, onComplete }) {
-  const [paymentOption, setPaymentOption] = useState('flex'); // 'flex' or 'upfront'
-  const [paymentMethod, setPaymentMethod] = useState('MTN_MOMO'); // MTN_MOMO, TELECEL, MPESA, CARD
+export default function Booking({ property, onBack, onComplete, currency = 'GHS', flags = {} }) {
+  const isFlexAdvanceEnabled = flags.FLAG_FLEX_ADVANCE_MONTHLY !== false;
+  const isMoMoUssdEnabled = flags.FLAG_MOMO_USSD_PUSH !== false;
+
+  const [paymentOption, setPaymentOption] = useState(isFlexAdvanceEnabled ? 'flex' : 'upfront'); // 'flex' or 'upfront'
+  const [paymentMethod, setPaymentMethod] = useState(isMoMoUssdEnabled ? 'MTN_MOMO' : 'CARD'); // MTN_MOMO, TELECEL, MPESA, CARD
   const [momoPhone, setMomoPhone] = useState('+233 24 555 1234');
   const [isUssdOpen, setIsUssdOpen] = useState(false);
   const [momoPin, setMomoPin] = useState('');
@@ -13,6 +16,11 @@ export default function Booking({ property, onBack, onComplete }) {
   const totalAmount = paymentOption === 'flex' ? property.price : annualAdvance;
 
   const handleTriggerPayment = () => {
+    if (!isMoMoUssdEnabled || paymentMethod === 'CARD') {
+      alert(`✓ Payment of ${property.currency} ${totalAmount.toLocaleString()} authorized via Standard Bank Card.`);
+      onComplete();
+      return;
+    }
     setIsUssdOpen(true);
     setPaymentSuccess(false);
     setMomoPin('');
@@ -46,8 +54,8 @@ export default function Booking({ property, onBack, onComplete }) {
             ←
           </button>
           <div>
-            <span className="text-secondary text-xs">Secure Checkout • Flex-Advance</span>
-            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--teal)' }}>Choose Payment Structure</h2>
+            <span className="text-secondary text-xs">Secure Checkout • {isFlexAdvanceEnabled ? 'Flex-Advance' : 'Verified Stay'}</span>
+            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--teal)' }}>Payment Structure</h2>
           </div>
         </div>
 
@@ -55,34 +63,36 @@ export default function Booking({ property, onBack, onComplete }) {
           <img src={property.image} alt={property.title} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
           <div>
             <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>{property.title}</h3>
-            <p className="text-sm text-secondary">{property.city} • 99.5% Uptime SLA Protection</p>
+            <p className="text-sm text-secondary">{property.city} {flags.FLAG_SLA_2HR_CURE_TIMER !== false && '• 99.5% Uptime SLA Protection'}</p>
           </div>
         </div>
 
         <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>1. Choose Payment Option</h3>
 
-        {/* Flex-Advance Option */}
-        <div 
-          onClick={() => setPaymentOption('flex')}
-          className={`mb-3 ${paymentOption === 'flex' ? 'glass-dark' : 'glass'}`}
-          style={{ borderRadius: '12px', padding: '1.25rem', cursor: 'pointer', border: paymentOption === 'flex' ? '2px solid var(--coral)' : '1px solid var(--border)' }}
-        >
-          <div className="d-flex justify-between align-center mb-2">
-            <h4 style={{ color: paymentOption === 'flex' ? 'white' : 'var(--teal)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span role="img" aria-label="rocket">🚀</span> Flex-Advance (Monthly Rent)
-            </h4>
-            <input type="radio" checked={paymentOption === 'flex'} readOnly />
-          </div>
-          <p style={{ fontSize: '0.875rem', opacity: 0.9, marginBottom: '0.5rem' }}>Pay monthly instead of a 2-year advance.</p>
-          <div className="font-bold" style={{ fontSize: '1.25rem' }}>
-            {property.currency} {property.price.toLocaleString()} <span style={{ fontSize: '0.875rem', fontWeight: 'normal', opacity: 0.8 }}>/ month</span>
-          </div>
-          {paymentOption === 'flex' && (
-            <div className="mt-3" style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.875rem' }}>
-              <span style={{ color: 'var(--success)' }}>✓</span> Employer payroll deduction & Escrow guarantee active.
+        {/* Flex-Advance Option (Controllable by FLAG_FLEX_ADVANCE_MONTHLY) */}
+        {isFlexAdvanceEnabled && (
+          <div 
+            onClick={() => setPaymentOption('flex')}
+            className={`mb-3 ${paymentOption === 'flex' ? 'glass-dark' : 'glass'}`}
+            style={{ borderRadius: '12px', padding: '1.25rem', cursor: 'pointer', border: paymentOption === 'flex' ? '2px solid var(--coral)' : '1px solid var(--border)' }}
+          >
+            <div className="d-flex justify-between align-center mb-2">
+              <h4 style={{ color: paymentOption === 'flex' ? 'white' : 'var(--teal)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span role="img" aria-label="rocket">🚀</span> Flex-Advance (Monthly Rent)
+              </h4>
+              <input type="radio" checked={paymentOption === 'flex'} readOnly />
             </div>
-          )}
-        </div>
+            <p style={{ fontSize: '0.875rem', opacity: 0.9, marginBottom: '0.5rem' }}>Pay monthly instead of a 2-year advance.</p>
+            <div className="font-bold" style={{ fontSize: '1.25rem' }}>
+              {property.currency} {property.price.toLocaleString()} <span style={{ fontSize: '0.875rem', fontWeight: 'normal', opacity: 0.8 }}>/ month</span>
+            </div>
+            {paymentOption === 'flex' && (
+              <div className="mt-3" style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.875rem' }}>
+                <span style={{ color: 'var(--success)' }}>✓</span> Employer payroll deduction & Escrow guarantee active.
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Traditional Option */}
         <div 
@@ -100,72 +110,93 @@ export default function Booking({ property, onBack, onComplete }) {
           </div>
         </div>
 
-        {/* Payment Rails: Direct Mobile Money STK Push */}
-        <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>2. Mobile Money & Payment Method</h3>
-        <div className="glass mb-4" style={{ borderRadius: '14px', padding: '1.25rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '1rem' }}>
-            {[
-              { id: 'MTN_MOMO', label: '🟡 MTN MoMo', country: 'Ghana / Nigeria' },
-              { id: 'TELECEL', label: '🔴 Telecel Cash', country: 'Ghana' },
-              { id: 'MPESA', label: '🟢 M-Pesa', country: 'Kenya' },
-              { id: 'CARD', label: '💳 Visa / Card', country: 'Pan-African' }
-            ].map(m => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setPaymentMethod(m.id)}
+        {/* Payment Rails: Direct Mobile Money STK Push (Controllable by FLAG_MOMO_USSD_PUSH) */}
+        {isMoMoUssdEnabled ? (
+          <div>
+            <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>2. Mobile Money & Payment Method</h3>
+            <div className="glass mb-4" style={{ borderRadius: '14px', padding: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '1rem' }}>
+                {[
+                  { id: 'MTN_MOMO', label: '🟡 MTN MoMo', country: 'Ghana / Nigeria' },
+                  { id: 'TELECEL', label: '🔴 Telecel Cash', country: 'Ghana' },
+                  { id: 'MPESA', label: '🟢 M-Pesa', country: 'Kenya' },
+                  { id: 'CARD', label: '💳 Visa / Card', country: 'Pan-African' }
+                ].map(m => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setPaymentMethod(m.id)}
+                    style={{
+                      background: paymentMethod === m.id ? 'var(--teal)' : 'rgba(255,255,255,0.05)',
+                      color: paymentMethod === m.id ? 'white' : 'var(--text-secondary)',
+                      border: paymentMethod === m.id ? '1px solid var(--teal)' : '1px solid var(--border)',
+                      padding: '8px 6px',
+                      borderRadius: '10px',
+                      fontWeight: 700,
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <div>{m.label}</div>
+                    <div style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '2px' }}>{m.country}</div>
+                  </button>
+                ))}
+              </div>
+
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                Mobile Money Number for Instant STK Push Prompt
+              </label>
+              <input
+                type="text"
+                value={momoPhone}
+                onChange={e => setMomoPhone(e.target.value)}
+                placeholder="+233 24 000 0000"
                 style={{
-                  background: paymentMethod === m.id ? 'var(--teal)' : 'rgba(255,255,255,0.05)',
-                  color: paymentMethod === m.id ? 'white' : 'var(--text-secondary)',
-                  border: paymentMethod === m.id ? '1px solid var(--teal)' : '1px solid var(--border)',
-                  padding: '8px 6px',
+                  width: '100%',
+                  padding: '0.75rem',
                   borderRadius: '10px',
-                  fontWeight: 700,
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  textAlign: 'center'
+                  border: '1px solid var(--border)',
+                  background: 'rgba(255,255,255,0.08)',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  marginBottom: '8px'
                 }}
-              >
-                <div>{m.label}</div>
-                <div style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '2px' }}>{m.country}</div>
-              </button>
-            ))}
+              />
+              <div style={{ fontSize: '0.75rem', color: 'var(--gold-light)' }}>
+                📲 A live USSD authorization prompt will be pushed directly to your handset.
+              </div>
+            </div>
           </div>
-
-          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-            Mobile Money Number for Instant STK Push Prompt
-          </label>
-          <input
-            type="text"
-            value={momoPhone}
-            onChange={e => setMomoPhone(e.target.value)}
-            placeholder="+233 24 000 0000"
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '10px',
-              border: '1px solid var(--border)',
-              background: 'rgba(255,255,255,0.08)',
-              color: 'white',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              marginBottom: '8px'
-            }}
-          />
-          <div style={{ fontSize: '0.75rem', color: 'var(--gold-light)' }}>
-            📲 A live USSD authorization prompt will be pushed directly to your handset.
+        ) : (
+          <div>
+            <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>2. Standard Market Payment</h3>
+            <div className="glass mb-4" style={{ borderRadius: '14px', padding: '1.25rem' }}>
+              <p className="text-sm text-secondary mb-2">Pay via Bank Card (Visa / Mastercard) or Direct Wire Transfer.</p>
+              <input
+                type="text"
+                placeholder="Card Number: 4111 2222 3333 4444"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.08)', color: 'white', marginBottom: '8px' }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="glass" style={{ borderRadius: '12px', padding: '1.25rem', marginBottom: '2rem' }}>
-          <h4 style={{ color: 'var(--teal)', marginBottom: '0.5rem', fontSize: '1rem' }}>🛡️ 15% Host Escrow Protection</h4>
-          <p className="text-sm text-secondary">
-            Your payment is held safely in escrow. It will only be released to the host after verified power, starlink uptime, and smart lock check-in.
-          </p>
-        </div>
+        {/* Escrow Protection (Controllable by FLAG_HOST_ESCROW_VAULT) */}
+        {flags.FLAG_HOST_ESCROW_VAULT !== false && (
+          <div className="glass" style={{ borderRadius: '12px', padding: '1.25rem', marginBottom: '2rem' }}>
+            <h4 style={{ color: 'var(--teal)', marginBottom: '0.5rem', fontSize: '1rem' }}>🛡️ 15% Host Escrow Protection</h4>
+            <p className="text-sm text-secondary">
+              Your payment is held safely in escrow. It will only be released to the host after verified power, starlink uptime, and smart lock check-in.
+            </p>
+          </div>
+        )}
 
         <button className="btn btn-primary w-100" onClick={handleTriggerPayment} style={{ padding: '1rem', fontSize: '1.1rem', fontWeight: 800 }}>
-          Pay {property.currency} {totalAmount.toLocaleString()} via Mobile Money STK Push →
+          {isMoMoUssdEnabled 
+            ? `Pay ${property.currency} ${totalAmount.toLocaleString()} via Mobile Money STK Push →`
+            : `Pay ${property.currency} ${totalAmount.toLocaleString()} with Card / Bank →`}
         </button>
       </div>
 

@@ -20,7 +20,7 @@ const Badge = ({ type }) => {
   );
 };
 
-export default function PropertyDetails({ property, onBack, onBook, currency = 'GHS' }) {
+export default function PropertyDetails({ property, onBack, onBook, currency = 'GHS', flags = {} }) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isCalcOpen, setIsCalcOpen] = useState(false);
 
@@ -59,63 +59,43 @@ export default function PropertyDetails({ property, onBack, onBook, currency = '
         </div>
       </div>
 
-      {/* Airbnb-style 5-Photo Luxury Grid */}
-      <div className="photo-gallery-grid" onClick={() => setIsGalleryOpen(true)}>
-        <div className="photo-primary" style={{ position: 'relative' }}>
-          <img src={property.image} alt={property.title} className="gallery-img" />
-          <div style={{ position: 'absolute', top: '16px', left: '16px' }}>
-            <span className="badge badge-verified" style={{ padding: '6px 14px', fontSize: '0.85rem' }}>
-              ✓ 200+ Point Audit Passed
-            </span>
+      {/* 5-Photo Editorial Bento Grid */}
+      <div className="photo-bento-grid mb-4" onClick={() => setIsGalleryOpen(true)} style={{ cursor: 'pointer' }}>
+        <div className="bento-main">
+          <img src={property.image} alt={property.title} />
+        </div>
+        <div className="bento-side">
+          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" alt="Living Room" />
+        </div>
+        <div className="bento-side">
+          <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80" alt="Solar Setup" />
+        </div>
+        <div className="bento-side">
+          <img src="https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80" alt="Solar Inverter" />
+        </div>
+        <div className="bento-side" style={{ position: 'relative' }}>
+          <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80" alt="Bedroom Suite" />
+          <div className="bento-view-all-overlay">
+            <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>+4 Photos</span>
+            <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>View Gallery</span>
           </div>
-        </div>
-        <div>
-          <img src="/accra.jpg" alt="Living area" className="gallery-img" />
-        </div>
-        <div>
-          <img src="/lagos.jpg" alt="Bedroom" className="gallery-img" />
-        </div>
-        <div>
-          <img src="/nairobi.jpg" alt="Work space" className="gallery-img" />
-        </div>
-        <div style={{ position: 'relative' }}>
-          <img src={property.image} alt="Amenities" className="gallery-img" />
-          <button
-            onClick={(e) => { e.stopPropagation(); setIsGalleryOpen(true); }}
-            style={{
-              position: 'absolute',
-              bottom: '16px',
-              right: '16px',
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid var(--border)',
-              borderRadius: '12px',
-              padding: '8px 16px',
-              fontWeight: 800,
-              fontSize: '0.85rem',
-              color: 'var(--teal)',
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
-            }}
-          >
-            📷 View all 18 photos
-          </button>
         </div>
       </div>
 
-      {/* 2-Column Responsive Details Grid */}
-      <div className="details-grid">
-        {/* Left Column (60%): Overview, Scout Audit & SLA Guarantee */}
+      {/* Main Two-Column Layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 380px', gap: '2.5rem', alignItems: 'start' }}>
+        {/* Left Column (60%): Story, Telemetry, and Scout Verifications */}
         <div>
-          {/* Host & Scout Intro Banner */}
-          <div className="glass p-4 mb-4" style={{ borderRadius: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h3 style={{ fontSize: '1.25rem', color: 'var(--teal)', margin: '0 0 4px 0' }}>
-                Entire Luxury Apartment • Verified Infrastructure
-              </h3>
-              <p className="text-secondary text-sm m-0">
-                2 Guests • 1 Bedroom • 1 King Bed • Dedicated High-Speed Work Desk
-              </p>
+          {/* Host Byline */}
+          <div className="glass p-4 mb-4 d-flex justify-between align-center" style={{ borderRadius: '20px' }}>
+            <div className="d-flex align-center gap-3">
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--teal), var(--teal-light))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '1.1rem' }}>
+                FL
+              </div>
+              <div>
+                <h4 style={{ margin: 0, color: 'var(--teal)', fontSize: '1.1rem' }}>Managed by Flex-Living Host Team</h4>
+                <span className="text-xs text-secondary">Verified Host • 2-Year Escrow Guaranteed</span>
+              </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ color: 'var(--gold-dark)', fontWeight: 800, fontSize: '1.15rem' }}>⭐ {property.rating}</div>
@@ -129,72 +109,78 @@ export default function PropertyDetails({ property, onBack, onBook, currency = '
             <p style={{ lineHeight: 1.8, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{property.description}</p>
           </div>
 
-          {/* Flex-Trust Field Scout Full Report Card */}
-          <div className="glass mb-4" style={{ borderRadius: '20px', padding: '1.75rem', border: '1px solid rgba(16,185,129,0.3)' }}>
-            <div className="d-flex justify-between align-center mb-3">
-              <h3 style={{ fontSize: '1.3rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--teal)' }}>
-                <span>🛡️</span> Flex-Trust Field Scout Verification
-              </h3>
-              <span className="badge badge-verified" style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
-                100% Audit Score
-              </span>
-            </div>
-            <p className="text-sm text-secondary mb-4">
-              Physically verified on-site in {property.city} by Lead Scout <strong>{property.scout}</strong>.
-            </p>
-
-            <div className="d-flex gap-2 mb-4" style={{ flexWrap: 'wrap' }}>
-              {property.badges.map(b => <Badge key={b} type={b} />)}
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div className="text-secondary text-xs font-bold mb-1">⚡ Automatic Transfer Switch</div>
-                <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>&lt; 8 seconds switchover</div>
-                <p className="text-xs text-secondary mt-1">Solar inverter + generator load tested</p>
+          {/* Flex-Trust Field Scout Full Report Card (Controllable by FLAG_200_POINT_TELEMETRY) */}
+          {flags.FLAG_200_POINT_TELEMETRY !== false && (
+            <div className="glass mb-4" style={{ borderRadius: '20px', padding: '1.75rem', border: '1px solid rgba(16,185,129,0.3)' }}>
+              <div className="d-flex justify-between align-center mb-3">
+                <h3 style={{ fontSize: '1.3rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--teal)' }}>
+                  <span>🛡️</span> Flex-Trust Field Scout Verification
+                </h3>
+                <span className="badge badge-verified" style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
+                  100% Audit Score
+                </span>
               </div>
+              <p className="text-sm text-secondary mb-4">
+                Physically verified on-site in {property.city} by Lead Scout <strong>{property.scout}</strong>.
+              </p>
 
-              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div className="text-secondary text-xs font-bold mb-1">🌐 Ookla Speedtest</div>
-                <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>180 Mbps / 24ms</div>
-                <p className="text-xs text-secondary mt-1">UPS backed • 0 packet loss</p>
-              </div>
+              {flags.FLAG_VERIFIED_BADGES !== false && (
+                <div className="d-flex gap-2 mb-4" style={{ flexWrap: 'wrap' }}>
+                  {property.badges.map(b => <Badge key={b} type={b} />)}
+                </div>
+              )}
 
-              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div className="text-secondary text-xs font-bold mb-1">💧 Water Autonomy</div>
-                <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>Borehole + 5,000L Tank</div>
-                <p className="text-xs text-secondary mt-1">3-stage carbon filtration verified</p>
-              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
+                  <div className="text-secondary text-xs font-bold mb-1">⚡ Automatic Transfer Switch</div>
+                  <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>&lt; 8 seconds switchover</div>
+                  <p className="text-xs text-secondary mt-1">Solar inverter + generator load tested</p>
+                </div>
 
-              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div className="text-secondary text-xs font-bold mb-1">🔊 Noise Floor Level</div>
-                <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>38 dB (Quiet & Calm)</div>
-                <p className="text-xs text-secondary mt-1">Acoustic insulation sound tested</p>
-              </div>
-            </div>
-          </div>
+                <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
+                  <div className="text-secondary text-xs font-bold mb-1">🌐 Ookla Speedtest</div>
+                  <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>180 Mbps / 24ms</div>
+                  <p className="text-xs text-secondary mt-1">UPS backed • 0 packet loss</p>
+                </div>
 
-          {/* 99.5% SLA Guarantee Card */}
-          <div className="glass-dark mb-4" style={{ borderRadius: '20px', padding: '1.75rem' }}>
-            <div className="d-flex align-center gap-3 mb-3">
-              <span style={{ fontSize: '2rem' }}>⚡</span>
-              <div>
-                <h3 style={{ color: 'white', margin: 0, fontSize: '1.3rem' }}>Flex-Stay 99.5% Uptime SLA Guarantee</h3>
-                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.7)', margin: '2px 0 0 0' }}>Automated Smart Contract & Escrow Protection</p>
+                <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
+                  <div className="text-secondary text-xs font-bold mb-1">💧 Water Autonomy</div>
+                  <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>Borehole + 5,000L Tank</div>
+                  <p className="text-xs text-secondary mt-1">3-stage carbon filtration verified</p>
+                </div>
+
+                <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '16px' }}>
+                  <div className="text-secondary text-xs font-bold mb-1">🔊 Noise Floor Level</div>
+                  <div className="font-bold text-teal" style={{ fontSize: '1.15rem' }}>38 dB (Quiet & Calm)</div>
+                  <p className="text-xs text-secondary mt-1">Acoustic insulation sound tested</p>
+                </div>
               </div>
             </div>
-            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-              If grid power and backup systems fail for &gt; 2 hours, Flex-Living automatically transfers a compensation credit from the host's escrow and books you into a partner co-working hub. Zero disputes.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '12px', fontSize: '0.85rem' }}>
-                ✓ Guaranteed $35/hr Outage Credit
+          )}
+
+          {/* 99.5% SLA Guarantee Card (Controllable by FLAG_SLA_2HR_CURE_TIMER) */}
+          {flags.FLAG_SLA_2HR_CURE_TIMER !== false && (
+            <div className="glass-dark mb-4" style={{ borderRadius: '20px', padding: '1.75rem' }}>
+              <div className="d-flex align-center gap-3 mb-3">
+                <span style={{ fontSize: '2rem' }}>⚡</span>
+                <div>
+                  <h3 style={{ color: 'white', margin: 0, fontSize: '1.3rem' }}>Flex-Stay 99.5% Uptime SLA Guarantee</h3>
+                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.7)', margin: '2px 0 0 0' }}>Automated Smart Contract & Escrow Protection</p>
+                </div>
               </div>
-              <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '12px', fontSize: '0.85rem' }}>
-                ✓ Instant Relocation Voucher
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                If grid power and backup systems fail for &gt; 2 hours, Flex-Living automatically transfers a compensation credit from the host's escrow and books you into a partner co-working hub. Zero disputes.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                  ✓ Guaranteed $35/hr Outage Credit
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                  ✓ Instant Relocation Voucher
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right Column (40%): Sticky Booking & Flex-Advance Widget */}

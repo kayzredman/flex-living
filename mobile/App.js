@@ -407,6 +407,159 @@ export default function App() {
   const [isSmileIdModalOpen, setIsSmileIdModalOpen] = useState(false);
   const [smileIdStep, setSmileIdStep] = useState('IDLE'); // IDLE, SCANNING, BLINKING, MATCHED
 
+  // Granular Feature Flags Remote Engine
+  const [featureFlags, setFeatureFlags] = useState({
+    FLAG_VERIFIED_BADGES: true,
+    FLAG_200_POINT_TELEMETRY: true,
+    FLAG_CURRENCY_SWITCHER: true,
+    FLAG_FLEX_ADVANCE_MONTHLY: true,
+    FLAG_MOMO_USSD_PUSH: true,
+    FLAG_HOST_ESCROW_VAULT: true,
+    FLAG_SAVINGS_SIMULATOR: true,
+    FLAG_SMILEID_BIOMETRICS: true,
+    FLAG_PAYROLL_DEDUCTION: true,
+    FLAG_DIGITAL_DOOR_UNLOCK: true,
+    FLAG_TTLOCK_MASTER_PIN: true,
+    FLAG_TTLOCK_GUEST_PASSES: true,
+    FLAG_WHATSAPP_PIN_SHARE: true,
+    FLAG_STARLINK_WIFI_CARD: true,
+    FLAG_SLA_REPORT_OUTAGE: true,
+    FLAG_SLA_2HR_CURE_TIMER: true,
+    FLAG_SLA_MOMO_REFUND: true,
+    FLAG_CARETAKER_WHATSAPP_BOT: true,
+    FLAG_SCOUT_HEADER_MODE: true,
+    FLAG_SCOUT_OFFLINE_MODE: true,
+    FLAG_SCOUT_AI_VISION: true,
+    FLAG_SCOUT_FLEET_GOVERNANCE: true,
+    FLAG_HOST_LIST_PROPERTY: true,
+    FLAG_AI_SURGE_PRICING: true,
+    FLAG_GRA_TAX_REMITTANCE: true
+  });
+  const [activeFlagPreset, setActiveFlagPreset] = useState('FULL_FLEX');
+  const [isAdminFlagModalOpen, setIsAdminFlagModalOpen] = useState(false);
+
+  // Sync flags from gateway or local
+  useEffect(() => {
+    const fetchMobileFlags = async () => {
+      try {
+        const res = await fetch('http://localhost:3004/v1/config/flags');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.flags) {
+            setFeatureFlags(data.flags);
+            if (data.activePreset) setActiveFlagPreset(data.activePreset);
+          }
+        }
+      } catch (e) {
+        // Fallback silently if offline
+      }
+    };
+    fetchMobileFlags();
+    const flagInterval = setInterval(fetchMobileFlags, 3000);
+    return () => clearInterval(flagInterval);
+  }, []);
+
+  const handleApplyMobilePreset = async (presetName) => {
+    setActiveFlagPreset(presetName);
+    try {
+      const res = await fetch('http://localhost:3004/v1/config/flags', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preset: presetName })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setFeatureFlags(data.flags);
+        setActiveFlagPreset(data.activePreset);
+      }
+    } catch (e) {
+      if (presetName === 'MARKET_BASELINE') {
+        setFeatureFlags(prev => ({
+          ...prev,
+          FLAG_200_POINT_TELEMETRY: false,
+          FLAG_FLEX_ADVANCE_MONTHLY: false,
+          FLAG_MOMO_USSD_PUSH: false,
+          FLAG_HOST_ESCROW_VAULT: false,
+          FLAG_SMILEID_BIOMETRICS: false,
+          FLAG_TTLOCK_GUEST_PASSES: false,
+          FLAG_WHATSAPP_PIN_SHARE: false,
+          FLAG_SLA_REPORT_OUTAGE: false,
+          FLAG_SLA_2HR_CURE_TIMER: false,
+          FLAG_SLA_MOMO_REFUND: false,
+          FLAG_CARETAKER_WHATSAPP_BOT: false,
+          FLAG_SCOUT_HEADER_MODE: false,
+          FLAG_SCOUT_OFFLINE_MODE: false,
+          FLAG_SCOUT_AI_VISION: false,
+          FLAG_SCOUT_FLEET_GOVERNANCE: false,
+          FLAG_AI_SURGE_PRICING: false,
+          FLAG_GRA_TAX_REMITTANCE: false
+        }));
+      } else if (presetName === 'FINTECH_ESCROW') {
+        setFeatureFlags(prev => ({
+          ...prev,
+          FLAG_200_POINT_TELEMETRY: false,
+          FLAG_FLEX_ADVANCE_MONTHLY: true,
+          FLAG_MOMO_USSD_PUSH: true,
+          FLAG_HOST_ESCROW_VAULT: true,
+          FLAG_SMILEID_BIOMETRICS: true,
+          FLAG_TTLOCK_GUEST_PASSES: false,
+          FLAG_WHATSAPP_PIN_SHARE: false,
+          FLAG_SLA_REPORT_OUTAGE: false,
+          FLAG_SLA_2HR_CURE_TIMER: false,
+          FLAG_SLA_MOMO_REFUND: false,
+          FLAG_CARETAKER_WHATSAPP_BOT: false,
+          FLAG_SCOUT_HEADER_MODE: false,
+          FLAG_SCOUT_OFFLINE_MODE: false,
+          FLAG_SCOUT_AI_VISION: false,
+          FLAG_SCOUT_FLEET_GOVERNANCE: false,
+          FLAG_AI_SURGE_PRICING: false,
+          FLAG_GRA_TAX_REMITTANCE: false
+        }));
+      } else {
+        setFeatureFlags({
+          FLAG_VERIFIED_BADGES: true,
+          FLAG_200_POINT_TELEMETRY: true,
+          FLAG_CURRENCY_SWITCHER: true,
+          FLAG_FLEX_ADVANCE_MONTHLY: true,
+          FLAG_MOMO_USSD_PUSH: true,
+          FLAG_HOST_ESCROW_VAULT: true,
+          FLAG_SAVINGS_SIMULATOR: true,
+          FLAG_SMILEID_BIOMETRICS: true,
+          FLAG_PAYROLL_DEDUCTION: true,
+          FLAG_DIGITAL_DOOR_UNLOCK: true,
+          FLAG_TTLOCK_MASTER_PIN: true,
+          FLAG_TTLOCK_GUEST_PASSES: true,
+          FLAG_WHATSAPP_PIN_SHARE: true,
+          FLAG_STARLINK_WIFI_CARD: true,
+          FLAG_SLA_REPORT_OUTAGE: true,
+          FLAG_SLA_2HR_CURE_TIMER: true,
+          FLAG_SLA_MOMO_REFUND: true,
+          FLAG_CARETAKER_WHATSAPP_BOT: true,
+          FLAG_SCOUT_HEADER_MODE: true,
+          FLAG_SCOUT_OFFLINE_MODE: true,
+          FLAG_SCOUT_AI_VISION: true,
+          FLAG_SCOUT_FLEET_GOVERNANCE: true,
+          FLAG_HOST_LIST_PROPERTY: true,
+          FLAG_AI_SURGE_PRICING: true,
+          FLAG_GRA_TAX_REMITTANCE: true
+        });
+      }
+    }
+  };
+
+  const handleToggleMobileFlag = async (flagKey) => {
+    const updated = !featureFlags[flagKey];
+    setFeatureFlags(prev => ({ ...prev, [flagKey]: updated }));
+    setActiveFlagPreset('CUSTOM');
+    try {
+      await fetch('http://localhost:3004/v1/config/flags', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ flags: { [flagKey]: updated } })
+      });
+    } catch (e) {}
+  };
+
   const handlePickImage = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -523,50 +676,68 @@ export default function App() {
           </View>
         </View>
 
-        {/* Currency Switcher Pill */}
-        <View style={styles.currencyPill}>
-          {['GHS', 'USD', 'NGN'].map(c => (
-            <TouchableOpacity
-              key={c}
-              onPress={() => setCurrency(c)}
-              style={[styles.currencyBtn, currency === c && styles.currencyBtnActive]}
-            >
-              <Text style={[styles.currencyBtnText, currency === c && styles.currencyBtnTextActive]}>
-                {c}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {/* Currency Switcher Pill (Controllable by FLAG_CURRENCY_SWITCHER) */}
+        {featureFlags.FLAG_CURRENCY_SWITCHER !== false && (
+          <View style={styles.currencyPill}>
+            {['GHS', 'USD', 'NGN'].map(c => (
+              <TouchableOpacity
+                key={c}
+                onPress={() => setCurrency(c)}
+                style={[styles.currencyBtn, currency === c && styles.currencyBtnActive]}
+              >
+                <Text style={[styles.currencyBtnText, currency === c && styles.currencyBtnTextActive]}>
+                  {c}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
 
       {/* Top Header: Row 2 (Quick Action Nav Bar) */}
       <View style={styles.headerActionBar}>
+        {/* Remote Feature Flags Command Pill */}
         <TouchableOpacity
-          onPress={() => {
-            setHostSuccess(null);
-            setHostStep(1);
-            setIsHostModalOpen(true);
-          }}
-          style={styles.actionPillHost}
+          onPress={() => setIsAdminFlagModalOpen(true)}
+          style={[styles.actionPillScout, { backgroundColor: '#0B1B26', borderColor: '#E9A319' }]}
         >
-          <Text style={styles.actionPillHostText}>🏡 + List Property</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setActiveTab('SCOUT')}
-          style={[styles.actionPillScout, activeTab === 'SCOUT' && styles.actionPillScoutActive]}
-        >
-          <Text style={[styles.actionPillScoutText, activeTab === 'SCOUT' && styles.actionPillScoutTextActive]}>
-            🧭 Scout Mode
+          <Text style={[styles.actionPillScoutText, { color: '#E9A319', fontWeight: '900' }]}>
+            🎛️ Flags ({activeFlagPreset === 'MARKET_BASELINE' ? 'Baseline' : activeFlagPreset === 'FINTECH_ESCROW' ? 'FinTech' : 'Full'})
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setActiveTab('SLA')}
-          style={styles.actionPillSla}
-        >
-          <Text style={styles.actionPillSlaText}>⚡ SLA 99.5%</Text>
-        </TouchableOpacity>
+        {featureFlags.FLAG_HOST_LIST_PROPERTY !== false && (
+          <TouchableOpacity
+            onPress={() => {
+              setHostSuccess(null);
+              setHostStep(1);
+              setIsHostModalOpen(true);
+            }}
+            style={styles.actionPillHost}
+          >
+            <Text style={styles.actionPillHostText}>🏡 + List Property</Text>
+          </TouchableOpacity>
+        )}
+
+        {featureFlags.FLAG_SCOUT_HEADER_MODE !== false && (
+          <TouchableOpacity
+            onPress={() => setActiveTab('SCOUT')}
+            style={[styles.actionPillScout, activeTab === 'SCOUT' && styles.actionPillScoutActive]}
+          >
+            <Text style={[styles.actionPillScoutText, activeTab === 'SCOUT' && styles.actionPillScoutTextActive]}>
+              🧭 Scout Mode
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {featureFlags.FLAG_SLA_2HR_CURE_TIMER !== false && (
+          <TouchableOpacity
+            onPress={() => setActiveTab('SLA')}
+            style={styles.actionPillSla}
+          >
+            <Text style={styles.actionPillSlaText}>⚡ SLA 99.5%</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Screen Content */}
@@ -625,9 +796,11 @@ export default function App() {
             {filteredProperties.map(prop => (
               <View key={prop.id} style={styles.card}>
                 <Image source={{ uri: prop.image }} style={styles.cardImage} />
-                <View style={styles.scoutBadge}>
-                  <Text style={styles.scoutBadgeText}>✓ 200+ Point Audited</Text>
-                </View>
+                {featureFlags.FLAG_200_POINT_TELEMETRY !== false && (
+                  <View style={styles.scoutBadge}>
+                    <Text style={styles.scoutBadgeText}>✓ 200+ Point Audited</Text>
+                  </View>
+                )}
                 <View style={styles.ratingBadge}>
                   <Text style={styles.ratingText}>⭐ {prop.rating}</Text>
                 </View>
@@ -636,13 +809,15 @@ export default function App() {
                   <Text style={styles.cardCity}>{prop.city}</Text>
                   <Text style={styles.cardTitle}>{prop.title}</Text>
                   
-                  <View style={styles.badgeRow}>
-                    {prop.badges.map((b, idx) => (
-                      <View key={idx} style={styles.amenityBadge}>
-                        <Text style={styles.amenityBadgeText}>{b}</Text>
-                      </View>
-                    ))}
-                  </View>
+                  {featureFlags.FLAG_VERIFIED_BADGES !== false && (
+                    <View style={styles.badgeRow}>
+                      {prop.badges.map((b, idx) => (
+                        <View key={idx} style={styles.amenityBadge}>
+                          <Text style={styles.amenityBadgeText}>{b}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
 
                   <View style={styles.cardFooter}>
                     <View>
@@ -650,7 +825,9 @@ export default function App() {
                         {formatPrice(prop.priceGhs)}
                         <Text style={styles.perMonth}> / mo</Text>
                       </Text>
-                      <Text style={styles.flexAdvanceEligible}>🚀 Flex-Advance Eligible</Text>
+                      {featureFlags.FLAG_FLEX_ADVANCE_MONTHLY !== false && (
+                        <Text style={styles.flexAdvanceEligible}>🚀 Flex-Advance Eligible</Text>
+                      )}
                     </View>
                     
                     <TouchableOpacity 
@@ -1826,13 +2003,15 @@ export default function App() {
           <Text style={[styles.navText, activeTab === 'EXPLORE' && styles.navTextActive]}>Explore</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.navItem} 
-          onPress={() => setActiveTab('SCOUT')}
-        >
-          <Text style={[styles.navIcon, activeTab === 'SCOUT' && styles.navIconActive]}>🧭</Text>
-          <Text style={[styles.navText, activeTab === 'SCOUT' && styles.navTextActive]}>Scout Mode</Text>
-        </TouchableOpacity>
+        {featureFlags.FLAG_SCOUT_HEADER_MODE !== false && (
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => setActiveTab('SCOUT')}
+          >
+            <Text style={[styles.navIcon, activeTab === 'SCOUT' && styles.navIconActive]}>🧭</Text>
+            <Text style={[styles.navText, activeTab === 'SCOUT' && styles.navTextActive]}>Scout Mode</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity 
           style={styles.navItem} 
@@ -1842,13 +2021,15 @@ export default function App() {
           <Text style={[styles.navText, activeTab === 'KEY' && styles.navTextActive]}>Smart Key</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.navItem} 
-          onPress={() => setActiveTab('SLA')}
-        >
-          <Text style={[styles.navIcon, activeTab === 'SLA' && styles.navIconActive]}>⚡</Text>
-          <Text style={[styles.navText, activeTab === 'SLA' && styles.navTextActive]}>SLA & Outage</Text>
-        </TouchableOpacity>
+        {featureFlags.FLAG_SLA_2HR_CURE_TIMER !== false && (
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => setActiveTab('SLA')}
+          >
+            <Text style={[styles.navIcon, activeTab === 'SLA' && styles.navIconActive]}>⚡</Text>
+            <Text style={[styles.navText, activeTab === 'SLA' && styles.navTextActive]}>SLA & Outage</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity 
           style={styles.navItem} 
@@ -2247,67 +2428,96 @@ export default function App() {
                 </View>
                 <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 12 }}>{selectedMobileProperty.city} • Verified Escrow Guarantee</Text>
 
-                {/* 200-Point Audited Infrastructure Badges */}
-                <View style={{ backgroundColor: '#F8FAFC', borderRadius: 14, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' }}>
-                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F3460', marginBottom: 6, textTransform: 'uppercase' }}>
-                    🛡️ Verified Infrastructure Telemetry
-                  </Text>
-                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700' }}>✓ ⚡ 24/7 Solar Backup • ATS Switchover &lt; 6.2s</Text>
-                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 🌐 Starlink Gen 3 Satellite • 185 Mbps / 26ms</Text>
-                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 💧 Deep Borehole Reserve • TDS 65 PPM Pure</Text>
-                  <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 🔐 Keyless Digital Smart Deadbolt (94% Batt)</Text>
-                </View>
+                {/* 200-Point Audited Infrastructure Badges (Controllable by FLAG_200_POINT_TELEMETRY) */}
+                {featureFlags.FLAG_200_POINT_TELEMETRY !== false && (
+                  <View style={{ backgroundColor: '#F8FAFC', borderRadius: 14, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F3460', marginBottom: 6, textTransform: 'uppercase' }}>
+                      🛡️ Verified Infrastructure Telemetry
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700' }}>✓ ⚡ 24/7 Solar Backup • ATS Switchover &lt; 6.2s</Text>
+                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 🌐 Starlink Gen 3 Satellite • 185 Mbps / 26ms</Text>
+                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 💧 Deep Borehole Reserve • TDS 65 PPM Pure</Text>
+                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 3 }}>✓ 🔐 Keyless Digital Smart Deadbolt (94% Batt)</Text>
+                  </View>
+                )}
 
                 {/* Pricing Breakdown */}
                 <View style={{ backgroundColor: '#0F3460', borderRadius: 14, padding: 14, marginBottom: 14 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ color: '#94A3B8', fontSize: 12 }}>Monthly Rent (Flex-Advance)</Text>
+                    <Text style={{ color: '#94A3B8', fontSize: 12 }}>
+                      {featureFlags.FLAG_FLEX_ADVANCE_MONTHLY !== false ? 'Monthly Rent (Flex-Advance)' : 'Monthly Rent'}
+                    </Text>
                     <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '900' }}>
                       {formatPrice(selectedMobileProperty.priceGhs)} / mo
                     </Text>
                   </View>
-                  <Text style={{ color: '#10B981', fontSize: 11, marginTop: 4 }}>
-                    ✓ 15% automatically locked in tenant protection escrow
-                  </Text>
+                  {featureFlags.FLAG_HOST_ESCROW_VAULT !== false && (
+                    <Text style={{ color: '#10B981', fontSize: 11, marginTop: 4 }}>
+                      ✓ 15% automatically locked in tenant protection escrow
+                    </Text>
+                  )}
                 </View>
 
-                {/* Mobile Money Input */}
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F3460', marginBottom: 4 }}>
-                  Mobile Money Account for Instant USSD Push:
-                </Text>
-                <TextInput
-                  value={mobileMomoPhone}
-                  onChangeText={setMobileMomoPhone}
-                  placeholder="+233 24 000 0000"
-                  style={{
-                    backgroundColor: '#F1F5F9',
-                    borderRadius: 10,
-                    padding: 12,
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    color: '#0F3460',
-                    marginBottom: 14
-                  }}
-                />
+                {/* Mobile Money Input or Standard Card Option */}
+                {featureFlags.FLAG_MOMO_USSD_PUSH !== false ? (
+                  <View>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F3460', marginBottom: 4 }}>
+                      Mobile Money Account for Instant USSD Push:
+                    </Text>
+                    <TextInput
+                      value={mobileMomoPhone}
+                      onChangeText={setMobileMomoPhone}
+                      placeholder="+233 24 000 0000"
+                      style={{
+                        backgroundColor: '#F1F5F9',
+                        borderRadius: 10,
+                        padding: 12,
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        color: '#0F3460',
+                        marginBottom: 14
+                      }}
+                    />
 
-                <TouchableOpacity
-                  onPress={() => {
-                    setIsMobileMomoUssdOpen(true);
-                    setMobileMomoSuccess(false);
-                    setMobileMomoPin('');
-                  }}
-                  style={{
-                    backgroundColor: '#E9A319',
-                    paddingVertical: 14,
-                    borderRadius: 14,
-                    alignItems: 'center',
-                    marginBottom: 20
-                  }}
-                >
-                  <Text style={{ color: '#0B1B26', fontWeight: '900', fontSize: 14 }}>
-                    ⚡ Pay {formatPrice(selectedMobileProperty.priceGhs)} via MoMo STK Push →
-                  </Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setIsMobileMomoUssdOpen(true);
+                        setMobileMomoSuccess(false);
+                        setMobileMomoPin('');
+                      }}
+                      style={{
+                        backgroundColor: '#E9A319',
+                        paddingVertical: 14,
+                        borderRadius: 14,
+                        alignItems: 'center',
+                        marginBottom: 20
+                      }}
+                    >
+                      <Text style={{ color: '#0B1B26', fontWeight: '900', fontSize: 14 }}>
+                        ⚡ Pay {formatPrice(selectedMobileProperty.priceGhs)} via MoMo STK Push →
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => {
+                      alert(`✓ Paid ${formatPrice(selectedMobileProperty.priceGhs)} via Bank Card.`);
+                      setSelectedMobileProperty(null);
+                      setActiveTab('KEY');
+                    }}
+                    style={{
+                      backgroundColor: '#0F3460',
+                      paddingVertical: 14,
+                      borderRadius: 14,
+                      alignItems: 'center',
+                      marginBottom: 20
+                    }}
+                  >
+                    <Text style={{ color: '#FFFFFF', fontWeight: '900', fontSize: 14 }}>
+                      💳 Pay {formatPrice(selectedMobileProperty.priceGhs)} with Card / Bank →
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </ScrollView>
             )}
           </View>
@@ -2480,6 +2690,174 @@ export default function App() {
                 <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Done • Facility Active</Text>
               </TouchableOpacity>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Granular Feature Flags Remote Control Center Modal */}
+      <Modal visible={isAdminFlagModalOpen} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: '88%' }]}>
+            <View style={styles.modalHeader}>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 18 }}>🎛️</Text>
+                  <Text style={styles.modalTitle}>Feature Flag Control</Text>
+                </View>
+                <Text style={styles.modalSubtitle}>Remote Configuration • Real-time Sync with Web Admin</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setIsAdminFlagModalOpen(false)}
+                style={styles.modalCloseBtn}
+              >
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#64748B' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={{ paddingHorizontal: 20, paddingTop: 10 }}>
+              {/* 1-Tap Master Presets */}
+              <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F3460', marginBottom: 8, textTransform: 'uppercase' }}>
+                1-Tap Market Presets
+              </Text>
+              
+              <View style={{ gap: 8, marginBottom: 16 }}>
+                {/* Preset 1 */}
+                <TouchableOpacity
+                  onPress={() => handleApplyMobilePreset('MARKET_BASELINE')}
+                  style={{
+                    backgroundColor: activeFlagPreset === 'MARKET_BASELINE' ? 'rgba(233,163,25,0.15)' : '#F8FAFC',
+                    borderWidth: 1.5,
+                    borderColor: activeFlagPreset === 'MARKET_BASELINE' ? '#E9A319' : '#E2E8F0',
+                    borderRadius: 12,
+                    padding: 12
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontWeight: '800', color: activeFlagPreset === 'MARKET_BASELINE' ? '#B45309' : '#0F3460', fontSize: 13 }}>
+                      🔘 Market Baseline (Meqasa/Airbnb Peg)
+                    </Text>
+                    {activeFlagPreset === 'MARKET_BASELINE' && (
+                      <Text style={{ fontSize: 11, color: '#B45309', fontWeight: '800' }}>ACTIVE</Text>
+                    )}
+                  </View>
+                  <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                    Clean, familiar browsing. Disables SLA countdowns, 15% escrow penalties, and 3D liveness.
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Preset 2 */}
+                <TouchableOpacity
+                  onPress={() => handleApplyMobilePreset('FINTECH_ESCROW')}
+                  style={{
+                    backgroundColor: activeFlagPreset === 'FINTECH_ESCROW' ? 'rgba(16,185,129,0.15)' : '#F8FAFC',
+                    borderWidth: 1.5,
+                    borderColor: activeFlagPreset === 'FINTECH_ESCROW' ? '#10B981' : '#E2E8F0',
+                    borderRadius: 12,
+                    padding: 12
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontWeight: '800', color: activeFlagPreset === 'FINTECH_ESCROW' ? '#047857' : '#0F3460', fontSize: 13 }}>
+                      🚀 FinTech & Escrow Pilot
+                    </Text>
+                    {activeFlagPreset === 'FINTECH_ESCROW' && (
+                      <Text style={{ fontSize: 11, color: '#047857', fontWeight: '800' }}>ACTIVE</Text>
+                    )}
+                  </View>
+                  <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                    Enables monthly rent financing, MoMo USSD prompt, 15% escrow vault, and SmileID KYC.
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Preset 3 */}
+                <TouchableOpacity
+                  onPress={() => handleApplyMobilePreset('FULL_FLEX')}
+                  style={{
+                    backgroundColor: activeFlagPreset === 'FULL_FLEX' ? 'rgba(233,69,96,0.15)' : '#F8FAFC',
+                    borderWidth: 1.5,
+                    borderColor: activeFlagPreset === 'FULL_FLEX' ? '#E94560' : '#E2E8F0',
+                    borderRadius: 12,
+                    padding: 12
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontWeight: '800', color: activeFlagPreset === 'FULL_FLEX' ? '#E94560' : '#0F3460', fontSize: 13 }}>
+                      ⚡ Full Flex Autonomous (All 20 ON)
+                    </Text>
+                    {activeFlagPreset === 'FULL_FLEX' && (
+                      <Text style={{ fontSize: 11, color: '#E94560', fontWeight: '800' }}>ACTIVE</Text>
+                    )}
+                  </View>
+                  <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                    All superpowers active: 2hr cure timers, WhatsApp bots, TTLock PINs, and AI Vision.
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Granular Switches */}
+              <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F3460', marginBottom: 8, textTransform: 'uppercase' }}>
+                Granular Capability Switches
+              </Text>
+
+              {[
+                { key: 'FLAG_VERIFIED_BADGES', label: '🏷️ Verified Badges (Solar/Fibre)', desc: 'Show badges on property cards' },
+                { key: 'FLAG_200_POINT_TELEMETRY', label: '📊 200-Pt Telemetry (dB, ATS)', desc: 'Detailed technical readings' },
+                { key: 'FLAG_FLEX_ADVANCE_MONTHLY', label: '🚀 Flex-Advance Monthly Rent', desc: 'Payroll financing vs upfront' },
+                { key: 'FLAG_MOMO_USSD_PUSH', label: '🟡 MoMo USSD STK Prompt', desc: 'Direct handset push prompt' },
+                { key: 'FLAG_HOST_ESCROW_VAULT', label: '🛡️ 15% Escrow Protection', desc: 'Host payout holdback tags' },
+                { key: 'FLAG_SMILEID_BIOMETRICS', label: '🤳 SmileID 3D Face Scan', desc: 'Interactive biometric liveness' },
+                { key: 'FLAG_TTLOCK_GUEST_PASSES', label: '⏱️ TTLock Guest PIN Generator', desc: 'Self-expiring door passes' },
+                { key: 'FLAG_CARETAKER_WHATSAPP_BOT', label: '💬 WhatsApp Caretaker Pulse', desc: 'Daily 7am bot check-in' },
+                { key: 'FLAG_SLA_2HR_CURE_TIMER', label: '⏱️ 2-Hour SLA Cure Timer', desc: 'Host outage penalty clock' },
+                { key: 'FLAG_SCOUT_HEADER_MODE', label: '🧭 Scout Mode Entry Pill', desc: 'Show scout button in header' }
+              ].map(f => (
+                <View
+                  key={f.key}
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    backgroundColor: '#F8FAFC',
+                    borderRadius: 12,
+                    padding: 12,
+                    marginBottom: 8,
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0'
+                  }}
+                >
+                  <View style={{ flex: 1, paddingRight: 10 }}>
+                    <Text style={{ fontWeight: '800', color: '#0F3460', fontSize: 13 }}>{f.label}</Text>
+                    <Text style={{ fontSize: 11, color: '#64748B', marginTop: 1 }}>{f.desc}</Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => handleToggleMobileFlag(f.key)}
+                    style={{
+                      width: 50,
+                      height: 28,
+                      borderRadius: 14,
+                      backgroundColor: featureFlags[f.key] !== false ? '#10B981' : '#CBD5E1',
+                      justifyContent: 'center',
+                      paddingHorizontal: 2
+                    }}
+                  >
+                    <View style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: 12,
+                      backgroundColor: '#FFFFFF',
+                      alignSelf: featureFlags[f.key] !== false ? 'flex-end' : 'flex-start',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Text style={{ fontSize: 10 }}>{featureFlags[f.key] !== false ? '✓' : ''}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+              <View style={{ height: 30 }} />
+            </ScrollView>
           </View>
         </View>
       </Modal>
