@@ -1,119 +1,274 @@
 import React, { useState } from 'react';
+import MapSplitView from '../components/MapSplitView';
+import FlexAdvanceModal from '../components/FlexAdvanceModal';
 
 const Badge = ({ type }) => {
   const config = {
-    'POWER_247': { class: 'badge-power', label: '⚡ 24/7 Power' },
-    'POWER_WORK_READY': { class: 'badge-power', label: '⚡ Work Ready' },
-    'INTERNET_100': { class: 'badge-internet', label: '🌐 100Mbps' },
-    'INTERNET_30': { class: 'badge-internet', label: '🌐 30Mbps' },
-    'SECURITY_FORTIFIED': { class: 'badge-security', label: '🛡️ Secure' },
+    'POWER_247': { class: 'badge-power', label: '⚡ 24/7 Solar' },
+    'POWER_WORK_READY': { class: 'badge-power', label: '⚡ Inverter Backup' },
+    'INTERNET_100': { class: 'badge-internet', label: '🌐 100Mbps Starlink' },
+    'INTERNET_30': { class: 'badge-internet', label: '🌐 30Mbps Fibre' },
+    'SECURITY_FORTIFIED': { class: 'badge-security', label: '🛡️ Gated & Guarded' },
   };
   const badgeConfig = config[type];
   if (!badgeConfig) return null;
 
   return (
-    <span className={`badge ${badgeConfig.class}`}>
+    <span className={`badge ${badgeConfig.class}`} style={{ fontSize: '0.75rem', padding: '3px 8px' }}>
       {badgeConfig.label}
     </span>
   );
 };
 
-export default function Home({ properties, onSelect }) {
+export default function Home({ properties, onSelect, searchQuery = '', currency = 'GHS' }) {
   const [activeFilter, setActiveFilter] = useState('All');
-  
-  const filtered = activeFilter === 'All' 
-    ? properties 
-    : properties.filter(p => {
-        if (activeFilter.includes('Power')) return p.badges.some(b => b.includes('POWER'));
-        if (activeFilter.includes('Fibre')) return p.badges.some(b => b.includes('INTERNET'));
-        if (activeFilter.includes('Security')) return p.badges.some(b => b.includes('SECURITY'));
-        return true;
-      });
+  const [activeCity, setActiveCity] = useState('All');
+  const [showMap, setShowMap] = useState(true);
+  const [likedProperties, setLikedProperties] = useState(new Set());
+  const [calcProperty, setCalcProperty] = useState(null);
+
+  const toggleLike = (e, id) => {
+    e.stopPropagation();
+    setLikedProperties(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const formatPrice = (priceGhs) => {
+    if (currency === 'USD') return `$${Math.round(priceGhs / 15).toLocaleString()}`;
+    if (currency === 'NGN') return `₦${(priceGhs * 105).toLocaleString()}`;
+    return `GHS ${priceGhs.toLocaleString()}`;
+  };
+
+  const filtered = properties.filter(p => {
+    // Search query filter
+    const matchesSearch = !searchQuery || 
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.badges.some(b => b.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // City filter
+    const matchesCity = activeCity === 'All' || p.city.toLowerCase().includes(activeCity.toLowerCase());
+
+    // Badge filter
+    let matchesBadge = true;
+    if (activeFilter.includes('Power')) matchesBadge = p.badges.some(b => b.includes('POWER'));
+    if (activeFilter.includes('Fibre')) matchesBadge = p.badges.some(b => b.includes('INTERNET'));
+    if (activeFilter.includes('Security')) matchesBadge = p.badges.some(b => b.includes('SECURITY'));
+
+    return matchesSearch && matchesCity && matchesBadge;
+  });
 
   return (
     <div className="screen-container">
-      {/* Hero Section */}
-      <div className="glass-dark mb-5" style={{ borderRadius: '20px', padding: '2.5rem 2rem', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: '640px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(233,163,25,0.2)', padding: '4px 12px', borderRadius: '16px', color: 'var(--gold-light)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem' }}>
-            <span>⭐</span> 99.5% INFRASTRUCTURE UPTIME SLA
+      {/* Luxury Hero Banner */}
+      <div className="glass-dark mb-4" style={{ borderRadius: '24px', padding: '2.5rem 2.25rem', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: '720px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(233,163,25,0.2)', padding: '5px 14px', borderRadius: '20px', color: 'var(--gold-light)', fontSize: '0.8rem', fontWeight: 800, marginBottom: '1rem', border: '1px solid rgba(233,163,25,0.3)' }}>
+            <span>⭐</span> 99.5% INFRASTRUCTURE UPTIME GUARANTEE
           </div>
-          <h1 style={{ fontSize: '2.2rem', color: 'white', marginBottom: '0.75rem', lineHeight: 1.15 }}>
+          <h1 style={{ fontSize: '2.4rem', color: 'white', marginBottom: '0.75rem', lineHeight: 1.15 }}>
             Verified Living in Accra, Lagos & Nairobi
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', lineHeight: 1.5, marginBottom: '1.75rem' }}>
             No surprise blackouts. No dry taps. Ground-truth audited by Field Scouts with instant automated refund guarantees.
           </p>
 
-          {/* Quick Filter Pills */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {['All', '⚡ Power 24/7', '🌐 Ultra Fibre', '🛡️ Security'].map(filter => (
+          {/* Quick City Filters */}
+          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', fontWeight: 600 }}>Destination:</span>
+            {['All', 'Accra', 'Lagos', 'Nairobi'].map(city => (
               <button 
-                key={filter}
-                className="btn"
+                key={city}
                 style={{
-                  padding: '0.5rem 1.25rem',
+                  padding: '6px 16px',
                   fontSize: '0.85rem',
-                  borderRadius: '24px',
-                  background: activeFilter === filter ? 'var(--coral)' : 'rgba(255,255,255,0.12)',
-                  color: 'white',
-                  border: activeFilter === filter ? '1px solid var(--coral-light)' : '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '20px',
+                  background: activeCity === city ? 'white' : 'rgba(255,255,255,0.1)',
+                  color: activeCity === city ? 'var(--teal)' : 'white',
+                  border: 'none',
                   cursor: 'pointer',
-                  fontWeight: 600
+                  fontWeight: 700,
+                  transition: 'all 0.2s ease'
                 }}
-                onClick={() => setActiveFilter(filter)}
+                onClick={() => setActiveCity(city)}
               >
-                {filter}
+                {city}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Listings Section */}
-      <div className="mb-4 d-flex justify-between align-center">
-        <div>
-          <h2 style={{ fontSize: '1.5rem', color: 'var(--teal)', margin: 0 }}>Scout-Audited Listings</h2>
-          <p className="text-secondary text-sm">Showing {filtered.length} verified spaces</p>
+      {/* Toolbar: Category Filters & Airbnb Split Map Toggle */}
+      <div className="d-flex justify-between align-center mb-4" style={{ flexWrap: 'wrap', gap: '1rem' }}>
+        {/* Amenity Filter Chips */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {['All', '⚡ 24/7 Power', '🌐 Starlink Ultra Fibre', '🛡️ Guarded Security'].map(filter => (
+            <button 
+              key={filter}
+              className="btn"
+              style={{
+                padding: '0.45rem 1.15rem',
+                fontSize: '0.85rem',
+                borderRadius: '20px',
+                background: activeFilter === filter ? 'var(--coral)' : 'white',
+                color: activeFilter === filter ? 'white' : 'var(--text-secondary)',
+                border: activeFilter === filter ? '1px solid var(--coral)' : '1px solid var(--border)',
+                cursor: 'pointer',
+                fontWeight: 600,
+                boxShadow: activeFilter === filter ? '0 4px 12px rgba(233,69,96,0.3)' : 'none'
+              }}
+              onClick={() => setActiveFilter(filter)}
+            >
+              {filter}
+            </button>
+          ))}
         </div>
-        <div className="d-flex gap-2">
-          <span className="badge badge-verified">✓ PostGIS Spatial Filter</span>
+
+        {/* View Mode Toggle (Split Map vs Grid) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button
+            onClick={() => setShowMap(!showMap)}
+            className="btn glass"
+            style={{
+              padding: '0.55rem 1.25rem',
+              borderRadius: '24px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              color: 'var(--teal)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              border: '1px solid var(--border)',
+              background: showMap ? 'rgba(15, 52, 96, 0.08)' : 'white'
+            }}
+          >
+            <span>{showMap ? '🗺️' : '▦'}</span>
+            {showMap ? 'Hide Map' : 'Show Split Map'}
+          </button>
+          <span className="text-secondary text-sm font-bold" style={{ whiteSpace: 'nowrap' }}>
+            {filtered.length} verified stays
+          </span>
         </div>
       </div>
 
-      {/* Responsive Property Grid */}
-      <div className="property-grid">
-        {filtered.map(property => (
-          <div key={property.id} className="property-card glass" onClick={() => onSelect(property)} style={{ cursor: 'pointer', borderRadius: '16px', overflow: 'hidden', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}>
-            <div className="property-card-image" style={{ height: '220px', position: 'relative' }}>
-              <img src={property.image} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
-                <span className="badge badge-verified" style={{ backdropFilter: 'blur(8px)', background: 'rgba(16,185,129,0.95)' }}>
-                  ✓ Flex-Audited
-                </span>
+      {/* Split Map View Container */}
+      <div className={`split-view-container ${showMap ? 'with-map' : ''}`}>
+        {/* Left Side: Property Listings */}
+        <div className="property-grid">
+          {filtered.map(property => {
+            const isLiked = likedProperties.has(property.id);
+
+            return (
+              <div
+                key={property.id}
+                className="property-card glass"
+                onClick={() => onSelect(property)}
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}
+              >
+                {/* Image & Badges */}
+                <div className="property-card-image" style={{ height: '240px', position: 'relative' }}>
+                  <img src={property.image} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  
+                  {/* Top Badges */}
+                  <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
+                    <span className="badge badge-verified" style={{ backdropFilter: 'blur(8px)', background: 'rgba(16,185,129,0.95)', color: 'white', fontWeight: 800 }}>
+                      ✓ 200+ Point Audited
+                    </span>
+                  </div>
+
+                  {/* Heart Favorite Button */}
+                  <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+                    <button
+                      onClick={(e) => toggleLike(e, property.id)}
+                      className={`btn-heart ${isLiked ? 'liked' : ''}`}
+                    >
+                      {isLiked ? '❤️' : '🤍'}
+                    </button>
+                  </div>
+
+                  {/* Scout Signature Pill */}
+                  <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(15,52,96,0.9)', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: '12px', color: 'white', fontSize: '0.75rem', fontWeight: 600 }}>
+                    Audited by {property.scout}
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div className="property-card-content" style={{ padding: '1.25rem' }}>
+                  <div className="d-flex justify-between align-center mb-1">
+                    <span className="text-secondary text-xs font-bold">📍 {property.city}</span>
+                    <span className="text-sm font-bold" style={{ color: 'var(--gold-dark)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      ⭐ {property.rating}
+                    </span>
+                  </div>
+
+                  <h3 style={{ fontSize: '1.15rem', margin: '0 0 0.5rem 0', color: 'var(--teal)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {property.title}
+                  </h3>
+
+                  {/* Price */}
+                  <div className="d-flex justify-between align-center mb-3">
+                    <div className="property-price" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--coral)' }}>
+                      {formatPrice(property.price)} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>/ mo</span>
+                    </div>
+
+                    {/* Flex-Advance Mini Badge */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setCalcProperty(property); }}
+                      style={{
+                        background: 'rgba(233,69,96,0.1)',
+                        border: '1px solid rgba(233,69,96,0.25)',
+                        color: 'var(--coral)',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🚀 Flex-Advance
+                    </button>
+                  </div>
+
+                  {/* Amenity Badges */}
+                  <div className="d-flex gap-2" style={{ flexWrap: 'wrap' }}>
+                    {property.badges.map(b => <Badge key={b} type={b} />)}
+                  </div>
+                </div>
               </div>
-              <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(15,52,96,0.85)', backdropFilter: 'blur(8px)', padding: '4px 10px', borderRadius: '8px', color: 'white', fontSize: '0.75rem', fontWeight: 600 }}>
-                Audited by {property.scout}
-              </div>
-            </div>
-            <div className="property-card-content" style={{ padding: '1.25rem' }}>
-              <div className="d-flex justify-between align-center mb-2">
-                <span className="text-secondary text-sm" style={{ fontWeight: 500 }}>📍 {property.city}</span>
-                <span className="text-sm font-bold" style={{ color: 'var(--gold-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ⭐ {property.rating}
-                </span>
-              </div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--teal)' }}>{property.title}</h3>
-              <div className="property-price mb-3" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--coral)' }}>
-                {property.currency} {property.price.toLocaleString()} <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>/ month</span>
-              </div>
-              <div className="d-flex gap-2" style={{ flexWrap: 'wrap' }}>
-                {property.badges.map(b => <Badge key={b} type={b} />)}
-              </div>
-            </div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
+
+        {/* Right Side: Interactive Split Map */}
+        {showMap && (
+          <MapSplitView
+            properties={filtered}
+            onSelectProperty={onSelect}
+            currency={currency}
+          />
+        )}
       </div>
+
+      {/* Flex-Advance Simulator Modal */}
+      {calcProperty && (
+        <FlexAdvanceModal
+          property={calcProperty}
+          currency={currency}
+          isOpen={!!calcProperty}
+          onClose={() => setCalcProperty(null)}
+          onApply={() => { onSelect(calcProperty); }}
+        />
+      )}
     </div>
   );
 }

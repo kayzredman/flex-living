@@ -48,6 +48,8 @@ function App() {
   const [persona, setPersona] = useState('TENANT'); // TENANT, LANDLORD
   const [currentScreen, setCurrentScreen] = useState('HOME'); // HOME, DETAILS, BOOKING, STAY
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [currency, setCurrency] = useState('GHS'); // GHS, USD, NGN, KES
+  const [searchQuery, setSearchQuery] = useState('');
 
   const navigateTo = (screen, property = null) => {
     if (property) setSelectedProperty(property);
@@ -57,7 +59,7 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Universal Responsive Navbar */}
+      {/* Universal Luxury Web Navbar */}
       <header className="web-navbar">
         <div className="nav-brand" onClick={() => navigateTo('HOME')}>
           <div className="nav-brand-logo">FL</div>
@@ -71,18 +73,51 @@ function App() {
           </div>
         </div>
 
-        {/* Global Desktop Search */}
+        {/* Global Desktop Search with Live Input */}
         <div className="nav-search-bar">
           <span style={{ color: 'var(--text-secondary)' }}>🔍</span>
           <input 
             type="text" 
             placeholder="Search Accra, Lagos, Nairobi (Solar, Starlink, Borehole)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.85rem' }}
           />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.9rem' }}
+            >
+              ✕
+            </button>
+          )}
         </div>
 
-        {/* Persona Switcher & User Profile */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {/* Controls: Currency Switcher, Persona Switcher & User Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          {/* Currency Switcher Pill */}
+          <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '20px', padding: '2px', display: 'flex' }}>
+            {['GHS', 'USD', 'NGN'].map(curr => (
+              <button
+                key={curr}
+                onClick={() => setCurrency(curr)}
+                style={{
+                  border: 'none',
+                  padding: '4px 10px',
+                  borderRadius: '16px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  background: currency === curr ? 'var(--teal)' : 'transparent',
+                  color: currency === curr ? 'white' : 'var(--text-secondary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {curr}
+              </button>
+            ))}
+          </div>
+
           <div className="nav-persona-pill">
             <button 
               className={`nav-persona-btn ${persona === 'TENANT' ? 'active-tenant' : ''}`}
@@ -98,8 +133,8 @@ function App() {
             </button>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-primary)', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--gold)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
+            <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'var(--gold)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.75rem' }}>
               ✓
             </div>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--teal)' }}>Tier 2 Verified</span>
@@ -109,15 +144,21 @@ function App() {
 
       {/* Main Content Area */}
       <main style={{ flex: 1 }}>
-        {persona === 'LANDLORD' && <LandlordDashboard />}
+        {persona === 'LANDLORD' && <LandlordDashboard currency={currency} />}
         
         {persona === 'TENANT' && currentScreen === 'HOME' && (
-          <Home properties={properties} onSelect={(p) => navigateTo('DETAILS', p)} />
+          <Home 
+            properties={properties} 
+            searchQuery={searchQuery}
+            currency={currency}
+            onSelect={(p) => navigateTo('DETAILS', p)} 
+          />
         )}
         
         {persona === 'TENANT' && currentScreen === 'DETAILS' && selectedProperty && (
           <PropertyDetails 
             property={selectedProperty} 
+            currency={currency}
             onBack={() => navigateTo('HOME')} 
             onBook={() => navigateTo('BOOKING')} 
           />
@@ -126,6 +167,7 @@ function App() {
         {persona === 'TENANT' && currentScreen === 'BOOKING' && selectedProperty && (
           <Booking 
             property={selectedProperty} 
+            currency={currency}
             onBack={() => navigateTo('DETAILS')} 
             onComplete={() => navigateTo('STAY')} 
           />
@@ -134,6 +176,7 @@ function App() {
         {persona === 'TENANT' && currentScreen === 'STAY' && selectedProperty && (
           <StayManagement
             property={selectedProperty}
+            currency={currency}
             onBack={() => navigateTo('HOME')}
           />
         )}

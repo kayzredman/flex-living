@@ -37,9 +37,12 @@ Flex-Living is a tech-enabled real estate operating system for emerging African 
 3. **Listing Catalog Service (`backend/listing-service` - Port 8000):**
    - Python FastAPI service with GeoAlchemy2 spatial querying (`GET /v1/listings?lat=...&lng=...&radius_km=...`).
 4. **Interactive Web Platform (`prototype/` - Port 5174):**
-   - Upgraded to a **true responsive web platform** for desktop (1440px+), tablet, and mobile.
-   - Sticky top navigation bar with brand, search bar, persona switcher, and verified tier pill.
-   - 3-column responsive listing grid on desktop, 2-column split property details with sticky booking widget, and 4-KPI host command center.
+   - Benchmarked against **Airbnb Luxe, Blueground & Spleet**:
+     - **Interactive Split-Screen Map View**: Interactive PostGIS property pins with price pills (`GHS 4.0k`, `$267`), hover previews, and SVG infrastructure heat map.
+     - **Global Currency Switcher**: Real-time conversion across GHS, USD, and NGN.
+     - **5-Photo Luxury Hero Grid & Full-Screen Photo Lightbox**: Categorized audit proofs (Victron solar inverter, Starlink dish, borehole tanks, smart locks).
+     - **Interactive Flex-Advance Simulator Modal**: Tenure slider (3–24 mos) showing upfront cash retention vs traditional 2-year advance.
+     - **Host Infrastructure Command Hub**: 4-KPI financial & uptime cards + 2-column live power telemetry and WhatsApp caretaker morning pulse.
 5. **Tenant Mobile App Scaffolding (`mobile/`):**
    - React Native (Expo) app with NativeWind configured with brand design tokens.
 
