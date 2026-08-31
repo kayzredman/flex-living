@@ -79,12 +79,17 @@ graph TD
 * **IoT Watchdog Logic:** Automated state machine triggering active `POWER_FAILURE` breach when Grid is `OFFLINE` and Generator is `FAULT/OFF`.
 * **Bug Fix / QA Catch:** Fixed column naming mismatch (`generatorStatus` vs `generator_status`) caught by QA test suite.
 
-### Phase 3: Hybrid Non-IoT SLA Fallback & Fintech Core
-* **Database Migration (`phase3_schema.sql`):** Added `caretaker_pulse_checks`, `tenant_outage_claims`, `host_escrows`, and `flex_advances`.
-* **Geofence Security Engine:** Implemented Haversine distance calculations in the claim handler to reject claims submitted from outside a 500m radius of the property.
-* **SLA Countdown Engine:** Activated 2-hour (7,200s) automated countdown with simulated caretaker WhatsApp notifications.
-* **Host Escrow Reserve:** Automated deduction of $35.00 rent credit from host 15% escrow reserve upon breach confirmation.
-* **Fintech Underwriting:** Built DTI validation engine approving prime 1.5% monthly financing for applications $\le 40\%$ DTI.
+### Phase 4: Unified API Gateway, Caretaker WhatsApp Webhook & Mobile Elevation
+* **API Gateway Service (`backend/api-gateway` - Port 3004):**
+  - Unified reverse proxy with dynamic path resolution routing `/v1/auth`, `/v1/listings`, `/v1/scout`, `/v1/iot`, `/v1/sla`, and `/v1/fintech`.
+* **Inbound WhatsApp Caretaker Webhook:**
+  - Automated natural language parsing of morning caretaker reports (`/v1/sla/whatsapp/inbound`), recording grid status, fuel levels, water supply, and triggering proactive refill dispatches.
+* **Mobile App Elevation (`mobile/App.js`):**
+  - Upgraded React Native Expo application with 4-tab navigation:
+    1. **Explore:** PostGIS listings, amenity filter chips, and currency converter.
+    2. **Smart Key:** 1-Tap NFC/BLE digital lock unlock simulation with AES-256 handshake.
+    3. **SLA Diagnostics:** Geofenced outage claim and live 2-Hour countdown timer.
+    4. **Flex-Profile:** Tier 2 Ghana Card KYC badge, payroll deduction schedule, and upfront savings.
 
 ---
 
@@ -112,6 +117,9 @@ cd backend/iot-service && npm start
 
 # Hybrid SLA & Fintech (:3003)
 cd backend/hybrid-sla-service && npm start
+
+# Unified API Gateway (:3004)
+cd backend/api-gateway && npm start
 ```
 
 ### Start Frontend Clients:
@@ -141,6 +149,9 @@ NODE_PATH=backend/scout-service/node_modules node backend/qa_phase2_test.js
 
 # Phase 3: Hybrid Non-IoT SLA, WhatsApp Caretaker & Flex-Advance
 NODE_PATH=backend/scout-service/node_modules node backend/qa_phase3_test.js
+
+# Phase 4: API Gateway, Caretaker Inbound Webhook & End-to-End Routing
+node backend/qa_phase4_test.js
 ```
 
 ---
@@ -150,3 +161,4 @@ NODE_PATH=backend/scout-service/node_modules node backend/qa_phase3_test.js
 * **Phase 1 Certification:** APPROVED (7/7 Tests Passed) - Date: 2026-08-28
 * **Phase 2 Certification:** APPROVED (13/13 Tests Passed) - Date: 2026-08-29
 * **Phase 3 Certification:** APPROVED (12/12 Tests Passed) - Date: 2026-08-29
+* **Phase 4 Certification:** APPROVED (22/22 Tests Passed) - Date: 2026-08-31

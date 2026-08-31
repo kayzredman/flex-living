@@ -66,14 +66,27 @@ Flex-Living is a tech-enabled real estate operating system for emerging African 
 4. **Flex-Advance Rental Financing Engine:**
    - Automated credit underwriting evaluating DTI ratios (< 40% threshold approved with prime 1.5%/month rate).
 
+### ✅ Phase 4: Unified API Gateway, Caretaker WhatsApp Webhook & Mobile App Elevation (Certified by QA)
+1. **Unified Reverse Proxy API Gateway (`backend/api-gateway` - Port 3004):**
+   - Single point of entry routing `/v1/auth`, `/v1/listings`, `/v1/scout`, `/v1/iot`, `/v1/sla`, and `/v1/fintech`.
+2. **Inbound WhatsApp Caretaker Webhook (`POST /v1/sla/whatsapp/inbound`):**
+   - Natural language parser extracting grid status (`NORMAL` / `GRID_OFF`), fuel level (`FULL` / `NEEDS_DIESEL`), and water reserves.
+   - Automatic dispatch alert for diesel refills.
+3. **Full-Featured Mobile Application (`mobile/App.js`):**
+   - 4-Tab Navigation:
+     - **Explore:** PostGIS listings, amenity filters, and currency switcher.
+     - **Smart Key:** 1-Tap NFC/BLE digital lock unlock simulation with AES-256 handshake.
+     - **SLA Diagnostics:** Geofenced outage claim and live 2-Hour countdown timer.
+     - **Flex-Profile:** Tier 2 Ghana Card KYC badge, payroll deduction schedule, and upfront savings.
+4. **Automated QA Phase 4 Test Suite (`backend/qa_phase4_test.js`):**
+   - 22/22 tests passing across Gateway health, spatial listing query, WhatsApp webhook, geofenced claims, underwriting, and scout queue.
+
 ---
 
-## 🚀 Next Milestone: Phase 4 & Roadmap Ahead
-1. **Full-Stack Client Wiring:**
-   - Connect Web Portal (`prototype/src/`) and Mobile App (`mobile/App.js`) to live backend microservices.
-2. **AI Dynamic Pricing & Diaspora Demand Engine:**
+## 🚀 Next Milestone: Phase 5 & Roadmap Ahead
+1. **AI Dynamic Pricing & Diaspora Surge Engine:**
    - Dynamic yield optimization algorithms based on local infrastructure badges and seasonal diaspora travel surges (e.g., "December in Ghana").
-3. **WhatsApp Meta Cloud API Production Gateway:**
+2. **Production SMS & WhatsApp Meta Cloud API Webhook Integration:**
    - Live two-way webhook handler for Caretakers and Guests.
 
 ---

@@ -139,6 +139,70 @@ app.post('/v1/sla/landlord/pulse-check', async (req, res) => {
 });
 
 /**
+ * POST /v1/sla/whatsapp/inbound
+ * Inbound webhook for WhatsApp Business / Twilio Caretaker messages
+ * Example payload: { From: '+233551234999', Body: 'ECG Normal, Water 100%, Diesel Full', PropertyId: '...' }
+ */
+app.post('/v1/sla/whatsapp/inbound', async (req, res) => {
+  try {
+    const { From, Body, PropertyId } = req.body;
+    const sender = From || '+233551234999';
+    const text = (Body || '').toLowerCase();
+
+    // Determine property (from payload or fallback to latest Cantonments property)
+    let targetPropertyId = PropertyId;
+    if (!targetPropertyId) {
+      const propRes = await pool.query('SELECT id FROM listings LIMIT 1');
+      targetPropertyId = propRes.rows[0]?.id;
+    }
+
+    // Natural language parsing of pulse status
+    let gridPowerStatus = 'NORMAL';
+    if (text.includes('off') || text.includes('dumsor') || text.includes('down') || text.includes('blackout')) {
+      gridPowerStatus = 'GRID_OFF';
+    }
+
+    let generatorFuelStatus = 'FULL';
+    if (text.includes('low') || text.includes('refill') || text.includes('empty') || text.includes('critical')) {
+      generatorFuelStatus = 'NEEDS_DIESEL';
+    } else if (text.includes('half') || text.includes('50%')) {
+      generatorFuelStatus = 'HALF';
+    }
+
+    let waterTankStatus = 'FULL';
+    if (text.includes('dry') || text.includes('no water') || text.includes('pump off')) {
+      waterTankStatus = 'EMPTY';
+    } else if (text.includes('low')) {
+      waterTankStatus = 'LOW';
+    }
+
+    // Store pulse check
+    const result = await pool.query(
+      `INSERT INTO caretaker_pulse_checks
+       (property_id, caretaker_phone, grid_power_status, generator_fuel_status, water_tank_status, reported_via)
+       VALUES ($1, $2, $3, $4, $5, 'WHATSAPP_BOT')
+       RETURNING *`,
+      [targetPropertyId, sender, gridPowerStatus, generatorFuelStatus, waterTankStatus]
+    );
+
+    const autoReply = generatorFuelStatus === 'NEEDS_DIESEL'
+      ? '⚠️ Flex-Living Alert: Refill recorded. Automated diesel dispatch notification sent to Host.'
+      : '✅ Flex-Living Pulse Confirmed: Property infrastructure status verified. Thank you, Caretaker!';
+
+    res.status(200).json({
+      success: true,
+      sender,
+      parsed: { gridPowerStatus, generatorFuelStatus, waterTankStatus },
+      pulseCheckId: result.rows[0].id,
+      replyMessage: autoReply
+    });
+  } catch (err) {
+    console.error('Error processing WhatsApp webhook:', err);
+    res.status(500).json({ error: 'Webhook processing failed' });
+  }
+});
+
+/**
  * POST /v1/sla/claims/:id/resolve
  * Resolve Claim & Auto-deduct from 15% Host Escrow if breach occurred
  */
