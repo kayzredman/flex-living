@@ -16,6 +16,7 @@ const SERVICES = {
   scouts: process.env.SCOUT_SERVICE_URL || 'http://localhost:3001',
   iot: process.env.IOT_SERVICE_URL || 'http://localhost:3002',
   sla: process.env.SLA_SERVICE_URL || 'http://localhost:3003',
+  pricing: process.env.PRICING_SERVICE_URL || 'http://localhost:3005',
 };
 
 // Gateway Health Check & Service Registry Info
@@ -29,7 +30,8 @@ app.get('/health', (req, res) => {
       listings: `${SERVICES.listings}/v1/listings`,
       scouts: `${SERVICES.scouts}/v1/scouts`,
       iot: `${SERVICES.iot}/v1/iot`,
-      sla: `${SERVICES.sla}/v1/sla`
+      sla: `${SERVICES.sla}/v1/sla`,
+      pricing: `${SERVICES.pricing}/v1/pricing`
     }
   });
 });
@@ -60,6 +62,10 @@ app.use('/v1/sla', proxy(SERVICES.sla, {
 }));
 
 app.use('/v1/fintech', proxy(SERVICES.sla, {
+  proxyReqPathResolver: (req) => req.originalUrl
+}));
+
+app.use('/v1/pricing', proxy(SERVICES.pricing || 'http://localhost:3005', {
   proxyReqPathResolver: (req) => req.originalUrl
 }));
 
