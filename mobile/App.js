@@ -438,6 +438,15 @@ export default function App() {
   const [activeFlagPreset, setActiveFlagPreset] = useState('FULL_FLEX');
   const [isAdminFlagModalOpen, setIsAdminFlagModalOpen] = useState(false);
 
+  // Role Separation & Persona State (Normal User vs Admin vs Host vs Scout)
+  const MOBILE_PERSONAS = {
+    TENANT: { name: 'Kofi Mensah', label: 'Tenant (Normal User)', badge: 'Diaspora Tier 2', color: '#0F3460', avatar: 'KM', phone: '+233 55 000 0001' },
+    LANDLORD: { name: 'Kwame Osei', label: 'Verified Landlord', badge: 'Superhost (3 Stays)', color: '#D4AF37', avatar: 'KO', phone: '+233 24 555 9876' },
+    SCOUT: { name: 'Ama Mensah', label: 'Lead Field Scout', badge: 'Gold Inspector', color: '#D97706', avatar: 'AM', phone: '+233 50 123 4567' },
+    ADMIN: { name: 'Akua Serwaa', label: 'Platform Executive (Admin)', badge: 'Super Admin', color: '#E94560', avatar: 'AS', phone: '+233 20 888 9999' }
+  };
+  const [mobilePersona, setMobilePersona] = useState('TENANT'); // TENANT, LANDLORD, SCOUT, ADMIN
+
   // Sync flags from gateway or local
   useEffect(() => {
     const fetchMobileFlags = async () => {
@@ -694,49 +703,96 @@ export default function App() {
         )}
       </View>
 
-      {/* Top Header: Row 2 (Quick Action Nav Bar) */}
+      {/* Top Header: Row 2 (Quick Action Nav Bar - Adapts to Current Role) */}
       <View style={styles.headerActionBar}>
-        {/* Remote Feature Flags Command Pill */}
-        <TouchableOpacity
-          onPress={() => setIsAdminFlagModalOpen(true)}
-          style={[styles.actionPillScout, { backgroundColor: '#0B1B26', borderColor: '#E9A319' }]}
-        >
-          <Text style={[styles.actionPillScoutText, { color: '#E9A319', fontWeight: '900' }]}>
-            🎛️ Flags ({activeFlagPreset === 'MARKET_BASELINE' ? 'Baseline' : activeFlagPreset === 'FINTECH_ESCROW' ? 'FinTech' : 'Full'})
-          </Text>
-        </TouchableOpacity>
+        {/* Normal Tenant (Default Consumer Experience) */}
+        {mobilePersona === 'TENANT' && (
+          <>
+            <TouchableOpacity
+              onPress={() => setActiveTab('PROFILE')}
+              style={[styles.actionPillScout, { backgroundColor: '#F1F5F9', borderColor: '#CBD5E1' }]}
+            >
+              <Text style={[styles.actionPillScoutText, { color: '#0F3460', fontWeight: '800' }]}>
+                👤 {MOBILE_PERSONAS.TENANT.name} (Tenant)
+              </Text>
+            </TouchableOpacity>
 
-        {featureFlags.FLAG_HOST_LIST_PROPERTY !== false && (
-          <TouchableOpacity
-            onPress={() => {
-              setHostSuccess(null);
-              setHostStep(1);
-              setIsHostModalOpen(true);
-            }}
-            style={styles.actionPillHost}
-          >
-            <Text style={styles.actionPillHostText}>🏡 + List Property</Text>
-          </TouchableOpacity>
+            {featureFlags.FLAG_HOST_LIST_PROPERTY !== false && (
+              <TouchableOpacity
+                onPress={() => {
+                  setHostSuccess(null);
+                  setHostStep(1);
+                  setIsHostModalOpen(true);
+                }}
+                style={styles.actionPillHost}
+              >
+                <Text style={styles.actionPillHostText}>🏡 List Space</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
 
-        {featureFlags.FLAG_SCOUT_HEADER_MODE !== false && (
+        {/* Admin Superuser Experience */}
+        {mobilePersona === 'ADMIN' && (
+          <>
+            <TouchableOpacity
+              onPress={() => setIsAdminFlagModalOpen(true)}
+              style={[styles.actionPillScout, { backgroundColor: '#0B1B26', borderColor: '#E9A319' }]}
+            >
+              <Text style={[styles.actionPillScoutText, { color: '#E9A319', fontWeight: '900' }]}>
+                🎛️ Flags ({activeFlagPreset === 'MARKET_BASELINE' ? 'Baseline' : activeFlagPreset === 'FINTECH_ESCROW' ? 'FinTech' : 'Full'})
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setActiveTab('SCOUT')}
+              style={[styles.actionPillScout, activeTab === 'SCOUT' && styles.actionPillScoutActive]}
+            >
+              <Text style={[styles.actionPillScoutText, activeTab === 'SCOUT' && styles.actionPillScoutTextActive]}>
+                🧭 Fleet
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setActiveTab('SLA')}
+              style={styles.actionPillSla}
+            >
+              <Text style={styles.actionPillSlaText}>⚡ SLA Ops</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* Field Scout Experience */}
+        {mobilePersona === 'SCOUT' && (
           <TouchableOpacity
             onPress={() => setActiveTab('SCOUT')}
-            style={[styles.actionPillScout, activeTab === 'SCOUT' && styles.actionPillScoutActive]}
+            style={[styles.actionPillScout, { backgroundColor: '#FFFBEB', borderColor: '#D97706' }]}
           >
-            <Text style={[styles.actionPillScoutText, activeTab === 'SCOUT' && styles.actionPillScoutTextActive]}>
-              🧭 Scout Mode
+            <Text style={[styles.actionPillScoutText, { color: '#B45309', fontWeight: '800' }]}>
+              🧭 Field Inspector Active: Ama Mensah
             </Text>
           </TouchableOpacity>
         )}
 
-        {featureFlags.FLAG_SLA_2HR_CURE_TIMER !== false && (
-          <TouchableOpacity
-            onPress={() => setActiveTab('SLA')}
-            style={styles.actionPillSla}
-          >
-            <Text style={styles.actionPillSlaText}>⚡ SLA 99.5%</Text>
-          </TouchableOpacity>
+        {/* Host / Landlord Experience */}
+        {mobilePersona === 'LANDLORD' && (
+          <>
+            <View style={[styles.actionPillScout, { backgroundColor: 'rgba(15,52,96,0.08)', borderColor: '#0F3460' }]}>
+              <Text style={[styles.actionPillScoutText, { color: '#0F3460', fontWeight: '800' }]}>
+                🏡 Host Portfolio: Kwame Osei
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                setHostSuccess(null);
+                setHostStep(1);
+                setIsHostModalOpen(true);
+              }}
+              style={styles.actionPillHost}
+            >
+              <Text style={styles.actionPillHostText}>+ Add Stay</Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
 
@@ -1181,20 +1237,80 @@ export default function App() {
         {/* TAB 4: FLEX-ADVANCE PROFILE & SMILEID BIOMETRICS */}
         {activeTab === 'PROFILE' && (
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            {/* User KYC Card */}
+            {/* Active Persona / Role Switcher Card (Role Access Demo) */}
+            <View style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 16,
+              padding: 14,
+              marginBottom: 14,
+              borderWidth: 1,
+              borderColor: '#CBD5E1',
+              shadowColor: '#000',
+              shadowOpacity: 0.04,
+              shadowRadius: 6,
+              elevation: 2
+            }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
+                Active Persona (Role Access Demo)
+              </Text>
+              
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {[
+                  { key: 'TENANT', label: '👤 Tenant', desc: 'Consumer view' },
+                  { key: 'LANDLORD', label: '🏡 Landlord', desc: 'Host portfolio' },
+                  { key: 'SCOUT', label: '🧭 Scout', desc: 'Field inspector' },
+                  { key: 'ADMIN', label: '⚡ Admin Ops', desc: 'Flags & Fleet' }
+                ].map(p => (
+                  <TouchableOpacity
+                    key={p.key}
+                    onPress={() => setMobilePersona(p.key)}
+                    style={{
+                      flex: 1,
+                      minWidth: '47%',
+                      paddingVertical: 10,
+                      paddingHorizontal: 8,
+                      borderRadius: 10,
+                      backgroundColor: mobilePersona === p.key ? 'rgba(15,52,96,0.1)' : '#F8FAFC',
+                      borderWidth: 1.5,
+                      borderColor: mobilePersona === p.key ? '#0F3460' : '#E2E8F0',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Text style={{
+                      fontWeight: '800',
+                      fontSize: 12,
+                      color: mobilePersona === p.key ? '#0F3460' : '#64748B'
+                    }}>
+                      {p.label}
+                    </Text>
+                    <Text style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>
+                      {p.desc}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Dynamic Authenticated User Card */}
             <View style={styles.kycCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.avatarCircle}>
-                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 18 }}>KM</Text>
+                <View style={[styles.avatarCircle, { backgroundColor: MOBILE_PERSONAS[mobilePersona].color }]}>
+                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 18 }}>
+                    {MOBILE_PERSONAS[mobilePersona].avatar}
+                  </Text>
                 </View>
                 <View style={{ marginLeft: 14 }}>
-                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F3460' }}>Kofi Mensah</Text>
-                  <Text style={{ color: '#64748B', fontSize: 13 }}>+233 55 000 0001</Text>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F3460' }}>
+                    {MOBILE_PERSONAS[mobilePersona].name}
+                  </Text>
+                  <Text style={{ color: '#64748B', fontSize: 13 }}>
+                    {MOBILE_PERSONAS[mobilePersona].phone} • {MOBILE_PERSONAS[mobilePersona].label}
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.tierPill}>
-                <Text style={styles.tierPillText}>✓ Tier 2 Verified (Ghana Card: GHA-712839120-1)</Text>
+                <Text style={styles.tierPillText}>✓ {MOBILE_PERSONAS[mobilePersona].badge}</Text>
               </View>
             </View>
 
@@ -2003,13 +2119,16 @@ export default function App() {
           <Text style={[styles.navText, activeTab === 'EXPLORE' && styles.navTextActive]}>Explore</Text>
         </TouchableOpacity>
 
-        {featureFlags.FLAG_SCOUT_HEADER_MODE !== false && (
+        {/* Scout Mode: Only visible for ADMIN or SCOUT persona */}
+        {(mobilePersona === 'ADMIN' || mobilePersona === 'SCOUT') && featureFlags.FLAG_SCOUT_HEADER_MODE !== false && (
           <TouchableOpacity 
             style={styles.navItem} 
             onPress={() => setActiveTab('SCOUT')}
           >
             <Text style={[styles.navIcon, activeTab === 'SCOUT' && styles.navIconActive]}>🧭</Text>
-            <Text style={[styles.navText, activeTab === 'SCOUT' && styles.navTextActive]}>Scout Mode</Text>
+            <Text style={[styles.navText, activeTab === 'SCOUT' && styles.navTextActive]}>
+              {mobilePersona === 'SCOUT' ? 'Audits' : 'Scout Fleet'}
+            </Text>
           </TouchableOpacity>
         )}
 
@@ -2021,13 +2140,14 @@ export default function App() {
           <Text style={[styles.navText, activeTab === 'KEY' && styles.navTextActive]}>Smart Key</Text>
         </TouchableOpacity>
 
-        {featureFlags.FLAG_SLA_2HR_CURE_TIMER !== false && (
+        {/* SLA & Outage: Only visible for ADMIN */}
+        {mobilePersona === 'ADMIN' && featureFlags.FLAG_SLA_2HR_CURE_TIMER !== false && (
           <TouchableOpacity 
             style={styles.navItem} 
             onPress={() => setActiveTab('SLA')}
           >
             <Text style={[styles.navIcon, activeTab === 'SLA' && styles.navIconActive]}>⚡</Text>
-            <Text style={[styles.navText, activeTab === 'SLA' && styles.navTextActive]}>SLA & Outage</Text>
+            <Text style={[styles.navText, activeTab === 'SLA' && styles.navTextActive]}>SLA Ops</Text>
           </TouchableOpacity>
         )}
 
@@ -2036,7 +2156,9 @@ export default function App() {
           onPress={() => setActiveTab('PROFILE')}
         >
           <Text style={[styles.navIcon, activeTab === 'PROFILE' && styles.navIconActive]}>👤</Text>
-          <Text style={[styles.navText, activeTab === 'PROFILE' && styles.navTextActive]}>Flex-Profile</Text>
+          <Text style={[styles.navText, activeTab === 'PROFILE' && styles.navTextActive]}>
+            {mobilePersona === 'ADMIN' ? 'Admin' : 'Profile'}
+          </Text>
         </TouchableOpacity>
       </View>
 
