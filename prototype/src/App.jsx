@@ -4,6 +4,7 @@ import PropertyDetails from './pages/PropertyDetails';
 import Booking from './pages/Booking';
 import LandlordDashboard from './pages/LandlordDashboard';
 import StayManagement from './pages/StayManagement';
+import ScoutPortal from './pages/ScoutPortal';
 
 const properties = [
   {
@@ -131,6 +132,13 @@ function App() {
             >
               Host Hub
             </button>
+            <button 
+              className={`nav-persona-btn ${persona === 'SCOUT' ? 'active-landlord' : ''}`}
+              onClick={() => setPersona('SCOUT')}
+              style={{ background: persona === 'SCOUT' ? 'var(--gold)' : 'transparent', color: persona === 'SCOUT' ? '#0B1B26' : 'var(--text-secondary)' }}
+            >
+              🧭 Scout Portal
+            </button>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
@@ -144,6 +152,7 @@ function App() {
 
       {/* Main Content Area */}
       <main style={{ flex: 1 }}>
+        {persona === 'SCOUT' && <ScoutPortal />}
         {persona === 'LANDLORD' && <LandlordDashboard currency={currency} />}
         
         {persona === 'TENANT' && currentScreen === 'HOME' && (

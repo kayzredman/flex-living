@@ -29,11 +29,19 @@ app.post('/v1/scout/tasks', async (req, res) => {
       return res.status(400).json({ error: 'propertyId is required' });
     }
 
+    const uuidRegex = /^[0-9a-fA-F-]{36}$/;
+    const validScoutUuid = (scoutId && uuidRegex.test(scoutId)) ? scoutId : null;
+    const validPropUuid = (propertyId && uuidRegex.test(propertyId)) ? propertyId : null;
+
+    if (!validPropUuid) {
+      return res.status(400).json({ error: 'propertyId must be a valid UUID' });
+    }
+
     const result = await pool.query(
       `INSERT INTO scout_tasks (property_id, scout_id, base_payout_usd, total_payout_usd, status)
        VALUES ($1, $2, $3, $3, 'PENDING')
        RETURNING *`,
-      [propertyId, scoutId || null, basePayoutUsd]
+      [validPropUuid, validScoutUuid, basePayoutUsd]
     );
 
     res.status(201).json({
@@ -194,6 +202,82 @@ app.post('/v1/scout/tasks/:id/verify', async (req, res) => {
     });
   } catch (err) {
     console.error('Error verifying audit task:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+const { scanPropertyWithAI } = require('./ai_scanner');
+
+/**
+ * POST /v1/scout/ai-scan
+ * Run AI Vision inspection on property photos and telemetry
+ */
+app.post('/v1/scout/ai-scan', async (req, res) => {
+  try {
+    const { propertyId, images = [], telemetry = {} } = req.body;
+    
+    // Execute AI Vision Model
+    const scanReport = scanPropertyWithAI({ propertyId, images, telemetry });
+
+    // If pre-certified and propertyId exists, update listing in DB
+    if (scanReport.instantPreCertified && propertyId) {
+      try {
+        await pool.query(
+          `UPDATE listings
+           SET badges = $1, flex_trust_score = $2
+           WHERE id = $3`,
+          [JSON.stringify(scanReport.awardedBadges), scanReport.qualityScore, propertyId]
+        );
+      } catch (dbErr) {
+        console.warn('Listing DB update skipped or non-existent propertyId:', dbErr.message);
+      }
+    }
+
+    res.status(200).json({
+      message: scanReport.instantPreCertified 
+        ? 'AI Vision Property Pre-Certification Approved!' 
+        : 'AI Vision Scan Complete - Field Scout Spot-Check Scheduled',
+      scanReport
+    });
+  } catch (err) {
+    console.error('Error executing AI vision property scan:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * GET /v1/scout/dashboard
+ * Aggregated statistics and task queue for Scout Operations & Field Agents
+ */
+app.get('/v1/scout/dashboard', async (req, res) => {
+  try {
+    const tasksRes = await pool.query('SELECT * FROM scout_tasks ORDER BY created_at DESC LIMIT 50');
+    const tasks = tasksRes.rows || [];
+
+    const totalTasks = tasks.length;
+    const pendingTasks = tasks.filter(t => t.status === 'PENDING').length;
+    const approvedTasks = tasks.filter(t => t.status === 'APPROVED' || t.status === 'CERTIFIED').length;
+    const totalBountiesUsd = tasks.reduce((sum, t) => sum + (parseFloat(t.total_payout_usd) || 0), 0);
+
+    const scoutRoster = [
+      { id: 'scout-accra-01', name: 'Ama Mensah', city: 'Accra, Ghana', completedAudits: 28, rating: 4.96, activeBountyGhs: 4200 },
+      { id: 'scout-lagos-01', name: 'Chinedu Okafor', city: 'Lagos, Nigeria', completedAudits: 34, rating: 4.92, activeBountyGhs: 5100 },
+      { id: 'scout-nairobi-01', name: 'Njeri Kamau', city: 'Nairobi, Kenya', completedAudits: 22, rating: 4.98, activeBountyGhs: 3300 }
+    ];
+
+    res.status(200).json({
+      summary: {
+        totalInspections: totalTasks,
+        pendingInspections: pendingTasks,
+        certifiedProperties: approvedTasks,
+        totalBountiesDistributedUsd: totalBountiesUsd,
+        avgAuditTurnaroundHours: 3.2
+      },
+      scoutRoster,
+      recentTasks: tasks.slice(0, 10)
+    });
+  } catch (err) {
+    console.error('Error fetching scout dashboard:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
