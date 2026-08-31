@@ -81,13 +81,23 @@ Flex-Living is a tech-enabled real estate operating system for emerging African 
 4. **Automated QA Phase 4 Test Suite (`backend/qa_phase4_test.js`):**
    - 22/22 tests passing across Gateway health, spatial listing query, WhatsApp webhook, geofenced claims, underwriting, and scout queue.
 
+### ✅ Phase 5: AI Dynamic Pricing & Diaspora Surge Engine (Certified by QA)
+1. **Dynamic Pricing Microservice (`backend/pricing-service` - Port 3005):**
+   - Dynamic yield calculation combining infrastructure badge premiums (+18% Solar, +12% Starlink, +8% Borehole, +5% Smart Access = +43% verified premium) with seasonal surge multipliers.
+   - Diaspora event calendar: "December in Ghana (Detty December)" at 1.85x peak multiplier.
+   - Host 12-month dynamic yield projection curve.
+2. **Host Dashboard Integration (`prototype/src/pages/LandlordDashboard.jsx`):**
+   - Live AI Yield & Diaspora Surge Optimizer panel with monthly surge bar chart and peak Detty December revenue lift.
+3. **Automated QA Phase 5 Test Suite (`backend/qa_phase5_test.js`):**
+   - 21/21 tests passing across Gateway routing, diaspora calendar query, peak/off-peak pricing, multi-currency (USD/GHS), and 12-month projections.
+
 ---
 
-## 🚀 Next Milestone: Phase 5 & Roadmap Ahead
-1. **AI Dynamic Pricing & Diaspora Surge Engine:**
-   - Dynamic yield optimization algorithms based on local infrastructure badges and seasonal diaspora travel surges (e.g., "December in Ghana").
-2. **Production SMS & WhatsApp Meta Cloud API Webhook Integration:**
+## 🚀 Next Milestone: Phase 6 & Roadmap Ahead
+1. **Production SMS & WhatsApp Meta Cloud API Webhook Integration:**
    - Live two-way webhook handler for Caretakers and Guests.
+2. **Multi-Property Host Portfolio Analytics:**
+   - Aggregated portfolio performance and automated tax reporting.
 
 ---
 

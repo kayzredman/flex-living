@@ -91,6 +91,14 @@ graph TD
     3. **SLA Diagnostics:** Geofenced outage claim and live 2-Hour countdown timer.
     4. **Flex-Profile:** Tier 2 Ghana Card KYC badge, payroll deduction schedule, and upfront savings.
 
+### Phase 5: AI Dynamic Pricing & Diaspora Surge Engine
+* **Dynamic Pricing Engine (`backend/pricing-service` - Port 3005):**
+  - Combines infrastructure badge multipliers (+18% Solar, +12% Starlink, +8% Borehole, +5% Smart Lock) with African diaspora calendar surges.
+  - "December in Ghana (Detty December)" peak multiplier (1.85x).
+  - 12-month dynamic yield projection curve for hosts.
+* **Host Infrastructure Command Integration:**
+  - Added "AI Yield & Diaspora Surge Optimizer" module to Landlord Dashboard.
+
 ---
 
 ## 🏃 4. Operational Runbook
@@ -120,6 +128,9 @@ cd backend/hybrid-sla-service && npm start
 
 # Unified API Gateway (:3004)
 cd backend/api-gateway && npm start
+
+# AI Dynamic Pricing & Diaspora Surge Engine (:3005)
+cd backend/pricing-service && npm start
 ```
 
 ### Start Frontend Clients:
@@ -152,6 +163,9 @@ NODE_PATH=backend/scout-service/node_modules node backend/qa_phase3_test.js
 
 # Phase 4: API Gateway, Caretaker Inbound Webhook & End-to-End Routing
 node backend/qa_phase4_test.js
+
+# Phase 5: AI Dynamic Pricing & Diaspora Surge Engine
+node backend/qa_phase5_test.js
 ```
 
 ---
@@ -162,3 +176,4 @@ node backend/qa_phase4_test.js
 * **Phase 2 Certification:** APPROVED (13/13 Tests Passed) - Date: 2026-08-29
 * **Phase 3 Certification:** APPROVED (12/12 Tests Passed) - Date: 2026-08-29
 * **Phase 4 Certification:** APPROVED (22/22 Tests Passed) - Date: 2026-08-31
+* **Phase 5 Certification:** APPROVED (21/21 Tests Passed) - Date: 2026-08-31
