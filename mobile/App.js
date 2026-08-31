@@ -326,6 +326,45 @@ export default function App() {
   const [mobileAiScanning, setMobileAiScanning] = useState(false);
   const [mobileAiScanResult, setMobileAiScanResult] = useState(null);
 
+  // Mobile Fleet Management & Yanking
+  const [mobileScoutFleet, setMobileScoutFleet] = useState([
+    {
+      id: 'scout-accra-01',
+      name: 'Ama Mensah',
+      phone: '+233 24 111 2233',
+      city: 'Accra',
+      zones: 'Cantonments, Airport',
+      rating: 4.96,
+      completedAudits: 28,
+      status: 'ACTIVE'
+    },
+    {
+      id: 'scout-lagos-01',
+      name: 'Chinedu Okafor',
+      phone: '+234 80 222 3344',
+      city: 'Lagos',
+      zones: 'Ikoyi, VI',
+      rating: 4.92,
+      completedAudits: 34,
+      status: 'ACTIVE'
+    },
+    {
+      id: 'scout-nairobi-01',
+      name: 'Njeri Kamau',
+      phone: '+254 71 333 4455',
+      city: 'Nairobi',
+      zones: 'Kilimani, Westlands',
+      rating: 4.98,
+      completedAudits: 22,
+      status: 'ACTIVE'
+    }
+  ]);
+  const [isMobileOnboardOpen, setIsMobileOnboardOpen] = useState(false);
+  const [mobileNewName, setMobileNewName] = useState('');
+  const [mobileNewPhone, setMobileNewPhone] = useState('+233 55 ');
+  const [mobileNewCity, setMobileNewCity] = useState('Accra');
+  const [mobileNewNationalId, setMobileNewNationalId] = useState('GHA-');
+
   const handlePickImage = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -857,9 +896,10 @@ export default function App() {
             {/* Sub-Navigation Switcher */}
             <View style={{ flexDirection: 'row', gap: 6, marginBottom: 14 }}>
               {[
-                { id: 'TASKS', label: '📋 Task Queue' },
-                { id: 'WORKBENCH', label: '🛠️ 200-Pt Audit' },
-                { id: 'AI_SCAN', label: '🤖 AI Scanner' }
+                { id: 'TASKS', label: '📋 Tasks' },
+                { id: 'WORKBENCH', label: '🛠️ Audit' },
+                { id: 'AI_SCAN', label: '🤖 AI' },
+                { id: 'FLEET', label: '👥 Fleet' }
               ].map(st => (
                 <TouchableOpacity
                   key={st.id}
@@ -1226,6 +1266,210 @@ export default function App() {
                     {mobileAiScanning ? 'Analyzing Equipment...' : '📸 Run Live AI Equipment Scan'}
                   </Text>
                 </TouchableOpacity>
+              </View>
+            )}
+
+            {/* SUBTAB 4: MOBILE SCOUT FLEET MANAGEMENT & YANKING */}
+            {scoutSubTab === 'FLEET' && (
+              <View>
+                {/* Onboard New Scout Header Button */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#0F3460', textTransform: 'uppercase' }}>
+                    Active Scout Fleet ({mobileScoutFleet.length})
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setIsMobileOnboardOpen(!isMobileOnboardOpen)}
+                    style={{
+                      backgroundColor: '#E9A319',
+                      paddingHorizontal: 10,
+                      paddingVertical: 5,
+                      borderRadius: 10
+                    }}
+                  >
+                    <Text style={{ color: '#0B1B26', fontWeight: '800', fontSize: 11 }}>
+                      {isMobileOnboardOpen ? '✕ Close' : '+ Onboard Scout'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Mobile Onboarding Card Form */}
+                {isMobileOnboardOpen && (
+                  <View style={{
+                    backgroundColor: '#0F3460',
+                    borderRadius: 16,
+                    padding: 14,
+                    marginBottom: 14,
+                    borderWidth: 1,
+                    borderColor: '#E9A319'
+                  }}>
+                    <Text style={{ color: '#E9A319', fontWeight: '800', fontSize: 13, marginBottom: 8 }}>
+                      Onboard New Field Inspector
+                    </Text>
+                    <TextInput
+                      placeholder="Full Legal Name"
+                      placeholderTextColor="#94A3B8"
+                      value={mobileNewName}
+                      onChangeText={setMobileNewName}
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        borderRadius: 8,
+                        padding: 10,
+                        color: 'white',
+                        fontSize: 12,
+                        marginBottom: 8
+                      }}
+                    />
+                    <TextInput
+                      placeholder="WhatsApp Mobile (+233 55 ...)"
+                      placeholderTextColor="#94A3B8"
+                      value={mobileNewPhone}
+                      onChangeText={setMobileNewPhone}
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        borderRadius: 8,
+                        padding: 10,
+                        color: 'white',
+                        fontSize: 12,
+                        marginBottom: 8
+                      }}
+                    />
+                    <TextInput
+                      placeholder="National ID / Ghana Card / NIN"
+                      placeholderTextColor="#94A3B8"
+                      value={mobileNewNationalId}
+                      onChangeText={setMobileNewNationalId}
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        borderRadius: 8,
+                        padding: 10,
+                        color: 'white',
+                        fontSize: 12,
+                        marginBottom: 10
+                      }}
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (!mobileNewName || !mobileNewPhone) {
+                          alert('Please enter scout name and phone number.');
+                          return;
+                        }
+                        const created = {
+                          id: `scout-${Date.now().toString().slice(-4)}`,
+                          name: mobileNewName,
+                          phone: mobileNewPhone,
+                          city: mobileNewCity,
+                          zones: 'Central District',
+                          rating: 5.0,
+                          completedAudits: 0,
+                          status: 'ACTIVE'
+                        };
+                        setMobileScoutFleet(prev => [created, ...prev]);
+                        setMobileNewName('');
+                        setIsMobileOnboardOpen(false);
+                        alert(`✓ Scout ${created.name} onboarded successfully to ${mobileNewCity} fleet!`);
+                      }}
+                      style={{
+                        backgroundColor: '#10B981',
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12 }}>
+                        Complete Vetting & Onboard Scout
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {/* Fleet Cards */}
+                {mobileScoutFleet.map((scout, idx) => (
+                  <View key={scout.id || idx} style={{
+                    backgroundColor: scout.status === 'YANKED' ? '#FEF2F2' : '#FFFFFF',
+                    borderRadius: 16,
+                    padding: 14,
+                    marginBottom: 10,
+                    borderWidth: 1,
+                    borderColor: scout.status === 'YANKED' ? '#FCA5A5' : '#E2E8F0'
+                  }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#E9A319' }}>
+                        📍 {scout.city} • {scout.zones}
+                      </Text>
+                      <View style={{
+                        backgroundColor: scout.status === 'ACTIVE' ? 'rgba(16,185,129,0.1)' : 'rgba(233,69,96,0.1)',
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                        borderRadius: 6
+                      }}>
+                        <Text style={{
+                          fontSize: 9,
+                          fontWeight: '800',
+                          color: scout.status === 'ACTIVE' ? '#10B981' : '#E94560'
+                        }}>
+                          ● {scout.status === 'ACTIVE' ? 'ACTIVE' : 'YANKED / SUSPENDED'}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text style={{
+                      fontSize: 15,
+                      fontWeight: '800',
+                      color: scout.status === 'YANKED' ? '#E94560' : '#0F3460',
+                      textDecorationLine: scout.status === 'YANKED' ? 'line-through' : 'none'
+                    }}>
+                      {scout.name}
+                    </Text>
+
+                    <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                      {scout.phone} • ⭐ {scout.rating} ({scout.completedAudits} audits)
+                    </Text>
+
+                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+                      {scout.status === 'ACTIVE' ? (
+                        <TouchableOpacity
+                          onPress={() => {
+                            setMobileScoutFleet(prev => prev.map(s => s.id === scout.id ? { ...s, status: 'YANKED' } : s));
+                            alert(`⚠️ Scout ${scout.name} has been YANKED! Dispatch credentials revoked.`);
+                          }}
+                          style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(233,69,96,0.1)',
+                            borderWidth: 1,
+                            borderColor: '#E94560',
+                            paddingVertical: 7,
+                            borderRadius: 8,
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Text style={{ color: '#E94560', fontWeight: '800', fontSize: 11 }}>
+                            ⚠️ Yank Scout
+                          </Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => {
+                            setMobileScoutFleet(prev => prev.map(s => s.id === scout.id ? { ...s, status: 'ACTIVE' } : s));
+                            alert(`✓ Scout ${scout.name} has been reinstated!`);
+                          }}
+                          style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(16,185,129,0.1)',
+                            borderWidth: 1,
+                            borderColor: '#10B981',
+                            paddingVertical: 7,
+                            borderRadius: 8,
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Text style={{ color: '#10B981', fontWeight: '800', fontSize: 11 }}>
+                            ✓ Reinstate Scout
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                ))}
               </View>
             )}
           </ScrollView>

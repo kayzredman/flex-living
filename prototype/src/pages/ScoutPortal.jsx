@@ -26,6 +26,96 @@ export default function ScoutPortal() {
   const [aiScanRunning, setAiScanRunning] = useState(false);
   const [aiScanReport, setAiScanReport] = useState(null);
 
+  // Scout Fleet Roster State & Management
+  const [roster, setRoster] = useState([
+    {
+      id: 'scout-accra-01',
+      name: 'Ama Mensah',
+      phone: '+233 24 111 2233',
+      city: 'Accra, Ghana',
+      zones: 'Cantonments, Airport Residential, East Legon',
+      nationalId: 'GHA-712839120-1',
+      rating: 4.96,
+      completedAudits: 28,
+      status: 'ACTIVE',
+      toolkit: 'Multimeter • Sound Meter • Starlink Probe • TDS Tester'
+    },
+    {
+      id: 'scout-lagos-01',
+      name: 'Chinedu Okafor',
+      phone: '+234 80 222 3344',
+      city: 'Lagos, Nigeria',
+      zones: 'Ikoyi, Victoria Island, Lekki Phase 1',
+      nationalId: 'NIN-89302194812',
+      rating: 4.92,
+      completedAudits: 34,
+      status: 'ACTIVE',
+      toolkit: 'Multimeter • Sound Meter • Starlink Probe • TDS Tester'
+    },
+    {
+      id: 'scout-nairobi-01',
+      name: 'Njeri Kamau',
+      phone: '+254 71 333 4455',
+      city: 'Nairobi, Kenya',
+      zones: 'Kilimani, Westlands, Lavington',
+      nationalId: 'KEN-48192031',
+      rating: 4.98,
+      completedAudits: 22,
+      status: 'ACTIVE',
+      toolkit: 'Multimeter • Sound Meter • Starlink Probe • TDS Tester'
+    }
+  ]);
+
+  const [isOnboardModalOpen, setIsOnboardModalOpen] = useState(false);
+  const [newScoutForm, setNewScoutForm] = useState({
+    name: '',
+    phone: '+233 55 ',
+    city: 'Accra, Ghana',
+    zones: 'Cantonments & Osu',
+    nationalId: 'GHA-',
+    momoNetwork: 'MTN Mobile Money'
+  });
+
+  const handleYankScout = (scoutId, scoutName) => {
+    if (window.confirm(`⚠️ Are you sure you want to YANK scout "${scoutName}"? Their audit dispatch credentials will be revoked immediately.`)) {
+      setRoster(prev => prev.map(s => s.id === scoutId ? { ...s, status: 'YANKED' } : s));
+    }
+  };
+
+  const handleReinstateScout = (scoutId) => {
+    setRoster(prev => prev.map(s => s.id === scoutId ? { ...s, status: 'ACTIVE' } : s));
+  };
+
+  const handleOnboardScoutSubmit = (e) => {
+    e.preventDefault();
+    if (!newScoutForm.name || !newScoutForm.phone || !newScoutForm.nationalId) {
+      alert('Please fill out all required fields.');
+      return;
+    }
+    const created = {
+      id: `scout-${Date.now().toString().slice(-4)}`,
+      name: newScoutForm.name,
+      phone: newScoutForm.phone,
+      city: newScoutForm.city,
+      zones: newScoutForm.zones,
+      nationalId: newScoutForm.nationalId,
+      rating: 5.00,
+      completedAudits: 0,
+      status: 'ACTIVE',
+      toolkit: 'Multimeter • Sound Meter • Starlink Probe • TDS Tester'
+    };
+    setRoster(prev => [created, ...prev]);
+    setIsOnboardModalOpen(false);
+    setNewScoutForm({
+      name: '',
+      phone: '+233 55 ',
+      city: 'Accra, Ghana',
+      zones: 'Cantonments & Osu',
+      nationalId: 'GHA-',
+      momoNetwork: 'MTN Mobile Money'
+    });
+  };
+
   const [tasks, setTasks] = useState([
     {
       id: 'task-gh-01',
@@ -193,11 +283,12 @@ export default function ScoutPortal() {
       </div>
 
       {/* Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {[
           { id: 'TASKS', label: '📋 Assigned Inspection Queue' },
           { id: 'WORKBENCH', label: selectedTask ? `🛠️ Audit Workbench: ${selectedTask.title}` : '🛠️ 200-Point Audit Workbench' },
-          { id: 'AI_SCAN', label: '🤖 AI Vision Property Scanner' }
+          { id: 'AI_SCAN', label: '🤖 AI Vision Property Scanner' },
+          { id: 'ROSTER', label: '👥 Scout Fleet & Offboarding (Yank)' }
         ].map(t => (
           <button
             key={t.id}
@@ -650,6 +741,286 @@ export default function ScoutPortal() {
                     <div style={{ fontSize: '0.7rem', color: 'var(--success)', marginTop: '2px' }}>✓ Verified ({(eq.confidence * 100).toFixed(0)}%)</div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 4: SCOUT FLEET MANAGEMENT & ROSTER (ONBOARD / YANK) */}
+      {activeTab === 'ROSTER' && (
+        <div>
+          {/* Header & Onboard Trigger */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--teal)' }}>
+                Certified Field Scout Operations Fleet
+              </h3>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                Vetted engineering scouts across Accra, Lagos, and Nairobi. Manage dispatch privileges, onboard new agents, or yank credentials.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsOnboardModalOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, var(--gold), var(--coral))',
+                border: 'none',
+                color: 'white',
+                padding: '0.65rem 1.4rem',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <span>+</span> Onboard New Field Scout
+            </button>
+          </div>
+
+          {/* Scout Fleet Table */}
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            {roster.map(scout => (
+              <div
+                key={scout.id}
+                className="glass"
+                style={{
+                  padding: '1.25rem',
+                  borderRadius: '16px',
+                  border: scout.status === 'YANKED' ? '1px solid rgba(233,69,96,0.5)' : '1px solid var(--border)',
+                  background: scout.status === 'YANKED' ? 'rgba(233,69,96,0.06)' : 'rgba(255,255,255,0.03)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '24px',
+                    background: scout.status === 'YANKED' ? 'rgba(233,69,96,0.3)' : 'var(--teal)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: '1.1rem',
+                    border: scout.status === 'YANKED' ? '2px solid var(--coral)' : '2px solid var(--gold)'
+                  }}>
+                    {scout.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                      <h4 style={{
+                        margin: 0,
+                        fontSize: '1.1rem',
+                        color: scout.status === 'YANKED' ? 'var(--coral)' : 'white',
+                        textDecoration: scout.status === 'YANKED' ? 'line-through' : 'none'
+                      }}>
+                        {scout.name}
+                      </h4>
+                      <span style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 'bold',
+                        padding: '2px 8px',
+                        borderRadius: '10px',
+                        background: scout.status === 'ACTIVE' ? 'rgba(16,185,129,0.15)' : 'rgba(233,69,96,0.2)',
+                        color: scout.status === 'ACTIVE' ? 'var(--success)' : 'var(--coral)'
+                      }}>
+                        ● {scout.status === 'ACTIVE' ? 'CERTIFIED & ACTIVE' : 'YANKED / PRIVILEGES REVOKED'}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      📍 {scout.city} • Zones: {scout.zones} • ID: {scout.nationalId}
+                    </div>
+
+                    <div style={{ fontSize: '0.75rem', color: 'var(--gold-light)', marginTop: '4px' }}>
+                      🧰 Toolkit: {scout.toolkit}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Stats & Actions */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Track Record</div>
+                    <div style={{ fontWeight: 800, color: 'white', fontSize: '0.95rem' }}>
+                      ⭐ {scout.rating} ({scout.completedAudits} audits)
+                    </div>
+                  </div>
+
+                  <div>
+                    {scout.status === 'ACTIVE' ? (
+                      <button
+                        onClick={() => handleYankScout(scout.id, scout.name)}
+                        style={{
+                          background: 'rgba(233,69,96,0.15)',
+                          border: '1px solid var(--coral)',
+                          color: 'var(--coral)',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '10px',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ⚠️ Yank Scout
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleReinstateScout(scout.id)}
+                        style={{
+                          background: 'rgba(16,185,129,0.15)',
+                          border: '1px solid var(--success)',
+                          color: 'var(--success)',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '10px',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✓ Reinstate Scout
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Onboard New Scout Modal */}
+          {isOnboardModalOpen && (
+            <div style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.75)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: '1rem'
+            }}>
+              <div className="glass" style={{
+                background: '#0B1B26',
+                border: '1px solid var(--border)',
+                borderRadius: '20px',
+                padding: '2rem',
+                width: '100%',
+                maxWidth: '520px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1.3rem' }}>🧭</span>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--teal)' }}>
+                      Onboard New Field Scout
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setIsOnboardModalOpen(false)}
+                    style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <form onSubmit={handleOnboardScoutSubmit}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Full Legal Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Samuel Osei Tutu"
+                    value={newScoutForm.name}
+                    onChange={e => setNewScoutForm({ ...newScoutForm, name: e.target.value })}
+                    style={{ width: '100%', padding: '0.6rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: 'white', marginBottom: '10px' }}
+                  />
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        Operating Metro
+                      </label>
+                      <select
+                        value={newScoutForm.city}
+                        onChange={e => setNewScoutForm({ ...newScoutForm, city: e.target.value })}
+                        style={{ width: '100%', padding: '0.6rem', background: '#0F2537', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: 'white' }}
+                      >
+                        <option>Accra, Ghana</option>
+                        <option>Lagos, Nigeria</option>
+                        <option>Nairobi, Kenya</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        WhatsApp Mobile
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="+233 55 123 4567"
+                        value={newScoutForm.phone}
+                        onChange={e => setNewScoutForm({ ...newScoutForm, phone: e.target.value })}
+                        style={{ width: '100%', padding: '0.6rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: 'white' }}
+                      />
+                    </div>
+                  </div>
+
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    National ID / Ghana Card / NIN (KYC Verification)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. GHA-908219481-4"
+                    value={newScoutForm.nationalId}
+                    onChange={e => setNewScoutForm({ ...newScoutForm, nationalId: e.target.value })}
+                    style={{ width: '100%', padding: '0.6rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: 'white', marginBottom: '10px' }}
+                  />
+
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Assigned Neighborhood Zones
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Cantonments, Airport Residential, Osu"
+                    value={newScoutForm.zones}
+                    onChange={e => setNewScoutForm({ ...newScoutForm, zones: e.target.value })}
+                    style={{ width: '100%', padding: '0.6rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: 'white', marginBottom: '14px' }}
+                  />
+
+                  <div style={{ background: 'rgba(233,163,25,0.1)', padding: '0.75rem', borderRadius: '10px', marginBottom: '14px', fontSize: '0.75rem', color: 'var(--gold-light)' }}>
+                    ✓ Mandatory toolkit issued: True-RMS Multi-meter, Decibel Sound Meter, Starlink Ethernet speed probe, and TDS water purity tester.
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      onClick={() => setIsOnboardModalOpen(false)}
+                      style={{ background: 'transparent', border: '1px solid var(--border)', color: 'white', padding: '0.6rem 1.25rem', borderRadius: '10px', cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      style={{ background: 'linear-gradient(135deg, var(--gold), var(--coral))', border: 'none', color: 'white', padding: '0.6rem 1.5rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Certify & Onboard Scout
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}

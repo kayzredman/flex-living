@@ -249,6 +249,193 @@ app.post('/v1/scout/ai-scan', async (req, res) => {
  * GET /v1/scout/dashboard
  * Aggregated statistics and task queue for Scout Operations & Field Agents
  */
+// In-Memory Managed Scout Fleet Roster
+let scoutRoster = [
+  {
+    id: 'scout-accra-01',
+    name: 'Ama Mensah',
+    phone: '+233 24 111 2233',
+    city: 'Accra',
+    country: 'Ghana',
+    zones: ['Cantonments', 'Airport Residential', 'East Legon'],
+    nationalId: 'GHA-712839120-1',
+    hardwareToolkit: { multimeter: true, soundMeter: true, starlinkProbe: true, waterTdsTester: true },
+    momoNumber: '+233 24 111 2233',
+    momoNetwork: 'MTN Mobile Money',
+    completedAudits: 28,
+    rating: 4.96,
+    activeBountyGhs: 4200,
+    status: 'ACTIVE',
+    joinedDate: '2026-01-15'
+  },
+  {
+    id: 'scout-lagos-01',
+    name: 'Chinedu Okafor',
+    phone: '+234 80 222 3344',
+    city: 'Lagos',
+    country: 'Nigeria',
+    zones: ['Ikoyi', 'Victoria Island', 'Lekki Phase 1'],
+    nationalId: 'NIN-89302194812',
+    hardwareToolkit: { multimeter: true, soundMeter: true, starlinkProbe: true, waterTdsTester: true },
+    momoNumber: '+234 80 222 3344',
+    momoNetwork: 'OPay / Paystack',
+    completedAudits: 34,
+    rating: 4.92,
+    activeBountyGhs: 5100,
+    status: 'ACTIVE',
+    joinedDate: '2026-02-01'
+  },
+  {
+    id: 'scout-nairobi-01',
+    name: 'Njeri Kamau',
+    phone: '+254 71 333 4455',
+    city: 'Nairobi',
+    country: 'Kenya',
+    zones: ['Kilimani', 'Westlands', 'Lavington'],
+    nationalId: 'KEN-48192031',
+    hardwareToolkit: { multimeter: true, soundMeter: true, starlinkProbe: true, waterTdsTester: true },
+    momoNumber: '+254 71 333 4455',
+    momoNetwork: 'M-Pesa Safaricom',
+    completedAudits: 22,
+    rating: 4.98,
+    activeBountyGhs: 3300,
+    status: 'ACTIVE',
+    joinedDate: '2026-03-10'
+  }
+];
+
+/**
+ * GET /v1/scout/roster
+ * Fetch all field scouts with optional status / city filtering
+ */
+app.get('/v1/scout/roster', (req, res) => {
+  const { status, city } = req.query;
+  let list = [...scoutRoster];
+  if (status && status !== 'ALL') {
+    list = list.filter(s => s.status.toUpperCase() === status.toUpperCase());
+  }
+  if (city && city !== 'ALL') {
+    list = list.filter(s => s.city.toLowerCase().includes(city.toLowerCase()));
+  }
+  res.status(200).json({ roster: list, total: list.length });
+});
+
+/**
+ * POST /v1/scout/onboard
+ * Onboard a new certified Field Scout
+ */
+app.post('/v1/scout/onboard', (req, res) => {
+  try {
+    const {
+      name,
+      phone,
+      city = 'Accra',
+      country = 'Ghana',
+      zones = ['Central District'],
+      nationalId,
+      momoNumber,
+      momoNetwork = 'MTN Mobile Money',
+      hardwareToolkit = { multimeter: true, soundMeter: true, starlinkProbe: true, waterTdsTester: true }
+    } = req.body;
+
+    if (!name || !phone || !nationalId) {
+      return res.status(400).json({ error: 'Name, Phone, and National ID are required for scout vetting' });
+    }
+
+    const newId = `scout-${city.toLowerCase()}-${Date.now().toString().slice(-4)}`;
+    const newScout = {
+      id: newId,
+      name,
+      phone,
+      city,
+      country,
+      zones: Array.isArray(zones) ? zones : [zones],
+      nationalId,
+      hardwareToolkit,
+      momoNumber: momoNumber || phone,
+      momoNetwork,
+      completedAudits: 0,
+      rating: 5.00,
+      activeBountyGhs: 0,
+      status: 'ACTIVE',
+      joinedDate: new Date().toISOString().split('T')[0]
+    };
+
+    scoutRoster.unshift(newScout);
+
+    res.status(201).json({
+      message: `Scout ${name} onboarded successfully to ${city} fleet`,
+      scout: newScout
+    });
+  } catch (err) {
+    console.error('Error onboarding scout:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * PATCH /v1/scout/:id/status
+ * Update scout status (ACTIVE, PROBATION, YANKED) with audit trail
+ */
+app.patch('/v1/scout/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status, reason = 'Administrative action' } = req.body;
+
+  const validStatuses = ['ACTIVE', 'PROBATION', 'YANKED'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+  }
+
+  const scoutIndex = scoutRoster.findIndex(s => s.id === id);
+  if (scoutIndex === -1) {
+    return res.status(404).json({ error: `Scout with ID ${id} not found` });
+  }
+
+  scoutRoster[scoutIndex].status = status;
+  scoutRoster[scoutIndex].lastStatusUpdate = {
+    updatedAt: new Date().toISOString(),
+    status,
+    reason
+  };
+
+  res.status(200).json({
+    message: status === 'YANKED' 
+      ? `Scout ${scoutRoster[scoutIndex].name} has been YANKED. Privileges revoked and active tickets reassigned.`
+      : `Scout ${scoutRoster[scoutIndex].name} status updated to ${status}.`,
+    scout: scoutRoster[scoutIndex]
+  });
+});
+
+/**
+ * DELETE /v1/scout/:id
+ * Yank/decommission scout immediately
+ */
+app.delete('/v1/scout/:id', (req, res) => {
+  const { id } = req.params;
+  const { reason = 'Emergency decommissioning' } = req.body || {};
+
+  const scoutIndex = scoutRoster.findIndex(s => s.id === id);
+  if (scoutIndex === -1) {
+    return res.status(404).json({ error: `Scout with ID ${id} not found` });
+  }
+
+  scoutRoster[scoutIndex].status = 'YANKED';
+  scoutRoster[scoutIndex].lastStatusUpdate = {
+    updatedAt: new Date().toISOString(),
+    status: 'YANKED',
+    reason
+  };
+
+  res.status(200).json({
+    message: `Scout ${scoutRoster[scoutIndex].name} was successfully YANKED from the fleet.`,
+    scout: scoutRoster[scoutIndex]
+  });
+});
+
+/**
+ * GET /v1/scout/dashboard
+ * Aggregated statistics and task queue for Scout Operations & Field Agents
+ */
 app.get('/v1/scout/dashboard', async (req, res) => {
   try {
     const tasksRes = await pool.query('SELECT * FROM scout_tasks ORDER BY created_at DESC LIMIT 50');
@@ -258,12 +445,6 @@ app.get('/v1/scout/dashboard', async (req, res) => {
     const pendingTasks = tasks.filter(t => t.status === 'PENDING').length;
     const approvedTasks = tasks.filter(t => t.status === 'APPROVED' || t.status === 'CERTIFIED').length;
     const totalBountiesUsd = tasks.reduce((sum, t) => sum + (parseFloat(t.total_payout_usd) || 0), 0);
-
-    const scoutRoster = [
-      { id: 'scout-accra-01', name: 'Ama Mensah', city: 'Accra, Ghana', completedAudits: 28, rating: 4.96, activeBountyGhs: 4200 },
-      { id: 'scout-lagos-01', name: 'Chinedu Okafor', city: 'Lagos, Nigeria', completedAudits: 34, rating: 4.92, activeBountyGhs: 5100 },
-      { id: 'scout-nairobi-01', name: 'Njeri Kamau', city: 'Nairobi, Kenya', completedAudits: 22, rating: 4.98, activeBountyGhs: 3300 }
-    ];
 
     res.status(200).json({
       summary: {

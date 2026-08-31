@@ -124,6 +124,60 @@ async function runQAScoutAITests() {
     assert.ok(data.scoutRoster.length >= 3);
   });
 
+  // TEST 7: Onboard New Field Scout (POST /v1/scout/onboard)
+  let newlyOnboardedScoutId = null;
+  await test('Onboard New Field Scout (POST /v1/scout/onboard)', async () => {
+    const res = await fetch('http://localhost:3001/v1/scout/onboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Samuel Osei Tutu',
+        phone: '+233 55 777 8899',
+        city: 'Accra',
+        nationalId: 'GHA-918230192-3',
+        zones: ['Cantonments', 'Osu']
+      })
+    });
+    assert.strictEqual(res.status, 201);
+    const data = await res.json();
+    assert.ok(data.scout.id);
+    assert.strictEqual(data.scout.status, 'ACTIVE');
+    newlyOnboardedScoutId = data.scout.id;
+  });
+
+  // TEST 8: Yank Rogue Scout (PATCH /v1/scout/:id/status with YANKED)
+  await test('Yank Rogue Scout Credentials (PATCH /v1/scout/:id/status -> YANKED)', async () => {
+    assert.ok(newlyOnboardedScoutId, 'Scout ID required');
+    const res = await fetch(`http://localhost:3001/v1/scout/${newlyOnboardedScoutId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'YANKED',
+        reason: 'Fraudulent power telemetry reported on Cantonments audit'
+      })
+    });
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.scout.status, 'YANKED');
+    assert.strictEqual(data.scout.lastStatusUpdate.reason, 'Fraudulent power telemetry reported on Cantonments audit');
+  });
+
+  // TEST 9: Reinstate Scout (PATCH /v1/scout/:id/status -> ACTIVE)
+  await test('Reinstate Scout Credentials (PATCH /v1/scout/:id/status -> ACTIVE)', async () => {
+    assert.ok(newlyOnboardedScoutId, 'Scout ID required');
+    const res = await fetch(`http://localhost:3001/v1/scout/${newlyOnboardedScoutId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'ACTIVE',
+        reason: 'Audit re-calibrated with verified True-RMS multimeter'
+      })
+    });
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.scout.status, 'ACTIVE');
+  });
+
   console.log(`\n========================================`);
   console.log(`  QA Certification: ${passed}/${total} Tests Passed (${Math.round((passed/total)*100)}%)`);
   console.log(`========================================\n`);
