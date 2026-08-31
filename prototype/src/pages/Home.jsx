@@ -20,7 +20,7 @@ const Badge = ({ type }) => {
   );
 };
 
-export default function Home({ properties, onSelect, searchQuery = '', currency = 'GHS' }) {
+export default function Home({ properties, onSelect, searchQuery = '', currency = 'GHS', flags = {} }) {
   const [activeFilter, setActiveFilter] = useState('All');
   const [activeCity, setActiveCity] = useState('All');
   const [showMap, setShowMap] = useState(true);

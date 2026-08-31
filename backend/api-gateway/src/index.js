@@ -31,15 +31,15 @@ app.post('/v1/config/flags/reset', (req, res) => {
   res.json(featureFlags.resetFlags());
 });
 
-// Service Target URLs
+// Service Target URLs (Using 127.0.0.1 for deterministic IPv4 loopback)
 const SERVICES = {
-  auth: process.env.AUTH_SERVICE_URL || 'http://localhost:3000',
-  listings: process.env.LISTING_SERVICE_URL || 'http://localhost:8000',
-  scouts: process.env.SCOUT_SERVICE_URL || 'http://localhost:3001',
-  iot: process.env.IOT_SERVICE_URL || 'http://localhost:3002',
-  sla: process.env.SLA_SERVICE_URL || 'http://localhost:3003',
-  pricing: process.env.PRICING_SERVICE_URL || 'http://localhost:3005',
-  comms: process.env.COMMUNICATION_SERVICE_URL || 'http://localhost:3006',
+  auth: process.env.AUTH_SERVICE_URL || 'http://127.0.0.1:3000',
+  listings: process.env.LISTING_SERVICE_URL || 'http://127.0.0.1:8000',
+  scouts: process.env.SCOUT_SERVICE_URL || 'http://127.0.0.1:3001',
+  iot: process.env.IOT_SERVICE_URL || 'http://127.0.0.1:3002',
+  sla: process.env.SLA_SERVICE_URL || 'http://127.0.0.1:3003',
+  pricing: process.env.PRICING_SERVICE_URL || 'http://127.0.0.1:3005',
+  comms: process.env.COMMUNICATION_SERVICE_URL || 'http://127.0.0.1:3006',
 };
 
 // Gateway Health Check & Service Registry Info

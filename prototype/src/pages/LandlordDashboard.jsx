@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AddPropertyModal from '../components/AddPropertyModal';
 
-export default function LandlordDashboard() {
+export default function LandlordDashboard({ currency = 'GHS', flags = {} }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [propertiesCount, setPropertiesCount] = useState(3);
   const [telemetry, setTelemetry] = useState({

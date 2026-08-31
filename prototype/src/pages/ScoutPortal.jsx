@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function ScoutPortal() {
+export default function ScoutPortal({ flags = {} }) {
   const [activeTab, setActiveTab] = useState('TASKS'); // TASKS, WORKBENCH, AI_SCAN, WALLET
   const [selectedScout, setSelectedScout] = useState('Ama Mensah (Accra Lead)');
   const [scoutWalletGhs, setScoutWalletGhs] = useState(4200);
