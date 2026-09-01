@@ -199,23 +199,6 @@ function App() {
           <span style={{ cursor: 'pointer', color: '#94A3B8', transition: 'color 0.2s' }}>Experiences</span>
           <span style={{ cursor: 'pointer', color: '#94A3B8', transition: 'color 0.2s' }}>Investment</span>
           <span style={{ cursor: 'pointer', color: '#94A3B8', transition: 'color 0.2s' }}>About</span>
-          <span 
-            onClick={() => navigateTo('STAY', properties[0])}
-            style={{
-              cursor: 'pointer',
-              color: currentScreen === 'STAY' ? '#10B981' : '#94A3B8',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              background: currentScreen === 'STAY' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)',
-              border: currentScreen === 'STAY' ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.1)',
-              padding: '4px 10px',
-              borderRadius: '12px',
-              transition: 'all 0.2s'
-            }}
-          >
-            🔐 Smart Key
-          </span>
         </nav>
 
         {/* Center-Right: Search Capsule from Figma Artboard */}
@@ -375,6 +358,50 @@ function App() {
                       ✓ {currentUser.badge}
                     </span>
                   </div>
+                </div>
+
+                {/* Tenant Active Stay & Digital Key Access */}
+                <div 
+                  onClick={() => {
+                    navigateTo('STAY', properties[0]);
+                    setIsUserMenuOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04))',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    borderRadius: '12px',
+                    padding: '10px 12px',
+                    marginBottom: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '15px',
+                      background: '#10B981',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      fontSize: '0.9rem'
+                    }}>
+                      🔑
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '0.8rem', color: '#065F46' }}>
+                        My Stay & Smart Key
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 600 }}>
+                        The Obsidian Villa • Unit 3B
+                      </div>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#059669' }}>Unlock →</span>
                 </div>
 
                 <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
@@ -555,6 +582,45 @@ function App() {
           />
         )}
       </main>
+
+      {/* Floating Smart Key Access (Bottom-Right, non-intrusive, doesn't mar top navigation) */}
+      {persona === 'TENANT' && currentScreen !== 'STAY' && (
+        <button
+          onClick={() => navigateTo('STAY', properties[0])}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 999,
+            background: '#161B26',
+            border: '1.5px solid rgba(16, 185, 129, 0.4)',
+            color: '#FFFFFF',
+            borderRadius: '30px',
+            padding: '10px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 12px 30px rgba(0,0,0,0.6)',
+            cursor: 'pointer',
+            fontSize: '0.82rem',
+            fontWeight: 800,
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.borderColor = '#10B981';
+            e.currentTarget.style.boxShadow = '0 16px 36px rgba(16,185,129,0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+            e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.6)';
+          }}
+        >
+          <span style={{ width: '8px', height: '8px', borderRadius: '4px', background: '#10B981', display: 'inline-block', boxShadow: '0 0 8px #10B981' }} />
+          <span>🔑 My Stay Key</span>
+        </button>
+      )}
     </div>
   );
 }
