@@ -309,49 +309,29 @@ function App() {
             </div>
           )}
 
-          {/* Prototype Preview Button */}
-          <button
-            onClick={() => navigateTo('PROTOTYPE_PREVIEW')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: currentScreen === 'PROTOTYPE_PREVIEW' ? 'linear-gradient(135deg, #0B1B26, #1E293B)' : 'rgba(233,163,25,0.12)',
-              border: '1.5px solid #E9A319',
-              color: currentScreen === 'PROTOTYPE_PREVIEW' ? '#E9A319' : '#B45309',
-              padding: '5px 12px',
-              borderRadius: '20px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(233,163,25,0.15)',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <span>✨</span> Pro Max Prototype
-          </button>
-
-          {/* Figma Design Studio Button */}
-          <button
-            onClick={() => navigateTo('FIGMA_STUDIO')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: currentScreen === 'FIGMA_STUDIO' ? '#0C8CE9' : '#2C2C2C',
-              border: '1.5px solid #0C8CE9',
-              color: '#FFFFFF',
-              padding: '5px 12px',
-              borderRadius: '20px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(12,140,233,0.25)',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <span>🎨</span> Figma Canvas
-          </button>
+          {/* Admin Design Review Tools (Only visible to Super Admin) */}
+          {persona === 'ADMIN' && (
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                onClick={() => navigateTo('FIGMA_STUDIO')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: currentScreen === 'FIGMA_STUDIO' ? '#0C8CE9' : 'rgba(12,140,233,0.15)',
+                  border: '1px solid #0C8CE9',
+                  color: currentScreen === 'FIGMA_STUDIO' ? '#FFFFFF' : '#38BDF8',
+                  padding: '4px 10px',
+                  borderRadius: '16px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                <span>🎨</span> Figma Artboards
+              </button>
+            </div>
+          )}
 
           {/* Persona Switcher & Authenticated Profile Pill */}
           <div style={{ position: 'relative' }}>
