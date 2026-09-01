@@ -12,39 +12,63 @@ import FigmaStudio from './pages/FigmaStudio';
 const properties = [
   {
     id: 1,
-    title: 'Luxury Cantonments Apartment',
+    title: 'The Obsidian Villa | Cantonments, Accra',
+    shortTitle: 'The Obsidian Villa',
+    location: 'Cantonments, Accra',
     city: 'Accra, Ghana',
-    price: 4000,
+    price: 3500,
+    priceUnit: '/night',
+    monthlyPrice: 4500,
     currency: 'GHS',
+    beds: 5,
+    baths: 5,
+    sqft: '6,500 Sq Ft',
+    amenities: ['Pool', 'Gym', 'Smart Home'],
     image: '/accra.jpg',
     scout: 'Ama (Flex Guide)',
-    rating: 4.9,
-    badges: ['POWER_247', 'INTERNET_100', 'SECURITY_FORTIFIED'],
-    description: 'A stunning, modern luxury apartment in Cantonments. Verified by Ama on Aug 25, 2026. 24/7 Power, Ultra Fibre Internet, and Fortified Security confirmed.'
+    rating: 4.98,
+    badges: ['POWER_247', 'INTERNET_100', 'BOREHOLE', 'SLA_995'],
+    description: 'An architectural marvel in Cantonments. 24/7 Victron Solar Micro-Grid, Starlink Gen 3 Satellite, pure borehole reserve, and keyless smart access. 99.5% Uptime SLA Escrow Guaranteed.'
   },
   {
     id: 2,
-    title: 'Sleek Lekki Studio',
+    title: 'The Zenith Penthouse | Ikoyi, Lagos',
+    shortTitle: 'The Zenith Penthouse',
+    location: 'Ikoyi, Lagos',
     city: 'Lagos, Nigeria',
-    price: 600000,
+    price: 1200000,
+    priceUnit: '/night',
+    monthlyPrice: 6500,
     currency: 'NGN',
+    beds: 6,
+    baths: 6.5,
+    sqft: '7,200 Sq Ft',
+    amenities: ['Pool', 'Gym', 'Smart Home'],
     image: '/lagos.jpg',
     scout: 'Chinedu (Flex Guide)',
-    rating: 4.7,
-    badges: ['POWER_WORK_READY', 'INTERNET_30'],
-    description: 'Minimalist studio in Lekki Phase 1. Verified inverter power and reliable 30Mbps internet for remote work.'
+    rating: 4.95,
+    badges: ['POWER_247', 'INTERNET_100', 'BOREHOLE', 'SLA_995'],
+    description: 'Ultra-luxury waterfront penthouse in Ikoyi. Dual redundant solar inverters, dedicated high-speed Starlink, 3-stage water treatment, and 99.5% Uptime SLA Guarantee.'
   },
   {
     id: 3,
-    title: 'Spacious Kilimani Apartment',
+    title: 'The Mirage Sanctuary | Gigiri, Nairobi',
+    shortTitle: 'The Mirage Sanctuary',
+    location: 'Gigiri, Nairobi',
     city: 'Nairobi, Kenya',
-    price: 65000,
+    price: 380000,
+    priceUnit: '/night',
+    monthlyPrice: 5200,
     currency: 'KES',
+    beds: 4,
+    baths: 4,
+    sqft: '5,100 Sq Ft',
+    amenities: ['Pool', 'Gym', 'Smart Home'],
     image: '/nairobi.jpg',
     scout: 'Njeri (Flex Guide)',
     rating: 5.0,
-    badges: ['POWER_247', 'INTERNET_100', 'SECURITY_FORTIFIED'],
-    description: 'Beautiful, airy apartment in Kilimani with a large balcony. Fully verified for power, internet, and secure access.'
+    badges: ['POWER_247', 'INTERNET_100', 'BOREHOLE', 'SLA_995'],
+    description: 'Diplomatic sanctuary in Gigiri with panoramic lush views. Off-grid solar battery bank, satellite broadband, deep aquifer borehole, and armed diplomatic security perimeter.'
   }
 ];
 
@@ -175,165 +199,160 @@ function App() {
 
   return (
     <div className="app-container" onClick={() => isUserMenuOpen && setIsUserMenuOpen(false)}>
-      {/* Universal Luxury Web Navbar */}
-      <header className="web-navbar" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
-        {/* Brand Logo & Tagline */}
-        <div className="nav-brand" onClick={() => { setPersona('TENANT'); navigateTo('HOME'); }} style={{ cursor: 'pointer' }}>
-          <div className="nav-brand-logo">FL</div>
-          <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--teal)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              Flex-Living
-              {persona === 'ADMIN' && (
-                <span style={{ fontSize: '0.65rem', background: 'rgba(233,69,96,0.15)', color: '#E94560', border: '1px solid #E94560', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
-                  ADMIN OPS
-                </span>
-              )}
-            </div>
-            <div className="text-secondary" style={{ fontSize: '0.75rem', marginTop: '-2px' }}>
-              Verified Stays & SLA Guarantee
-            </div>
+      {/* Universal Luxury Web Navbar (Exact Match to Figma Desktop Artboard) */}
+      <header style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        background: 'rgba(14, 18, 26, 0.96)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        padding: '0.75rem 2.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '1.5rem',
+        boxShadow: '0 4px 30px rgba(0,0,0,0.7)'
+      }}>
+        {/* Left: Brand Logo */}
+        <div 
+          onClick={() => { setPersona('TENANT'); navigateTo('HOME'); }} 
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+        >
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #E9A319, #D97706)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#071520',
+            fontWeight: 900,
+            fontSize: '1.25rem',
+            boxShadow: '0 4px 12px rgba(233,163,25,0.3)'
+          }}>
+            F
+          </div>
+          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.35rem', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center' }}>
+            <span style={{ color: '#E9A319' }}>Flex</span>
+            <span style={{ color: '#FFFFFF' }}>Living</span>
           </div>
         </div>
 
-        {/* Global Desktop Search - Displayed for Tenants and Admins */}
-        {(persona === 'TENANT' || persona === 'ADMIN') && (
-          <div className="nav-search-bar">
-            <span style={{ color: 'var(--text-secondary)' }}>🔍</span>
+        {/* Center: Navigation Links from Figma Artboard */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '1.75rem', fontSize: '0.85rem', fontWeight: 700 }}>
+          <span 
+            onClick={() => navigateTo('HOME')} 
+            style={{
+              cursor: 'pointer',
+              color: currentScreen === 'HOME' ? '#E9A319' : '#94A3B8',
+              borderBottom: currentScreen === 'HOME' ? '2px solid #E9A319' : 'none',
+              paddingBottom: '4px',
+              transition: 'color 0.2s'
+            }}
+          >
+            Properties
+          </span>
+          <span style={{ cursor: 'pointer', color: '#94A3B8', transition: 'color 0.2s' }}>Neighborhoods</span>
+          <span style={{ cursor: 'pointer', color: '#94A3B8', transition: 'color 0.2s' }}>Experiences</span>
+          <span style={{ cursor: 'pointer', color: '#94A3B8', transition: 'color 0.2s' }}>Investment</span>
+          <span style={{ cursor: 'pointer', color: '#94A3B8', transition: 'color 0.2s' }}>About</span>
+          <span 
+            onClick={() => navigateTo('STAY', properties[0])}
+            style={{
+              cursor: 'pointer',
+              color: currentScreen === 'STAY' ? '#10B981' : '#94A3B8',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: currentScreen === 'STAY' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)',
+              border: currentScreen === 'STAY' ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.1)',
+              padding: '4px 10px',
+              borderRadius: '12px',
+              transition: 'all 0.2s'
+            }}
+          >
+            🔐 Smart Key
+          </span>
+        </nav>
+
+        {/* Center-Right: Search Capsule from Figma Artboard */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '30px',
+          padding: '4px 6px 4px 14px',
+          gap: '10px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ color: '#E9A319', fontSize: '12px' }}>🔍</span>
             <input 
               type="text" 
-              placeholder="Search Accra, Lagos, Nairobi (Solar, Starlink, Borehole)..."
+              placeholder="Accra, Lagos, Nairobi"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.85rem' }}
+              style={{ border: 'none', background: 'transparent', outline: 'none', color: '#FFFFFF', fontSize: '0.8rem', width: '135px' }}
             />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.9rem' }}
-              >
-                ✕
-              </button>
-            )}
           </div>
-        )}
+          <span style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.15)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94A3B8', fontSize: '0.75rem', fontWeight: 600 }}>
+            <span>📅</span> Dates
+          </div>
+          <span style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.15)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94A3B8', fontSize: '0.75rem', fontWeight: 600 }}>
+            <span>👥</span> Guests
+          </div>
+          <button 
+            style={{
+              background: '#E9A319',
+              color: '#071520',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '5px 14px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            Search
+          </button>
+        </div>
 
-        {/* Role-Tailored Primary Navigation Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          {/* Normal User (Tenant) Navigation */}
-          {persona === 'TENANT' && (
-            <div style={{ display: 'flex', gap: '0.4rem', background: '#F1F5F9', padding: '3px', borderRadius: '20px' }}>
+        {/* Right: Currency & Profile Avatar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Currency Switcher */}
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2px', display: 'flex' }}>
+            {['GHS', 'USD', 'NGN'].map(curr => (
               <button
-                onClick={() => navigateTo('HOME')}
+                key={curr}
+                onClick={() => setCurrency(curr)}
                 style={{
                   border: 'none',
-                  padding: '6px 14px',
-                  borderRadius: '16px',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  background: currentScreen !== 'STAY' ? 'var(--teal)' : 'transparent',
-                  color: currentScreen !== 'STAY' ? '#FFFFFF' : '#475569',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Explore Stays
-              </button>
-              <button
-                onClick={() => navigateTo('STAY', properties[0])}
-                style={{
-                  border: 'none',
-                  padding: '6px 14px',
-                  borderRadius: '16px',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  background: currentScreen === 'STAY' ? 'var(--teal)' : 'transparent',
-                  color: currentScreen === 'STAY' ? '#FFFFFF' : '#475569',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                🔐 My Stay & Key
-              </button>
-            </div>
-          )}
-
-          {/* Host Navigation */}
-          {persona === 'LANDLORD' && (
-            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--teal)', background: 'rgba(15,52,96,0.08)', padding: '5px 12px', borderRadius: '16px' }}>
-                🏡 Landlord Hub Active
-              </span>
-            </div>
-          )}
-
-          {/* Scout Navigation */}
-          {persona === 'SCOUT' && (
-            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#D97706', background: 'rgba(217,119,6,0.1)', padding: '5px 12px', borderRadius: '16px' }}>
-                🧭 Field Scout Operations Active
-              </span>
-            </div>
-          )}
-
-          {/* Admin Navigation */}
-          {persona === 'ADMIN' && (
-            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#E94560', background: 'rgba(233,69,96,0.1)', padding: '5px 12px', borderRadius: '16px' }}>
-                ⚡ Admin Mission Control Active
-              </span>
-            </div>
-          )}
-
-          {/* Currency Switcher Pill (Controllable by FLAG_CURRENCY_SWITCHER) */}
-          {flags.FLAG_CURRENCY_SWITCHER && (
-            <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '20px', padding: '2px', display: 'flex' }}>
-              {['GHS', 'USD', 'NGN'].map(curr => (
-                <button
-                  key={curr}
-                  onClick={() => setCurrency(curr)}
-                  style={{
-                    border: 'none',
-                    padding: '4px 10px',
-                    borderRadius: '16px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    background: currency === curr ? 'var(--teal)' : 'transparent',
-                    color: currency === curr ? 'white' : 'var(--text-secondary)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {curr}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Admin Design Review Tools (Only visible to Super Admin) */}
-          {persona === 'ADMIN' && (
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                onClick={() => navigateTo('FIGMA_STUDIO')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  background: currentScreen === 'FIGMA_STUDIO' ? '#0C8CE9' : 'rgba(12,140,233,0.15)',
-                  border: '1px solid #0C8CE9',
-                  color: currentScreen === 'FIGMA_STUDIO' ? '#FFFFFF' : '#38BDF8',
-                  padding: '4px 10px',
+                  padding: '4px 8px',
                   borderRadius: '16px',
                   fontSize: '0.72rem',
-                  fontWeight: 800,
-                  cursor: 'pointer'
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  background: currency === curr ? '#E9A319' : 'transparent',
+                  color: currency === curr ? '#071520' : '#94A3B8',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                <span>🎨</span> Figma Artboards
+                {curr}
               </button>
-            </div>
-          )}
+            ))}
+          </div>
 
-          {/* Persona Switcher & Authenticated Profile Pill */}
+          {/* Notification Bell */}
+          <div style={{ position: 'relative', cursor: 'pointer', color: '#94A3B8', fontSize: '1.1rem' }}>
+            🔔
+            <span style={{ position: 'absolute', top: '-2px', right: '-2px', width: '6px', height: '6px', borderRadius: '3px', background: '#E9A319' }} />
+          </div>
+
+          {/* User Profile / Persona Pill */}
           <div style={{ position: 'relative' }}>
             <button
               onClick={(e) => {
@@ -344,40 +363,31 @@ function App() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                background: persona === 'ADMIN' ? 'linear-gradient(135deg, #0B1B26, #1E293B)' : '#FFFFFF',
-                border: persona === 'ADMIN' ? '1.5px solid #E9A319' : '1px solid var(--border)',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
                 borderRadius: '24px',
-                padding: '4px 12px 4px 6px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                transition: 'all 0.2s ease'
+                padding: '4px 10px 4px 6px',
+                cursor: 'pointer'
               }}
             >
               <div style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '14px',
-                background: persona === 'ADMIN' ? '#E9A319' : persona === 'SCOUT' ? '#D97706' : persona === 'LANDLORD' ? '#0F3460' : 'var(--teal)',
-                color: '#FFFFFF',
-                fontSize: '0.75rem',
-                fontWeight: 900,
+                width: '26px',
+                height: '26px',
+                borderRadius: '13px',
+                background: '#E9A319',
+                color: '#071520',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                fontWeight: 900,
+                fontSize: '0.75rem'
               }}>
                 {currentUser.avatar}
               </div>
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: persona === 'ADMIN' ? '#FFFFFF' : 'var(--teal)', lineHeight: 1.1 }}>
-                  {currentUser.name}
-                </div>
-                <div style={{ fontSize: '0.65rem', color: persona === 'ADMIN' ? '#E9A319' : 'var(--text-secondary)' }}>
-                  {currentUser.roleLabel}
-                </div>
-              </div>
-              <span style={{ fontSize: '0.7rem', color: persona === 'ADMIN' ? '#E9A319' : 'var(--text-secondary)', marginLeft: '2px' }}>
-                ▾
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#FFFFFF' }}>
+                {currentUser.name.split(' ')[0]}
               </span>
+              <span style={{ fontSize: '0.65rem', color: '#94A3B8' }}>▼</span>
             </button>
 
             {/* Persona Switcher Dropdown Modal Card */}
