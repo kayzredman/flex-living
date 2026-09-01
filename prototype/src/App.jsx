@@ -9,68 +9,9 @@ import AdminFlags from './pages/AdminFlags';
 import UIUXShowcase from './pages/UIUXShowcase';
 import FigmaStudio from './pages/FigmaStudio';
 
-const properties = [
-  {
-    id: 1,
-    title: 'The Obsidian Villa | Cantonments, Accra',
-    shortTitle: 'The Obsidian Villa',
-    location: 'Cantonments, Accra',
-    city: 'Accra, Ghana',
-    price: 3500,
-    priceUnit: '/night',
-    monthlyPrice: 4500,
-    currency: 'GHS',
-    beds: 5,
-    baths: 5,
-    sqft: '6,500 Sq Ft',
-    amenities: ['Pool', 'Gym', 'Smart Home'],
-    image: '/accra.jpg',
-    scout: 'Ama (Flex Guide)',
-    rating: 4.98,
-    badges: ['POWER_247', 'INTERNET_100', 'BOREHOLE', 'SLA_995'],
-    description: 'An architectural marvel in Cantonments. 24/7 Victron Solar Micro-Grid, Starlink Gen 3 Satellite, pure borehole reserve, and keyless smart access. 99.5% Uptime SLA Escrow Guaranteed.'
-  },
-  {
-    id: 2,
-    title: 'The Zenith Penthouse | Ikoyi, Lagos',
-    shortTitle: 'The Zenith Penthouse',
-    location: 'Ikoyi, Lagos',
-    city: 'Lagos, Nigeria',
-    price: 1200000,
-    priceUnit: '/night',
-    monthlyPrice: 6500,
-    currency: 'NGN',
-    beds: 6,
-    baths: 6.5,
-    sqft: '7,200 Sq Ft',
-    amenities: ['Pool', 'Gym', 'Smart Home'],
-    image: '/lagos.jpg',
-    scout: 'Chinedu (Flex Guide)',
-    rating: 4.95,
-    badges: ['POWER_247', 'INTERNET_100', 'BOREHOLE', 'SLA_995'],
-    description: 'Ultra-luxury waterfront penthouse in Ikoyi. Dual redundant solar inverters, dedicated high-speed Starlink, 3-stage water treatment, and 99.5% Uptime SLA Guarantee.'
-  },
-  {
-    id: 3,
-    title: 'The Mirage Sanctuary | Gigiri, Nairobi',
-    shortTitle: 'The Mirage Sanctuary',
-    location: 'Gigiri, Nairobi',
-    city: 'Nairobi, Kenya',
-    price: 380000,
-    priceUnit: '/night',
-    monthlyPrice: 5200,
-    currency: 'KES',
-    beds: 4,
-    baths: 4,
-    sqft: '5,100 Sq Ft',
-    amenities: ['Pool', 'Gym', 'Smart Home'],
-    image: '/nairobi.jpg',
-    scout: 'Njeri (Flex Guide)',
-    rating: 5.0,
-    badges: ['POWER_247', 'INTERNET_100', 'BOREHOLE', 'SLA_995'],
-    description: 'Diplomatic sanctuary in Gigiri with panoramic lush views. Off-grid solar battery bank, satellite broadband, deep aquifer borehole, and armed diplomatic security perimeter.'
-  }
-];
+import { INGESTED_PROPERTIES } from './data/ingestedProperties';
+
+const properties = INGESTED_PROPERTIES;
 
 function App() {
   const USERS = {

@@ -8,39 +8,54 @@ import {
   DropletsIcon,
   StarIcon,
   CheckCircleIcon,
-  MapPinIcon
+  MapPinIcon,
+  CompassIcon
 } from '../components/Icons';
 
 export default function Home({ properties = [], onSelect, searchQuery = '', currency = 'GHS', flags = {} }) {
   const [activeCity, setActiveCity] = useState('All');
+  const [activeNeighborhood, setActiveNeighborhood] = useState('All');
   const [showMap, setShowMap] = useState(false);
   const [calcProperty, setCalcProperty] = useState(null);
 
   const formatPrice = (prop) => {
+    // Normalization to USD base
+    const baseUsd = prop.currency === 'GHS' 
+      ? Math.round(prop.price / 15) 
+      : prop.currency === 'NGN' 
+      ? Math.round(prop.price / 1550) 
+      : prop.currency === 'KES' 
+      ? Math.round(prop.price / 130) 
+      : prop.price;
+
     if (currency === 'USD') {
-      const usdRate = prop.id === 1 ? 250 : prop.id === 2 ? 780 : 320;
-      return `$${usdRate.toLocaleString()}/night`;
+      return `$${baseUsd.toLocaleString()}/night`;
     }
     if (currency === 'NGN') {
-      const ngnRate = prop.id === 1 ? 380000 : prop.id === 2 ? 1200000 : 490000;
-      return `NGN ${(ngnRate >= 1000000 ? (ngnRate / 1000000).toFixed(1) + 'M' : ngnRate.toLocaleString())}/night`;
+      const ngn = baseUsd * 1550;
+      return `NGN ${(ngn >= 1000000 ? (ngn / 1000000).toFixed(1) + 'M' : ngn.toLocaleString())}/night`;
     }
     if (currency === 'KES') {
-      const kesRate = prop.id === 1 ? 32000 : prop.id === 2 ? 95000 : 380000;
-      return `KES ${kesRate.toLocaleString()}/night`;
+      const kes = baseUsd * 130;
+      return `KES ${kes.toLocaleString()}/night`;
     }
-    // GHS
-    return `GHS ${prop.price.toLocaleString()}/night`;
+    // Default GHS
+    const ghs = baseUsd * 15;
+    return `GHS ${ghs.toLocaleString()}/night`;
   };
 
   const filtered = properties.filter(p => {
     const matchesSearch = !searchQuery || 
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.neighborhood && p.neighborhood.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (p.w3w && p.w3w.toLowerCase().includes(searchQuery.toLowerCase())) ||
       p.description.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCity = activeCity === 'All' || p.city.toLowerCase().includes(activeCity.toLowerCase());
-    return matchesSearch && matchesCity;
+    const matchesNeighborhood = activeNeighborhood === 'All' || (p.neighborhood && p.neighborhood.toLowerCase().includes(activeNeighborhood.toLowerCase()));
+
+    return matchesSearch && matchesCity && matchesNeighborhood;
   });
 
   return (
@@ -50,17 +65,17 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
         {/* HERO SECTION — EXACT REPLICATION OF FIGMA ARTBOARD 01 */}
         <section style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)',
+          gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
           gap: '3rem',
           alignItems: 'center',
-          marginBottom: '3.5rem',
+          marginBottom: '3rem',
           position: 'relative'
         }}>
           {/* Left Column: Heading, Subtitle & Gold Button */}
           <div>
             <h1 style={{
               fontFamily: 'var(--font-display)',
-              fontSize: '3.4rem',
+              fontSize: '3.3rem',
               fontWeight: 900,
               lineHeight: 1.12,
               letterSpacing: '-0.03em',
@@ -81,7 +96,7 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
               Curated short and long-term residences with 100% verified 24/7 solar power, dedicated high-speed Starlink broadband, and physical Field Scout audits.
             </p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
               <button
                 onClick={() => {
                   const el = document.getElementById('properties-grid');
@@ -102,15 +117,18 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                 onMouseEnter={(e) => e.target.style.background = '#F59E0B'}
                 onMouseLeave={(e) => e.target.style.background = '#E9A319'}
               >
-                Explore Collection
+                Explore Collection ({properties.length} Stays)
               </button>
 
               {/* City Quick Pills */}
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {['All', 'Accra', 'Lagos', 'Nairobi'].map(city => (
                   <button
                     key={city}
-                    onClick={() => setActiveCity(city)}
+                    onClick={() => {
+                      setActiveCity(city);
+                      setActiveNeighborhood('All');
+                    }}
                     style={{
                       background: activeCity === city ? 'rgba(233,163,25,0.18)' : 'rgba(255,255,255,0.06)',
                       border: activeCity === city ? '1px solid #E9A319' : '1px solid rgba(255,255,255,0.1)',
@@ -122,7 +140,7 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                       cursor: 'pointer'
                     }}
                   >
-                    {city}
+                    {city === 'All' ? 'All Metros' : city}
                   </button>
                 ))}
               </div>
@@ -148,7 +166,7 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(14,18,26,0.8) 0%, transparent 50%)',
+                background: 'linear-gradient(to top, rgba(14,18,26,0.85) 0%, transparent 50%)',
                 display: 'flex',
                 alignItems: 'flex-end',
                 padding: '24px'
@@ -165,14 +183,45 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
           </div>
         </section>
 
-        {/* SECTION TITLE & MAP TOGGLE */}
-        <div id="properties-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        {/* INGESTED DATA TELEMETRY STATS BAR */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '18px',
+          padding: '14px 22px',
+          marginBottom: '2.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '4px', background: '#10B981', boxShadow: '0 0 10px #10B981' }} />
+            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#FFFFFF' }}>
+              INGESTED POSTGIS REPOSITORY: {filtered.length} of {properties.length} Verified Properties Active
+            </span>
+            <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+              (Accra • Lagos • Nairobi)
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '16px', fontSize: '0.78rem', color: '#CBD5E1', fontWeight: 700 }}>
+            <span>⚡ Solar ATS: &lt;6.2s</span>
+            <span>🌐 Starlink: 185 Mbps</span>
+            <span>💧 Borehole: TDS 65 PPM</span>
+            <span>🔐 TTLock BLE Cloud</span>
+          </div>
+        </div>
+
+        {/* SECTION HEADER & MAP TOGGLE */}
+        <div id="properties-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
-              Curated Master Residences
+              Curated Master Residences ({filtered.length})
             </h2>
-            <p style={{ margin: '4px 0 0 0', color: '#94A3B8', fontSize: '0.9rem' }}>
-              Ground-truth physical audit by certified Field Scouts
+            <p style={{ margin: '4px 0 0 0', color: '#94A3B8', fontSize: '0.88rem' }}>
+              Ground-truth physical audit by certified Field Scouts across 14 neighborhoods
             </p>
           </div>
 
@@ -197,15 +246,15 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
           </button>
         </div>
 
-        {/* PROPERTIES GRID — EXACT REPLICATION OF FIGMA ARTBOARD CARDS */}
+        {/* PROPERTIES GRID — FULL INGESTED CATALOG WITH SIGNATURE 4-BADGES */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: showMap ? '1fr 480px' : 'repeat(auto-fit, minmax(460px, 1fr))',
+          gridTemplateColumns: showMap ? '1fr 480px' : 'repeat(auto-fit, minmax(440px, 1fr))',
           gap: '2.5rem',
           alignItems: 'start'
         }}>
-          {/* Left / Main Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: showMap ? '1fr' : 'repeat(auto-fit, minmax(460px, 1fr))', gap: '2.5rem' }}>
+          {/* Main Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: showMap ? '1fr' : 'repeat(auto-fit, minmax(440px, 1fr))', gap: '2.5rem' }}>
             {filtered.map(property => (
               <div 
                 key={property.id}
@@ -233,7 +282,7 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                 <div style={{
                   position: 'relative',
                   width: '100%',
-                  height: '280px',
+                  height: '260px',
                   borderRadius: '16px',
                   overflow: 'hidden',
                   marginBottom: '18px'
@@ -243,6 +292,7 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                     alt={property.title} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
+                  {/* Top Left: 200-Point Audit Pill */}
                   <div style={{
                     position: 'absolute',
                     top: '14px',
@@ -262,6 +312,7 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                     </span>
                   </div>
 
+                  {/* Top Right: Rating Pill */}
                   <div style={{
                     position: 'absolute',
                     top: '14px',
@@ -280,12 +331,31 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                       {property.rating}
                     </span>
                   </div>
+
+                  {/* Bottom Left: What3Words Tag */}
+                  {property.w3w && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '12px',
+                      background: 'rgba(7,21,32,0.88)',
+                      backdropFilter: 'blur(8px)',
+                      padding: '4px 10px',
+                      borderRadius: '10px',
+                      color: '#E9A319',
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                      border: '1px solid rgba(233,163,25,0.35)'
+                    }}>
+                      {property.w3w}
+                    </div>
+                  )}
                 </div>
 
                 {/* Title & Location */}
                 <h3 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: '1.35rem',
+                  fontSize: '1.3rem',
                   fontWeight: 800,
                   color: '#FFFFFF',
                   margin: '0 0 6px 0',
@@ -321,14 +391,15 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                   fontWeight: 700,
                   display: 'flex',
                   gap: '14px',
-                  marginBottom: '18px'
+                  marginBottom: '18px',
+                  flexWrap: 'wrap'
                 }}>
-                  <span>🏊 Pool</span>
-                  <span>🏋️ Gym</span>
-                  <span>🏡 Smart Home</span>
+                  {property.amenities.slice(0, 3).map((a, idx) => (
+                    <span key={idx}>✓ {a}</span>
+                  ))}
                 </div>
 
-                {/* THE 4 SIGNATURE FIGMA TELEMETRY BADGES (EXACT REPLICATION) */}
+                {/* THE 4 SIGNATURE FIGMA TELEMETRY BADGES */}
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(4, 1fr)',
@@ -343,8 +414,11 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
                       <ZapIcon size={16} color="#E9A319" fill="#E9A319" />
                     </div>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       24/7 SOLAR
+                    </div>
+                    <div style={{ fontSize: '0.6rem', color: '#10B981', fontWeight: 700 }}>
+                      {property.telemetry?.solarBattery || '98% Batt'}
                     </div>
                   </div>
 
@@ -353,8 +427,11 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
                       <WifiIcon size={16} color="#E9A319" />
                     </div>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       STARLINK
+                    </div>
+                    <div style={{ fontSize: '0.6rem', color: '#06B6D4', fontWeight: 700 }}>
+                      {property.telemetry?.starlinkPing || '24ms Ping'}
                     </div>
                   </div>
 
@@ -363,8 +440,11 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
                       <DropletsIcon size={16} color="#E9A319" />
                     </div>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       PURE BOREHOLE
+                    </div>
+                    <div style={{ fontSize: '0.6rem', color: '#3B82F6', fontWeight: 700 }}>
+                      {property.telemetry?.waterPpm || '65 PPM'}
                     </div>
                   </div>
 
@@ -373,8 +453,11 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
                       <ShieldCheckIcon size={16} color="#E9A319" />
                     </div>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       99.5% UPTIME SLA
+                    </div>
+                    <div style={{ fontSize: '0.6rem', color: '#10B981', fontWeight: 700 }}>
+                      Escrow Vault
                     </div>
                   </div>
                 </div>
@@ -388,9 +471,12 @@ export default function Home({ properties = [], onSelect, searchQuery = '', curr
                   paddingTop: '12px',
                   borderTop: '1px solid rgba(255,255,255,0.06)'
                 }}>
-                  <span style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 800 }}>
-                    ● 15% Escrow Protected
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <CompassIcon size={13} color="#E9A319" />
+                    <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+                      {property.scout}
+                    </span>
+                  </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

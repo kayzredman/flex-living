@@ -880,17 +880,51 @@ export default function App() {
                 </View>
 
                 <View style={styles.cardBody}>
-                  <Text style={styles.cardCity}>{prop.city}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <Text style={styles.cardCity}>{prop.neighborhood || prop.city.split(',')[0]} • {prop.city}</Text>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#E9A319' }}>///{prop.neighborhood ? prop.neighborhood.toLowerCase().replace(/[^a-z]/g, '') : 'stay'}.flex.{prop.id}</Text>
+                  </View>
                   <Text style={styles.cardTitle}>{prop.title}</Text>
                   
-                  {featureFlags.FLAG_VERIFIED_BADGES !== false && (
-                    <View style={styles.badgeRow}>
-                      {prop.badges.map((b, idx) => (
-                        <View key={idx} style={styles.amenityBadge}>
-                          <Text style={styles.amenityBadgeText}>{b}</Text>
-                        </View>
-                      ))}
+                  {/* Field Scout Auditor Line */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2, marginBottom: 8 }}>
+                    <Text style={{ fontSize: 12, color: '#94A3B8' }}>🧭 Verified by </Text>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#10B981' }}>{prop.scout}</Text>
+                  </View>
+
+                  {/* 4 Signature Telemetry Badges */}
+                  <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#071520',
+                    borderRadius: 12,
+                    padding: 8,
+                    marginBottom: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(233, 163, 25, 0.25)'
+                  }}>
+                    <View style={{ alignItems: 'center', flex: 1 }}>
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: '#FDE68A' }}>⚡ SOLAR</Text>
+                      <Text style={{ fontSize: 9, color: '#10B981', fontWeight: '700' }}>24/7 ATS</Text>
                     </View>
+                    <View style={{ alignItems: 'center', flex: 1, borderLeftWidth: 1, borderLeftColor: 'rgba(255,255,255,0.08)' }}>
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: '#FDE68A' }}>🌐 STARLINK</Text>
+                      <Text style={{ fontSize: 9, color: '#06B6D4', fontWeight: '700' }}>180 Mbps</Text>
+                    </View>
+                    <View style={{ alignItems: 'center', flex: 1, borderLeftWidth: 1, borderLeftColor: 'rgba(255,255,255,0.08)' }}>
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: '#FDE68A' }}>💧 BOREHOLE</Text>
+                      <Text style={{ fontSize: 9, color: '#3B82F6', fontWeight: '700' }}>Pure Water</Text>
+                    </View>
+                    <View style={{ alignItems: 'center', flex: 1, borderLeftWidth: 1, borderLeftColor: 'rgba(255,255,255,0.08)' }}>
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: '#FDE68A' }}>🛡️ SLA 99.5%</Text>
+                      <Text style={{ fontSize: 9, color: '#10B981', fontWeight: '700' }}>Protected</Text>
+                    </View>
+                  </View>
+
+                  {prop.amenities && (
+                    <Text style={{ fontSize: 11, color: '#64748B', marginBottom: 10 }}>
+                      {prop.amenities}
+                    </Text>
                   )}
 
                   <View style={styles.cardFooter}>
