@@ -7,6 +7,7 @@ import StayManagement from './pages/StayManagement';
 import ScoutPortal from './pages/ScoutPortal';
 import AdminFlags from './pages/AdminFlags';
 import UIUXShowcase from './pages/UIUXShowcase';
+import FigmaStudio from './pages/FigmaStudio';
 
 const properties = [
   {
@@ -303,7 +304,29 @@ function App() {
               transition: 'all 0.2s ease'
             }}
           >
-            <span>✨</span> UI/UX Pro Max Prototype
+            <span>✨</span> Pro Max Prototype
+          </button>
+
+          {/* Figma Design Studio Button */}
+          <button
+            onClick={() => navigateTo('FIGMA_STUDIO')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: currentScreen === 'FIGMA_STUDIO' ? '#0C8CE9' : '#2C2C2C',
+              border: '1.5px solid #0C8CE9',
+              color: '#FFFFFF',
+              padding: '5px 12px',
+              borderRadius: '20px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(12,140,233,0.25)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span>🎨</span> Figma Canvas
           </button>
 
           {/* Persona Switcher & Authenticated Profile Pill */}
@@ -526,15 +549,19 @@ function App() {
 
       {/* Main Content Area */}
       <main style={{ flex: 1 }}>
+        {currentScreen === 'FIGMA_STUDIO' && (
+          <FigmaStudio onBack={() => navigateTo('HOME')} />
+        )}
+
         {currentScreen === 'PROTOTYPE_PREVIEW' && (
           <UIUXShowcase onBack={() => navigateTo('HOME')} />
         )}
 
-        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'ADMIN' && <AdminFlags onBack={() => setPersona('TENANT')} />}
-        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'SCOUT' && <ScoutPortal flags={flags} />}
-        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'LANDLORD' && <LandlordDashboard currency={currency} flags={flags} />}
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && currentScreen !== 'FIGMA_STUDIO' && persona === 'ADMIN' && <AdminFlags onBack={() => setPersona('TENANT')} />}
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && currentScreen !== 'FIGMA_STUDIO' && persona === 'SCOUT' && <ScoutPortal flags={flags} />}
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && currentScreen !== 'FIGMA_STUDIO' && persona === 'LANDLORD' && <LandlordDashboard currency={currency} flags={flags} />}
         
-        {currentScreen !== 'PROTOTYPE_PREVIEW' && persona === 'TENANT' && currentScreen === 'HOME' && (
+        {currentScreen !== 'PROTOTYPE_PREVIEW' && currentScreen !== 'FIGMA_STUDIO' && persona === 'TENANT' && currentScreen === 'HOME' && (
           <Home 
             properties={properties} 
             searchQuery={searchQuery}
