@@ -88,9 +88,17 @@ function App() {
     }
   };
 
+  const getInitialScreen = () => {
+    const hash = (typeof window !== 'undefined' ? window.location.hash : '').toLowerCase();
+    const search = (typeof window !== 'undefined' ? window.location.search : '').toLowerCase();
+    if (hash.includes('figma') || search.includes('page=figma')) return 'FIGMA_STUDIO';
+    if (hash.includes('prototype') || search.includes('page=prototype')) return 'PROTOTYPE_PREVIEW';
+    return 'HOME';
+  };
+
   const [persona, setPersona] = useState('TENANT'); // TENANT, LANDLORD, SCOUT, ADMIN
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState('HOME'); // HOME, DETAILS, BOOKING, STAY
+  const [currentScreen, setCurrentScreen] = useState(getInitialScreen); // HOME, DETAILS, BOOKING, STAY, FIGMA_STUDIO, PROTOTYPE_PREVIEW
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [currency, setCurrency] = useState('GHS'); // GHS, USD, NGN, KES
   const [searchQuery, setSearchQuery] = useState('');
@@ -122,6 +130,18 @@ function App() {
     FLAG_GRA_TAX_REMITTANCE: true
   });
 
+  // Listen to hash change
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('figma')) setCurrentScreen('FIGMA_STUDIO');
+      else if (hash.includes('prototype')) setCurrentScreen('PROTOTYPE_PREVIEW');
+      else if (hash.includes('home') || hash === '' || hash === '#') setCurrentScreen('HOME');
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   // Fetch flags from Gateway
   useEffect(() => {
     const checkFlags = async () => {
@@ -145,6 +165,10 @@ function App() {
     else if (screen === 'STAY' && !selectedProperty) setSelectedProperty(properties[0]);
     setCurrentScreen(screen);
     window.scrollTo(0, 0);
+    if (screen === 'FIGMA_STUDIO') window.location.hash = 'figma';
+    else if (screen === 'PROTOTYPE_PREVIEW') window.location.hash = 'prototype';
+    else if (screen === 'HOME') window.location.hash = 'home';
+    else window.location.hash = screen.toLowerCase();
   };
 
   const currentUser = USERS[persona];
