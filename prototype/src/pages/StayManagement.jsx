@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import {
+  ShieldCheckIcon,
+  ZapIcon,
+  WifiIcon,
+  DropletsIcon,
+  LockIcon,
+  UnlockIcon,
+  KeyIcon,
+  StarIcon,
+  CheckCircleIcon
+} from '../components/Icons';
 
 export default function StayManagement({ property, onBack, currency = 'GHS', flags = {} }) {
   const [outageState, setOutageState] = useState('IDLE'); // IDLE, DIAGNOSING, DIAGNOSED, RELOCATING
   const [cureTimer, setCureTimer] = useState(7200); // 2 hours in seconds
 
-  // Pillar 4: TTLock / Tuya Hardware Smart Lock Time-Bound PIN Engine
+  // Smart Lock State
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [lockStatus, setLockStatus] = useState('LOCKED'); // LOCKED, UNLOCKING, UNLOCKED
   const [masterPin, setMasterPin] = useState('849 201');
   const [guestPins, setGuestPins] = useState([
     { id: 1, label: 'Cleaner (Weekly)', pin: '312 904', validity: 'Active today (2h left)', type: 'CLEANER' }
@@ -12,7 +25,7 @@ export default function StayManagement({ property, onBack, currency = 'GHS', fla
   const [isGeneratingPin, setIsGeneratingPin] = useState(false);
   const [copiedPin, setCopiedPin] = useState(null);
 
-  // Pillar 3: Interactive WhatsApp Caretaker Bot Simulator
+  // WhatsApp Caretaker Bot Simulator
   const [caretakerChat, setCaretakerChat] = useState([
     {
       sender: 'BOT',
@@ -52,6 +65,17 @@ export default function StayManagement({ property, onBack, currency = 'GHS', fla
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  // Trigger BLE Deadbolt Actuator
+  const handleUnlockDoor = () => {
+    setLockStatus('UNLOCKING');
+    setTimeout(() => {
+      setLockStatus('UNLOCKED');
+      setTimeout(() => {
+        setLockStatus('LOCKED');
+      }, 7000); // Auto-locks after 7 seconds
+    }, 1200);
+  };
+
   // Generate TTLock Temporary Guest PIN
   const handleGenerateGuestPin = (typeLabel, duration) => {
     setIsGeneratingPin(true);
@@ -72,7 +96,6 @@ export default function StayManagement({ property, onBack, currency = 'GHS', fla
   // WhatsApp Caretaker 1-Tap Quick-Reply
   const handleCaretakerQuickReply = (text, statusImpact) => {
     setIsReplying(true);
-    // Add Caretaker message
     const caretakerMsg = {
       sender: 'CARETAKER',
       text: text,
@@ -101,284 +124,418 @@ export default function StayManagement({ property, onBack, currency = 'GHS', fla
   };
 
   return (
-    <div className="screen-container">
-      <div style={{ maxWidth: '780px', margin: '0 auto' }}>
-        <div className="d-flex align-center gap-3 mb-4">
-          <button 
-            onClick={onBack}
-            className="btn glass"
-            style={{ width: '40px', height: '40px', borderRadius: '50%', padding: 0, fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--teal)' }}
-          >
-            ←
-          </button>
+    <div className="screen-container" style={{ padding: '1.5rem 2rem', maxWidth: '880px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '1.5rem' }}>
+        <button 
+          onClick={onBack}
+          style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            color: '#FFFFFF',
+            fontWeight: 800,
+            fontSize: '1.2rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          ←
+        </button>
+        <div>
+          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#E9A319', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            ACTIVE RESIDENCE • {flags.FLAG_SLA_2HR_CURE_TIMER !== false ? '99.5% SLA ESCROW PROTECTED' : 'STAY COMMAND'}
+          </span>
+          <h2 style={{ fontSize: '1.75rem', margin: 0, color: '#FFFFFF', fontWeight: 900 }}>
+            Stay Command & Smart Access Hub
+          </h2>
+        </div>
+      </div>
+
+      {/* Residence Summary Banner */}
+      <div style={{
+        background: 'rgba(255,255,255,0.04)',
+        borderRadius: '20px',
+        overflow: 'hidden',
+        border: '1px solid rgba(255,255,255,0.08)',
+        marginBottom: '1.5rem',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+      }}>
+        <img src={property.image} alt={property.title} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
+        <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <span className="text-secondary text-xs">Active Stay Management {flags.FLAG_SLA_2HR_CURE_TIMER !== false && '• 99.5% SLA Guarantee'}</span>
-            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--teal)' }}>Active Stay Command Hub</h2>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#FFFFFF', margin: '0 0 4px 0' }}>{property.title}</h3>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#94A3B8' }}>
+              Check-in: Confirmed • {flags.FLAG_HOST_ESCROW_VAULT !== false && '15% Escrow Reserve Active'}
+            </p>
           </div>
-        </div>
-
-        <div className="property-card" style={{ marginBottom: '1.5rem' }}>
-          <img src={property.image} alt={property.title} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
-          <div style={{ padding: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem' }}>{property.title}</h3>
-              {flags.FLAG_SLA_2HR_CURE_TIMER !== false && (
-                <span className="badge badge-verified">✓ 99.5% Uptime SLA Protected</span>
-              )}
+          {flags.FLAG_SLA_2HR_CURE_TIMER !== false && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', padding: '6px 14px', borderRadius: '16px' }}>
+              <ShieldCheckIcon size={14} color="#10B981" />
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10B981' }}>99.5% UPTIME ACTIVE</span>
             </div>
-            <p className="text-sm text-secondary">Check-in: Confirmed {flags.FLAG_HOST_ESCROW_VAULT !== false && '• Escrow Protected'}</p>
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* PILLAR 4: TTLock / Tuya Hardware Smart Lock Time-Bound PIN Engine (Controllable by FLAG_TTLOCK_MASTER_PIN) */}
-        {flags.FLAG_TTLOCK_MASTER_PIN !== false && (
-          <div className="glass mb-4" style={{ borderRadius: '16px', padding: '1.5rem', border: '1px solid var(--gold)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.4rem' }}>🔐</span>
-                <div>
-                  <h4 style={{ margin: 0, color: 'var(--teal)', fontSize: '1.1rem' }}>Smart Lock Keypad Pass (TTLock Engine)</h4>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    AES-256 encrypted time-bound PIN codes synced with physical deadbolt
-                  </p>
-                </div>
+      {/* FIGMA SMART DEADBOLT CONTROLLER */}
+      {flags.FLAG_TTLOCK_MASTER_PIN !== false && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(233,163,25,0.12), rgba(7,21,32,0.95))',
+          borderRadius: '20px',
+          padding: '24px',
+          border: '1px solid rgba(233,163,25,0.3)',
+          marginBottom: '1.5rem',
+          boxShadow: '0 15px 40px rgba(0,0,0,0.6)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(233,163,25,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <KeyIcon size={18} color="#E9A319" />
               </div>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(16,185,129,0.15)', color: 'var(--success)', padding: '3px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
-                ● Bluetooth & Gateway Online (94% Batt)
-              </span>
-            </div>
-
-            <div style={{ background: '#0F2537', padding: '1.25rem', borderRadius: '14px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <span style={{ fontSize: '0.75rem', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 800 }}>
-                  Master Tenant Keypad PIN (Active for Stay)
-                </span>
-                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'white', letterSpacing: '4px', marginTop: '2px' }}>
-                  {masterPin}
+                <h4 style={{ margin: 0, color: '#FFFFFF', fontSize: '1.1rem', fontWeight: 900 }}>
+                  Smart Deadbolt Keyway (TTLock Cloud Pass)
+                </h4>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#94A3B8' }}>
+                  AES-256 encrypted Bluetooth pass synced with physical deadbolt
+                </p>
+              </div>
+            </div>
+            <span style={{ fontSize: '0.75rem', background: 'rgba(16,185,129,0.15)', color: '#10B981', border: '1px solid rgba(16,185,129,0.3)', padding: '4px 10px', borderRadius: '12px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '3px', background: '#10B981', display: 'inline-block' }} />
+              BLE Connected (94% Batt)
+            </span>
+          </div>
+
+          {/* Interactive Unlock Button (Matching iPhone 16 Pro Artboard) */}
+          <div style={{ marginBottom: '20px' }}>
+            <button
+              onClick={handleUnlockDoor}
+              disabled={lockStatus === 'UNLOCKING'}
+              style={{
+                width: '100%',
+                background: lockStatus === 'UNLOCKED' 
+                  ? '#10B981' 
+                  : lockStatus === 'UNLOCKING'
+                  ? '#06B6D4'
+                  : 'linear-gradient(135deg, #E9A319, #D97706)',
+                color: '#071520',
+                border: 'none',
+                padding: '16px',
+                borderRadius: '16px',
+                fontWeight: 900,
+                fontSize: '1.05rem',
+                cursor: lockStatus === 'UNLOCKING' ? 'wait' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                boxShadow: '0 8px 24px rgba(233,163,25,0.3)',
+                transition: 'all 0.25s ease'
+              }}
+            >
+              {lockStatus === 'UNLOCKED' ? (
+                <>
+                  <UnlockIcon size={20} color="#071520" />
+                  <span>Door Unlocked! (Auto-Locks in 7s)</span>
+                </>
+              ) : lockStatus === 'UNLOCKING' ? (
+                <>
+                  <span style={{ animation: 'spin 1s infinite linear' }}>⏳</span>
+                  <span>Connecting to BLE Actuator...</span>
+                </>
+              ) : (
+                <>
+                  <LockIcon size={20} color="#071520" />
+                  <span>Hold to Unlock Deadbolt</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Master PIN Box */}
+          <div style={{
+            background: 'rgba(7,21,32,0.8)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            padding: '16px 20px',
+            borderRadius: '16px',
+            marginBottom: '1rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div>
+              <span style={{ fontSize: '0.72rem', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 800 }}>
+                Master Keypad PIN (Active for Stay)
+              </span>
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#E9A319', letterSpacing: '6px', marginTop: '2px' }}>
+                {masterPin}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard?.writeText(masterPin.replace(' ', ''));
+                setCopiedPin('MASTER');
+                setTimeout(() => setCopiedPin(null), 2000);
+              }}
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#FFFFFF',
+                padding: '8px 16px',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}
+            >
+              {copiedPin === 'MASTER' ? '✓ Copied' : '📋 Copy PIN'}
+            </button>
+          </div>
+
+          {/* Generate Visitor / Cleaner PIN Passes */}
+          {flags.FLAG_TTLOCK_GUEST_PASSES !== false && (
+            <div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.78rem', color: '#94A3B8', fontWeight: 700 }}>Generate Guest Pass:</span>
+                <button
+                  onClick={() => handleGenerateGuestPin('Cleaner Pass', '2 Hours')}
+                  disabled={isGeneratingPin}
+                  style={{ background: 'rgba(233,163,25,0.15)', border: '1px solid #E9A319', color: '#FDE68A', padding: '5px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  🧹 Cleaner (2h)
+                </button>
+                <button
+                  onClick={() => handleGenerateGuestPin('Food & Delivery', '45 Mins')}
+                  disabled={isGeneratingPin}
+                  style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid #06B6D4', color: '#A5F3FC', padding: '5px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  🛵 Delivery (45m)
+                </button>
+                <button
+                  onClick={() => handleGenerateGuestPin('Visitor / Friend', '24 Hours')}
+                  disabled={isGeneratingPin}
+                  style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10B981', color: '#A7F3D0', padding: '5px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  👥 Guest (24h)
+                </button>
+              </div>
+
+              {guestPins.map(gp => (
+                <div key={gp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', padding: '10px 14px', borderRadius: '12px', marginBottom: '8px' }}>
+                  <div>
+                    <strong style={{ fontSize: '0.85rem', color: '#FFFFFF' }}>{gp.label}</strong>
+                    <span style={{ fontSize: '0.8rem', color: '#94A3B8', marginLeft: '10px' }}>
+                      PIN: <strong style={{ color: '#E9A319' }}>{gp.pin}</strong>
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', color: '#10B981', fontWeight: 700 }}>{gp.validity}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* WHATSAPP CARETAKER BOT SIMULATOR */}
+      {flags.FLAG_CARETAKER_WHATSAPP_BOT !== false && (
+        <div style={{
+          background: 'rgba(255,255,255,0.04)',
+          borderRadius: '20px',
+          padding: '24px',
+          border: '1px solid rgba(255,255,255,0.08)',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '16px', background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+              💬
+            </div>
+            <div>
+              <h4 style={{ margin: 0, color: '#FFFFFF', fontSize: '1.1rem', fontWeight: 800 }}>
+                Caretaker Autonomous WhatsApp Pulse
+              </h4>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#94A3B8' }}>
+                Daily morning protocol verifying generator diesel & borehole levels
+              </p>
+            </div>
+          </div>
+
+          {/* Chat Messages */}
+          <div style={{ background: '#071520', borderRadius: '16px', padding: '16px', maxHeight: '200px', overflowY: 'auto', marginBottom: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            {caretakerChat.map((msg, idx) => (
+              <div key={idx} style={{
+                marginBottom: '10px',
+                textAlign: msg.sender === 'CARETAKER' ? 'right' : 'left'
+              }}>
+                <div style={{
+                  display: 'inline-block',
+                  maxWidth: '85%',
+                  padding: '10px 14px',
+                  borderRadius: '14px',
+                  background: msg.sender === 'CARETAKER' ? '#0F3460' : 'rgba(255,255,255,0.08)',
+                  color: '#FFFFFF',
+                  fontSize: '0.85rem',
+                  lineHeight: 1.4,
+                  textAlign: 'left',
+                  border: msg.sender === 'CARETAKER' ? '1px solid #1E4F8A' : '1px solid rgba(255,255,255,0.08)'
+                }}>
+                  {msg.text}
+                  <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: '4px', textAlign: 'right' }}>
+                    {msg.time}
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+
+          {/* Quick-Reply Actions */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => handleCaretakerQuickReply('Everything OK: Grid power active, water 90%, battery 100%.', 'OK')}
+              disabled={isReplying}
+              style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10B981', color: '#A7F3D0', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+            >
+              ✅ Send "All OK & Verified"
+            </button>
+            <button
+              onClick={() => handleCaretakerQuickReply('ECG power is out, inverter switched over automatically. Battery 88%.', 'INVERTER')}
+              disabled={isReplying}
+              style={{ background: 'rgba(233,163,25,0.15)', border: '1px solid #E9A319', color: '#FDE68A', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+            >
+              ⚡ Report "Grid Outage / Inverter Active"
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* OUTAGE DIAGNOSTICS & SLA 2-HOUR CURE ENGINE */}
+      {flags.FLAG_SLA_REPORT_OUTAGE !== false && (
+        <div style={{
+          background: 'rgba(255,255,255,0.04)',
+          borderRadius: '20px',
+          padding: '24px',
+          border: '1px solid rgba(255,255,255,0.08)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <h4 style={{ margin: 0, color: '#FFFFFF', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ShieldCheckIcon size={18} color="#10B981" />
+              SLA Outage Diagnostic & 2-Hour Cure Clock
+            </h4>
+            <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Automated Escrow Protocol</span>
+          </div>
+
+          {outageState === 'IDLE' && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem' }}>
+                All systems reporting nominal telemetry. If an unresolvable outage occurs, trigger the diagnostic below.
+              </p>
               <button
-                onClick={() => {
-                  navigator.clipboard?.writeText(masterPin.replace(' ', ''));
-                  setCopiedPin('MASTER');
-                  setTimeout(() => setCopiedPin(null), 2000);
-                }}
+                onClick={reportOutage}
                 style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: 'white',
-                  padding: '8px 14px',
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid #EF4444',
+                  color: '#FCA5A5',
+                  padding: '8px 16px',
                   borderRadius: '10px',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   fontSize: '0.8rem',
                   cursor: 'pointer'
                 }}
               >
-                {copiedPin === 'MASTER' ? '✓ Copied' : '📋 Copy PIN'}
+                🚨 Report Outage
               </button>
             </div>
+          )}
 
-            {/* Quick-Generate Visitor / Cleaner PIN Buttons (Controllable by FLAG_TTLOCK_GUEST_PASSES) */}
-            {flags.FLAG_TTLOCK_GUEST_PASSES !== false && (
-              <div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Generate Self-Expiring Code:</span>
-                  <button
-                    onClick={() => handleGenerateGuestPin('Cleaner Pass', '2 Hours')}
-                    disabled={isGeneratingPin}
-                    style={{ background: 'rgba(233,163,25,0.15)', border: '1px solid var(--gold)', color: 'var(--gold-light)', padding: '5px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    🧹 Cleaner (2h Pass)
-                  </button>
-                  <button
-                    onClick={() => handleGenerateGuestPin('Food & Delivery', '45 Mins')}
-                    disabled={isGeneratingPin}
-                    style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid var(--success)', color: 'var(--success)', padding: '5px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    🛵 Delivery (45m Pass)
-                  </button>
-                  <button
-                    onClick={() => handleGenerateGuestPin('Guest / Friend', '24 Hours')}
-                    disabled={isGeneratingPin}
-                    style={{ background: 'rgba(233,69,96,0.15)', border: '1px solid var(--coral)', color: 'var(--coral)', padding: '5px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    👥 Guest (24h Pass)
-                  </button>
-                </div>
-
-                {guestPins.map(gp => (
-                  <div key={gp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', padding: '8px 12px', borderRadius: '10px', marginBottom: '6px' }}>
-                    <div>
-                      <strong style={{ fontSize: '0.85rem', color: 'white' }}>{gp.label}</strong>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '8px' }}>PIN: <strong style={{ color: 'var(--gold-light)' }}>{gp.pin}</strong></span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 'bold' }}>{gp.validity}</span>
-                      {flags.FLAG_WHATSAPP_PIN_SHARE !== false && (
-                        <button
-                          onClick={() => alert(`Sharing PIN ${gp.pin} for ${gp.label} via WhatsApp...`)}
-                          style={{ background: '#25D366', color: 'white', border: 'none', padding: '3px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}
-                        >
-                          📲 Share WhatsApp
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* PILLAR 3: Interactive WhatsApp Caretaker Bot Simulator (Controllable by FLAG_CARETAKER_WHATSAPP_BOT) */}
-        {flags.FLAG_CARETAKER_WHATSAPP_BOT !== false && (
-          <div className="glass mb-4" style={{ borderRadius: '16px', padding: '1.5rem', border: '1px solid #25D366' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.4rem' }}>💬</span>
-                <div>
-                  <h4 style={{ margin: 0, color: 'white', fontSize: '1.1rem' }}>Caretaker WhatsApp Daily Pulse</h4>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    Meta Cloud API webhook with 1-tap quick reply buttons for on-ground caretakers
-                  </p>
-                </div>
-              </div>
-              <span style={{ background: '#25D366', color: '#0B1B26', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 900 }}>
-                WHATSAPP LIVE
-              </span>
+          {outageState === 'DIAGNOSING' && (
+            <div style={{ textAlign: 'center', padding: '1rem' }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>📡</div>
+              <div style={{ fontWeight: 800, color: '#E9A319' }}>Pinging IoT Smart Meters & Inverter...</div>
+              <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '4px' }}>Cross-referencing grid sensors and caretaker logs</div>
             </div>
+          )}
 
-            {/* WhatsApp Chat Log Box */}
-            <div style={{ background: '#0B141B', borderRadius: '12px', padding: '12px', minHeight: '130px', maxHeight: '200px', overflowY: 'auto', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {caretakerChat.map((msg, i) => (
-                <div key={i} style={{
-                  alignSelf: msg.sender === 'CARETAKER' ? 'flex-end' : 'flex-start',
-                  maxWidth: '85%',
-                  background: msg.sender === 'CARETAKER' ? '#005C4B' : '#202C33',
-                  color: '#E9EDEF',
-                  padding: '8px 12px',
-                  borderRadius: msg.sender === 'CARETAKER' ? '12px 12px 0 12px' : '12px 12px 12px 0',
-                  fontSize: '0.8rem',
-                  lineHeight: 1.4
-                }}>
-                  <div>{msg.text}</div>
-                  <div style={{ fontSize: '0.65rem', opacity: 0.6, textAlign: 'right', marginTop: '2px' }}>{msg.time}</div>
+          {outageState === 'DIAGNOSED' && (
+            <div>
+              <div style={{ background: '#2A1515', border: '1px solid #EF4444', borderRadius: '14px', padding: '16px', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <strong style={{ color: '#FCA5A5', fontSize: '0.9rem' }}>Outage Confirmed: Generator Relay Failure</strong>
+                  <span style={{ color: '#E9A319', fontWeight: 900, fontSize: '1.2rem' }}>{formatTime(cureTimer)}</span>
                 </div>
-              ))}
-              {isReplying && (
-                <div style={{ fontSize: '0.75rem', color: '#25D366', fontStyle: 'italic' }}>
-                  Caretaker is typing via WhatsApp...
-                </div>
-              )}
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.4 }}>
+                  Host and Caretaker dispatched. If not resolved within 2 hours, $35/hr outage credit and relocation voucher are automatically transferred.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={fastForward}
+                  style={{
+                    background: 'rgba(233,163,25,0.15)',
+                    border: '1px solid #E9A319',
+                    color: '#FDE68A',
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    cursor: 'pointer'
+                  }}
+                >
+                  ⏩ Fast-Forward (Simulate 2-Hour Expiry)
+                </button>
+                <button
+                  onClick={() => setOutageState('IDLE')}
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#FFFFFF',
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear Outage
+                </button>
+              </div>
             </div>
+          )}
 
-            {/* 1-Tap Quick-Reply Buttons (Meta Cloud API Simulator) */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', width: '100%' }}>
-                Simulate Caretaker 1-Tap WhatsApp Response:
-              </span>
+          {outageState === 'RELOCATING' && (
+            <div style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10B981', borderRadius: '14px', padding: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <CheckCircleIcon size={20} color="#10B981" />
+                <strong style={{ color: '#A7F3D0', fontSize: '1rem' }}>2-Hour Cure Clock Expired: Escrow Claim Approved!</strong>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#FFFFFF', lineHeight: 1.5 }}>
+                $70.00 MoMo compensation credit transferred to your wallet. Uber voucher and partner co-working day pass dispatched via SMS.
+              </p>
               <button
-                onClick={() => handleCaretakerQuickReply('🟢 Grid is Normal, water tank 100% full, all systems green.', 'OK')}
-                style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid var(--success)', color: 'var(--success)', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
+                onClick={() => setOutageState('IDLE')}
+                style={{
+                  marginTop: '12px',
+                  background: '#10B981',
+                  color: '#071520',
+                  border: 'none',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
               >
-                🟢 1: Grid Normal & Water Full
-              </button>
-              <button
-                onClick={() => handleCaretakerQuickReply('⚡ ECG Blackout in Cantonments. Inverter running smooth, 88% battery left.', 'INVERTER')}
-                style={{ background: 'rgba(233,163,25,0.15)', border: '1px solid var(--gold)', color: 'var(--gold-light)', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                ⚡ 2: ECG Outage - Inverter Active
-              </button>
-              <button
-                onClick={() => handleCaretakerQuickReply('🚨 Generator diesel at 18%. Refill requested from StarOil.', 'DIESEL')}
-                style={{ background: 'rgba(233,69,96,0.15)', border: '1px solid var(--coral)', color: 'var(--coral)', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                🚨 3: Diesel Below 20%
+                Dismiss Protocol
               </button>
             </div>
-          </div>
-        )}
-
-        {/* SLA Outage Resolution Flow (Controllable by FLAG_SLA_REPORT_OUTAGE) */}
-        {flags.FLAG_SLA_REPORT_OUTAGE !== false && (
-          <div>
-
-        {outageState === 'IDLE' && (
-          <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔌</div>
-            <h4 style={{ marginBottom: '0.5rem', color: 'var(--teal)' }}>Experiencing an Issue?</h4>
-            <p className="text-sm text-secondary mb-4">Power or internet down? Tap below to run automated diagnostics.</p>
-            <button className="btn btn-primary w-100" onClick={reportOutage}>
-              Report Outage & Trigger SLA Check
-            </button>
-          </div>
-        )}
-
-        {outageState === 'DIAGNOSING' && (
-          <div className="glass" style={{ padding: '2rem', borderRadius: '16px', textAlign: 'center' }}>
-            <div className="mb-4" style={{ animation: 'pulse 1.5s infinite' }}>
-              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--coral)', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.5rem' }}>
-                📡
-              </div>
-            </div>
-            <h4 style={{ color: 'var(--teal)', marginBottom: '0.5rem' }}>Running Diagnostics...</h4>
-            <p className="text-sm text-secondary">Pinging IoT Smart Plug and Edge Router.</p>
-          </div>
-        )}
-
-        {outageState === 'DIAGNOSED' && (
-          <div className="glass-dark" style={{ padding: '1.5rem', borderRadius: '16px', position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-              <span style={{ color: 'var(--error)' }}>⚠️</span>
-              <h4 style={{ color: 'white', margin: 0 }}>Critical Outage Confirmed</h4>
-            </div>
-            <p className="text-sm mb-4" style={{ opacity: 0.9 }}>
-              Grid power lost. Generator switchover failed. Host has been notified.
-            </p>
-            
-            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', textAlign: 'center', marginBottom: '1rem' }}>
-              <div className="text-xs mb-1" style={{ opacity: 0.8 }}>Host Cure Timer</div>
-              <div className="font-display font-bold" style={{ fontSize: '2rem', color: 'var(--coral)' }}>
-                {formatTime(cureTimer)}
-              </div>
-            </div>
-
-            <p className="text-xs mb-4" style={{ opacity: 0.8, textAlign: 'center' }}>
-              If the issue is not resolved when the timer expires, you will receive an automatic refund from host escrow and free relocation.
-            </p>
-
-            <button className="btn btn-outline w-100" style={{ borderColor: 'white', color: 'white' }} onClick={fastForward}>
-              Fast-Forward Timer (Demo)
-            </button>
-          </div>
-        )}
-
-        {outageState === 'RELOCATING' && (
-          <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px', border: '2px solid var(--coral)' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem', textAlign: 'center' }}>🚀</div>
-            <h4 style={{ color: 'var(--coral)', textAlign: 'center', marginBottom: '0.5rem' }}>SLA Breach Triggered</h4>
-            <p className="text-sm text-center text-secondary mb-4">
-              The host failed to cure the outage within 2 hours. Your escrow compensation has been disbursed.
-            </p>
-            <div style={{ background: 'var(--bg-primary)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-              <div className="d-flex justify-between mb-2">
-                <span className="text-sm font-bold text-teal">Escrow Refund Credited:</span>
-                <span className="text-sm font-bold text-teal">GHS 3,500 via MTN MoMo</span>
-              </div>
-              <div className="d-flex justify-between">
-                <span className="text-sm text-secondary">Host Status:</span>
-                <span className="text-sm text-secondary">SLA Penalty Applied</span>
-              </div>
-            </div>
-            <button className="btn btn-primary w-100" onClick={() => onBack()}>
-              Return to Live Feed &rarr;
-            </button>
-          </div>
-        )}
+          )}
         </div>
       )}
-      </div>
     </div>
   );
 }
-

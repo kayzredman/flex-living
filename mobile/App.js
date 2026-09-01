@@ -668,6 +668,24 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Figma Dynamic Island Status Pill */}
+      <View style={{ alignItems: 'center', marginVertical: 4 }}>
+        <View style={{
+          backgroundColor: '#000000',
+          borderRadius: 14,
+          paddingHorizontal: 12,
+          paddingVertical: 4,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.1)'
+        }}>
+          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
+          <Text style={{ fontSize: 10, color: '#E9A319', fontWeight: '800' }}>SLA 99.5% ESCROW ACTIVE</Text>
+        </View>
+      </View>
+
       {/* Top Header: Row 1 (Brand & Currency) */}
       <View style={styles.header}>
         <View style={styles.headerBrand}>
@@ -950,6 +968,49 @@ export default function App() {
                   <Text style={styles.lockMetaLabel}>Access Log</Text>
                   <Text style={styles.lockMetaVal}>3 entries today</Text>
                 </View>
+              </View>
+            </View>
+
+            {/* Figma Live Telemetry Gauges (Matching iPhone 16 Pro Artboard) */}
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
+              <View style={{
+                flex: 1,
+                backgroundColor: '#071520',
+                borderRadius: 16,
+                padding: 14,
+                borderWidth: 1,
+                borderColor: 'rgba(6,182,212,0.35)',
+                shadowColor: '#000',
+                shadowOpacity: 0.3,
+                shadowRadius: 6,
+                elevation: 3
+              }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <Text style={{ fontSize: 13 }}>📡</Text>
+                  <Text style={{ fontSize: 10, color: '#94A3B8', fontWeight: '800' }}>STARLINK PING</Text>
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#FFFFFF' }}>24 ms</Text>
+                <Text style={{ fontSize: 10, color: '#10B981', fontWeight: '700', marginTop: 2 }}>185 Mbps Downlink</Text>
+              </View>
+
+              <View style={{
+                flex: 1,
+                backgroundColor: '#071520',
+                borderRadius: 16,
+                padding: 14,
+                borderWidth: 1,
+                borderColor: 'rgba(233,163,25,0.35)',
+                shadowColor: '#000',
+                shadowOpacity: 0.3,
+                shadowRadius: 6,
+                elevation: 3
+              }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <Text style={{ fontSize: 13 }}>⚡</Text>
+                  <Text style={{ fontSize: 10, color: '#94A3B8', fontWeight: '800' }}>SOLAR ATS</Text>
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#FFFFFF' }}>98% Battery</Text>
+                <Text style={{ fontSize: 10, color: '#10B981', fontWeight: '700', marginTop: 2 }}>Inverter Online (&lt;6.2s)</Text>
               </View>
             </View>
 
