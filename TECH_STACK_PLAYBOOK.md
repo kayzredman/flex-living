@@ -1,8 +1,8 @@
 # 📘 Flex-Living Technical Stack & Architecture Playbook
 
 > **Living Technical Playbook & Architecture Documentation**  
-> **Version:** 1.3.0  
-> **Last Updated:** 2026-08-29  
+> **Version:** 1.5.0  
+> **Last Updated:** 2026-09-01  
 > **Maintained by:** QA Lead & SME Architecture Agents
 
 ---
@@ -13,14 +13,16 @@
 | :--- | :--- | :--- | :--- |
 | **Primary Database** | PostgreSQL + PostGIS | 15-3.3-alpine | Relational data, spatial geometry, and time-series telemetry |
 | **Cache & Queue** | Redis | 7-alpine | In-memory sessions, task queuing, rate-limiting |
+| **API Gateway** | Node.js / Express Proxy | Express 5 | Unified reverse proxy, routing, and dynamic remote feature flags |
 | **Identity Service** | Node.js / Express | Node v24 / Express 5 | User management, phone OTP, JWT auth, Ghana Card KYC |
 | **Listing Service** | Python / FastAPI | Python 3.14 / FastAPI 0.141 | PostGIS ST_DWithin spatial radius search, property catalog |
-| **Field Scout Engine** | Node.js / Express | Express 4.19 / pg 8.12 | Audit task queue, 200+ checklist evaluation, badge calculator |
+| **Field Scout Engine** | Node.js / Express | Express 4.19 / pg 8.12 | Audit task queue, AI vision scanner, 200+ checklist evaluation |
 | **IoT Telemetry Engine**| Node.js / Express | Express 4.19 / pg 8.12 | Hardware sensor ingestion, automated SLA watchdog |
 | **Hybrid SLA & Fintech**| Node.js / Express | Express 4.19 / pg 8.12 | Geofenced tenant claims, caretaker WhatsApp pulse, Flex-Advance |
-| **Mobile App Client** | React Native / Expo | Expo SDK 57 / React 19 | Tenant cross-platform mobile experience |
-| **Mobile Styling** | NativeWind / Tailwind | Tailwind 3.3.2 / NativeWind 2 | Design tokens on native mobile components |
-| **Web Platform Client** | React / Vite | Vite 8.2 / React 19 | Responsive desktop & tablet portal, interactive map split-screen |
+| **Dynamic Pricing** | Node.js / Express | Express 4.19 / pg 8.12 | Badge premiums (+43%), "December in Ghana" surge engine |
+| **Communication Engine**| Node.js / Express | Express 4.19 / pg 8.12 | WhatsApp Meta Cloud API, African carrier SMS failover |
+| **Mobile App Client** | React Native / Expo | Expo SDK 57 / React 19 | Tenant cross-platform mobile experience, TTLock Smart Key |
+| **Web Platform Client** | React / Vite | Vite 8.2 / React 19 | Master Figma luxury artboard, responsive catalog, 4-badge telemetry |
 | **Source Control** | Git / GitHub | Dual Branch (dev / main) | Automated QA merge gatekeeping |
 
 ---
@@ -29,32 +31,37 @@
 
 ```mermaid
 graph TD
-    ClientWeb["Web Portal (Port 5174)"] --> Gateway["API Gateway / Direct"]
-    ClientMobile["Mobile App (Expo)"] --> Gateway
+    ClientWeb["Web Portal (:5173)"] --> Gateway["API Gateway (:3004)"]
+    ClientMobile["Mobile App Expo (:8081)"] --> Gateway
     
     Gateway --> SvcAuth["Identity Service (:3000)"]
     Gateway --> SvcListings["Listing Catalog (:8000)"]
     Gateway --> SvcScout["Scout Engine (:3001)"]
     Gateway --> SvcIoT["IoT Telemetry (:3002)"]
     Gateway --> SvcHybrid["Hybrid SLA & Fintech (:3003)"]
+    Gateway --> SvcPricing["Dynamic Pricing (:3005)"]
+    Gateway --> SvcComms["Communication Service (:3006)"]
 
     SvcAuth --> DB[(PostgreSQL + PostGIS :5432)]
     SvcListings --> DB
     SvcScout --> DB
     SvcIoT --> DB
     SvcHybrid --> DB
-
-    IoTDevices["Smart Sensors / Gateway"] --> SvcIoT
-    CaretakerWA["Caretaker WhatsApp Bot"] --> SvcHybrid
+    SvcPricing --> DB
+    SvcComms --> DB
 ```
 
 ### Port Map:
+* **Port 3004:** `backend/api-gateway` (Unified Reverse Proxy & Feature Flags)
 * **Port 3000:** `backend/identity-service` (Auth, JWT, KYC)
 * **Port 8000:** `backend/listing-service` (FastAPI PostGIS Spatial Catalog)
-* **Port 3001:** `backend/scout-service` (Field Scout Audits & Trust Badges)
+* **Port 3001:** `backend/scout-service` (Field Scout Audits, AI Vision Scanner)
 * **Port 3002:** `backend/iot-service` (IoT Telemetry & SLA Watchdog)
 * **Port 3003:** `backend/hybrid-sla-service` (Non-IoT SLA, WhatsApp Pulse, Flex-Advance)
-* **Port 5174:** `prototype/` (Vite + React Web Client)
+* **Port 3005:** `backend/pricing-service` (Detty December Surge, Dynamic Yield)
+* **Port 3006:** `backend/communication-service` (WhatsApp Meta Cloud, African Carrier SMS)
+* **Port 5173:** `prototype/` (Vite + React Master Figma Web Platform)
+* **Port 8081:** `mobile/` (React Native Expo Metro Bundler)
 * **Port 5432:** PostgreSQL 15 + PostGIS Docker Container (`flexliving_db`)
 * **Port 6379:** Redis Docker Container (`flexliving_redis`)
 
